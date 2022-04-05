@@ -3,16 +3,30 @@ type token =
     | T_bool | T_break | T_byref | T_char | T_continue | T_delete
     | T_double | T_else | T_for | T_false | T_if | T_int
     | T_new | T_NULL | T_return | T_true | T_void
-    | T_intconst | T_realconst | T_id | T_charconst | T_stringconst
+    | T_intconst | T_realconst | T_id | T_charconst | T_stringconst | T_eof 
+    | T_special_char (* this token is recognized by its lexeme *)
+
 }
 
 let letter = ['a'-'z' 'A'-'Z']
 let digit = ['0'-'9']
 let whitespace = [' ' '\t' '\r' '\n']
-let ascii = ['0'-'9'|'A'-'F'|'a'-'f']
-let ascii_escape = ['\x'](ascii)(ascii)
-let esc_char = ['\t' '\r' '\n' '\0' '\'' '\"' '\\' | (ascii_escape)]
-let const_char = [ _ | (esc_char)]
+let ascii = ['0'-'9' 'A'-'F' 'a'-'f']          
+let ascii_escape = ('\\' 'x' ascii ascii)
+let esc_char = "\\t" | "\\r" | "\\n" | "\\'" | "\\\\" | "\\\"" | "\\0" | (ascii_escape) (* all escape chars including whitespaces *)
+let const_char = (_ # ['\'' '\"' '\\'] | esc_char)?   
+(* ^            ['\t' '\r' '\n' '\'' '\"' '\\']|  *)
+let special_chars = ( "="  | "==" | "!=" | ">"  | "<"  | ">=" | "<=" |
+                      "+"  | "-"  | "*"  | "/"  | "%"  | "&"  | "!"  |
+                      "&&" | "||" | "?"  | ":"  | ","  | "++" | "--" |
+                      "+=" | "-=" | "*=" | "/=" | "%=" | ";"  | "("  |
+                      ")"  | "["  | "]"  | "{" | "}"
+                    )
+
+
+
+
+                    
 
 rule lexer = parse 
     "bool" { T_bool }
@@ -32,18 +46,20 @@ rule lexer = parse
   | "return" { T_return }
   | "true" { T_true }
   | "void" { T_void }
-  
+  | whitespace+ {lexer lexbuf}  
   | '-'? digit+ { T_intconst }
   | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? {  T_realconst }
   | (letter)(letter|digit|'_')* {T_id}
   
-  | '\'' (const_char) '\'' {T_charconst}
-  |'\"' [(const_char)+ | (esc_char)]+ '\"' {T_stringconst}
-  (* | '\"' [^ '"' '\\']+ '\"' {T_stringconst} *)
+  | '\'' const_char '\'' {T_charconst}
+  |'\"' const_char* '\"' {T_stringconst}
+  | eof {T_eof}
+  | special_chars {T_special_char}
+  |  _ as chr     { Printf.eprintf "awesome evagelia: '%c' (ascii: %d)"
+                    chr (Char.code chr);
+                    lexer lexbuf }
 
-  
 
-(* char, string *)
 (* symbolikoi telestes, diaxwristes ws token me onoma thn timh toy *)
 
 (* to ignore 
@@ -87,6 +103,9 @@ B
       | T_id  -> "T_id"
       | T_charconst  -> "T_charconst"
       | T_stringconst  -> "T_stringconst"
+      | T_int -> "T_int"
+      | T_eof -> "EOF"
+      | T_special_char -> "special symbol" 
 
 
   let main =
@@ -98,4 +117,3 @@ B
       if token <> T_eof then loop () in
     loop ()
 }
-
