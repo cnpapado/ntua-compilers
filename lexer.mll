@@ -6,6 +6,16 @@ type token =
     | T_intconst | T_realconst | T_id | T_charconst | T_stringconst | T_eof 
     | T_special_char (* this token is recognized by its lexeme *)
 
+let lexical_error lexbuf msg = (* line numbering is not working *)
+  let p = Lexing.lexeme_start_p lexbuf in
+  (* 
+  Printf.eprintf "%s" p.Lexing.pos_fname;
+  Printf.eprintf "%s %s %d %d" msg,
+                  p.Lexing.pos_fname,
+                  p.Lexing.pos_lnum,
+                  p.Lexing.pos_cnum - p.Lexing.pos_bol + 1
+  *)
+  Printf.eprintf "Lexical error at line %d: %s" p.Lexing.pos_lnum msg 
 }
 
 let letter = ['a'-'z' 'A'-'Z']
@@ -24,9 +34,6 @@ let special_chars = ( "="  | "==" | "!=" | ">"  | "<"  | ">=" | "<=" |
                     )
 
 
-
-
-                    
 
 rule lexer = parse 
     "bool" { T_bool }
@@ -55,29 +62,23 @@ rule lexer = parse
   |'\"' const_char* '\"' {T_stringconst}
   | eof {T_eof}
   | special_chars {T_special_char}
-  |  _ as chr     { Printf.eprintf "awesome evagelia: '%c' (ascii: %d)"
-                    chr (Char.code chr);
+  | "/*" { (* enter multiline comment *) multiline_comment lexbuf }
+  | "//" { (* enter single line comment *) line_comment lexbuf }
+  | _ as chr     { lexical_error lexbuf (Printf.sprintf "awesome evagelia: '%c' (ascii: %d)"
+                    chr (Char.code chr));
                     lexer lexbuf }
+  
+  and multiline_comment = parse     (* why this matches to the closest "*/" ?? *)
+    "/*" { multiline_comment lexbuf }
+  | "*/" { lexer lexbuf } (* somehow nested comments are not allowed because the closest "*/" is matched but idk why *)
+  | eof  { lexical_error lexbuf "Multi-line comments cannot span in multiple files"; (* "Multi-line comments cannot span in multiple files\n" *)
+            lexer lexbuf }
+  | _ { (* nothing *) multiline_comment lexbuf }
 
+  and line_comment = parse 
+    ('\n' | eof)  { (* exit comment *) lexer lexbuf }
+  | _             { (* nothing *) line_comment lexbuf } 
 
-(* symbolikoi telestes, diaxwristes ws token me onoma thn timh toy *)
-
-(* to ignore 
-whitespaces
-comments
-*)
-(* pointers !! *)
-
-
-(*
-{ 
-type token =  
-}
-B 
-{
-    C 
-}
-*)
 
 {
   let string_of_token token =
@@ -106,7 +107,6 @@ B
       | T_int -> "T_int"
       | T_eof -> "EOF"
       | T_special_char -> "special symbol" 
-
 
   let main =
     let lexbuf = Lexing.from_channel stdin in

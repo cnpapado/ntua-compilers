@@ -26,7 +26,7 @@ lexer.ml: lexer.mll
 .PHONY: clean distclean
 
 clean:
-	$(RM) lexer.ml *.cmo *.cmi *~ minibasic$(EXE)
+	$(RM) lexer.ml *.cmo *.cmi *~ minibasic$(EXE) *.out
 
 run:
 	ocamlrun minibasic
