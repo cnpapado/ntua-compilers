@@ -1,4 +1,7 @@
 {
+
+open Lexing
+
 type token = 
     | T_bool | T_break | T_byref | T_char | T_continue | T_delete
     | T_double | T_else | T_for | T_false | T_if | T_int
@@ -6,8 +9,20 @@ type token =
     | T_intconst | T_realconst | T_id | T_charconst | T_stringconst | T_eof 
     | T_special_char (* this token is recognized by its lexeme *)
 
+(* let update_loc lexbuf line position = *)
+  
+
+let update_position lexbuf= 
+  let 
+    pos = lexbuf.Lexing.lex_curr_p 
+  in
+    lexbuf.Lexing.lex_curr_p <- { pos with
+    Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
+    Lexing.pos_bol = lexbuf.lex_curr_pos;
+}
+
 let lexical_error lexbuf msg = (* line numbering is not working *)
-  let p = Lexing.lexeme_start_p lexbuf in
+  let p = lexbuf.Lexing.lex_start_p in
   (* 
   Printf.eprintf "%s" p.Lexing.pos_fname;
   Printf.eprintf "%s %s %d %d" msg,
@@ -15,24 +30,30 @@ let lexical_error lexbuf msg = (* line numbering is not working *)
                   p.Lexing.pos_lnum,
                   p.Lexing.pos_cnum - p.Lexing.pos_bol + 1
   *)
-  Printf.eprintf "Lexical error at line %d: %s" p.Lexing.pos_lnum msg 
+  Printf.eprintf "Lexical error at line  %d and column %d: %s" p.Lexing.pos_lnum ( p.Lexing.pos_cnum - p.Lexing.pos_bol + 1) msg 
+
+let link lexbuf = 
+  Printf.eprintf "%s" (Lexing.lexeme lexbuf)
 }
+
+
 
 let letter = ['a'-'z' 'A'-'Z']
 let digit = ['0'-'9']
-let whitespace = [' ' '\t' '\r' '\n']
+let whitespace = [' ' '\t' '\r']
+let newline = ('\010' | "\013\010" )
 let ascii = ['0'-'9' 'A'-'F' 'a'-'f']          
 let ascii_escape = ('\\' 'x' ascii ascii)
 let esc_char = "\\t" | "\\r" | "\\n" | "\\'" | "\\\\" | "\\\"" | "\\0" | (ascii_escape) (* all escape chars including whitespaces *)
-let const_char = (_ # ['\'' '\"' '\\'] | esc_char)?   
+let const_char = (_ # ['\'' '\"' '\\'] | esc_char)?  
+(*when '\'' the input ''' gets rejected-rightfully so- while the escape chars ensure that '\'' gets accepted *) 
 (* ^            ['\t' '\r' '\n' '\'' '\"' '\\']|  *)
-let special_chars = ( "="  | "==" | "!=" | ">"  | "<"  | ">=" | "<=" |
+let special_chars =  "="  | "==" | "!=" | ">"  | "<"  | ">=" | "<=" |
                       "+"  | "-"  | "*"  | "/"  | "%"  | "&"  | "!"  |
                       "&&" | "||" | "?"  | ":"  | ","  | "++" | "--" |
                       "+=" | "-=" | "*=" | "/=" | "%=" | ";"  | "("  |
                       ")"  | "["  | "]"  | "{" | "}"
-                    )
-
+                    
 
 
 rule lexer = parse 
@@ -54,6 +75,7 @@ rule lexer = parse
   | "true" { T_true }
   | "void" { T_void }
   | whitespace+ {lexer lexbuf}  
+  |newline {update_position lexbuf; lexer lexbuf}
   | '-'? digit+ { T_intconst }
   | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? {  T_realconst }
   | (letter)(letter|digit|'_')* {T_id}
@@ -61,9 +83,10 @@ rule lexer = parse
   | '\'' const_char '\'' {T_charconst}
   |'\"' const_char* '\"' {T_stringconst}
   | eof {T_eof}
-  | special_chars {T_special_char}
+  | special_chars as str {T_special_char}
   | "/*" { (* enter multiline comment *) multiline_comment lexbuf }
   | "//" { (* enter single line comment *) line_comment lexbuf }
+  | ("#include" whitespace* "\"" (letter)(letter|digit|'_')* ".h" "\"") {link lexbuf; lexer lexbuf}
   | _ as chr     { lexical_error lexbuf (Printf.sprintf "awesome evagelia: '%c' (ascii: %d)"
                     chr (Char.code chr));
                     lexer lexbuf }
@@ -73,11 +96,14 @@ rule lexer = parse
   | "*/" { lexer lexbuf } (* somehow nested comments are not allowed because the closest "*/" is matched but idk why *)
   | eof  { lexical_error lexbuf "Multi-line comments cannot span in multiple files"; (* "Multi-line comments cannot span in multiple files\n" *)
             lexer lexbuf }
+  |newline {update_position lexbuf; multiline_comment lexbuf}
   | _ { (* nothing *) multiline_comment lexbuf }
 
   and line_comment = parse 
-    ('\n' | eof)  { (* exit comment *) lexer lexbuf }
-  | _             { (* nothing *) line_comment lexbuf } 
+    eof  { (* exit comment *) lexer lexbuf }
+  | newline { update_position lexbuf; lexer lexbuf}
+  | _    { (* nothing *) line_comment lexbuf } 
+
 
 
 {
