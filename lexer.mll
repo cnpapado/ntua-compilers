@@ -1,6 +1,6 @@
 {
-
-open Lexing
+module Parser = Parser
+open Parser
 
 type token = 
     | T_bool | T_break | T_byref | T_char | T_continue | T_delete
@@ -134,7 +134,8 @@ rule lexer = parse
       | T_eof -> "EOF"
       | T_special_char -> "special symbol" 
 
-  let main =
+
+(* let main =
     let lexbuf = Lexing.from_channel stdin in
     let rec loop () =
       let token = lexer lexbuf in
@@ -142,4 +143,5 @@ rule lexer = parse
         (string_of_token token) (Lexing.lexeme lexbuf);
       if token <> T_eof then loop () in
     loop ()
+*)
 }
