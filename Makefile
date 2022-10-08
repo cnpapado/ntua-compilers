@@ -7,6 +7,7 @@ endif
 
 OCAMLC_FLAGS=-g
 OCAMLC=ocamlc
+OCAMLDEP=ocamldep
 
 %.cmo: %.ml %.mli
 	$(OCAMLC) $(OCAMLC_FLAGS) -c $<
@@ -17,18 +18,24 @@ OCAMLC=ocamlc
 %.cmo %.cmi: %.ml
 	$(OCAMLC) $(OCAMLC_FLAGS) -c $<
 
-minibasic$(EXE): lexer.cmo
+minibasic$(EXE): lexer.cmo Parser.cmo main.cmo
 	$(OCAMLC) $(OCAMLC_FLAGS) -o $@ $^
 
 lexer.ml: lexer.mll
 	ocamllex -o $@ $<
 
+Parser.ml Parser.mli: Parser.mly
+	ocamlyacc -v Parser.mly
+
 .PHONY: clean distclean
 
-clean:
-	$(RM) lexer.ml *.cmo *.cmi *~ minibasic$(EXE) *.out
+-include .depend
 
-run:
-	ocamlrun minibasic
-#distclean: clean
-#	$(RM) minibasic$(EXE)
+depend: lexer.ml lexer.mli Parser.ml Parser.mli main.ml
+	$(OCAMLDEP) $^ > .depend
+
+clean:
+	$(RM) lexer.ml Parser.ml Parser.mli Parser.output *.cmo *.cmi *~
+
+distclean: clean
+	$(RM) minibasic$(EXE) .depend
