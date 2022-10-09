@@ -5,7 +5,7 @@ else
    EXE=
 endif
 
-OCAMLC_FLAGS=-g
+OCAMLC_FLAGS=-g # add debugging information while compiling and linking in order to debug with ocamldebug
 OCAMLC=ocamlc
 
 %.cmo: %.ml %.mli
