@@ -20,11 +20,11 @@
 %token T_true "true"
 %token T_void "void"
 %token T_eof "eof"
-%token T_intconst 
-%token T_doubleconst
-%token T_id
-%token T_charconst
-%token T_stringliteral
+%token<int> T_intconst 
+%token<float> T_doubleconst
+%token<string> T_id
+%token<char> T_charconst
+%token<string> T_stringliteral
 %token T_special_char
 
 %nonassoc "==" "!=" ">" "<" "<=" ">="
@@ -38,8 +38,7 @@
 
 %%
 
-program : declaration_list {}
-         | T_eof {}
+program : declaration_list T_eof {}
 ;
 
 declaration_list: declaration_list declaration {}
@@ -49,7 +48,7 @@ declaration : variable_declaration {}
             | function_definition {}
 ;
 
-variable_declaration : type declarator "," variable_declaration ";"
+variable_declaration : type declarator ("," variable_declaration)* ";"
 ;
 
 

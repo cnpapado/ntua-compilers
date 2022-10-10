@@ -8,33 +8,22 @@ type token =
     | T_intconst | T_doubleconst | T_id | T_charconst | T_stringconst | T_eof 
     | T_special_char (* this token is recognized by its lexeme *)
 
-(* let update_loc lexbuf line position = *)
-  
 
-let update_position lexbuf= 
+let increase_lnum lexbuf = 
   let 
     pos = lexbuf.Lexing.lex_curr_p 
   in
     lexbuf.Lexing.lex_curr_p <- { pos with
-    Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
-    Lexing.pos_bol = lexbuf.lex_curr_pos;
-}
+      Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
+      Lexing.pos_bol = lexbuf.lex_curr_pos; }
+
 
 let lexical_error lexbuf msg = (* line numbering is not working *)
   let p = lexbuf.Lexing.lex_start_p in
-  (* 
-  Printf.eprintf "%s" p.Lexing.pos_fname;
-  Printf.eprintf "%s %s %d %d" msg,
-                  p.Lexing.pos_fname,
-                  p.Lexing.pos_lnum,
-                  p.Lexing.pos_cnum - p.Lexing.pos_bol + 1
-  *)
-  Printf.eprintf "Lexical error at line  %d and column %d: %s" p.Lexing.pos_lnum ( p.Lexing.pos_cnum - p.Lexing.pos_bol + 1) msg 
+  Printf.eprintf "Lexical error at line  %d and column %d: %s\n" p.Lexing.pos_lnum ( p.Lexing.pos_cnum - p.Lexing.pos_bol + 1) msg 
 
-let link lexbuf = 
-  Printf.eprintf "%s" (Lexing.lexeme lexbuf)
+
 }
-
 
 
 let letter = ['a'-'z' 'A'-'Z']
@@ -52,7 +41,6 @@ let special_chars =  "="  | "==" | "!=" | ">"  | "<"  | ">=" | "<=" |
                       "&&" | "||" | "?"  | ":"  | ","  | "++" | "--" |
                       "+=" | "-=" | "*=" | "/=" | "%=" | ";"  | "("  |
                       ")"  | "["  | "]"  | "{" | "}"
-                    
 
 
 rule lexer = parse 
@@ -73,34 +61,34 @@ rule lexer = parse
   | "return" { T_return }
   | "true" { T_true }
   | "void" { T_void }
-  | whitespace+ {lexer lexbuf}  
-  |newline {update_position lexbuf; lexer lexbuf}
-  | '-'? digit+ { T_intconst (int_of_string(lexeme lexbuf)) }
-  | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? {  T_doubleconst (float_of_string(lexeme lexbuf))}
+  | whitespace+ {lexer lexbuf} (* consume whitespaces *)  
+  | newline {increase_lnum lexbuf; lexer lexbuf} (*consume newlines *)
+  | '-'? digit+ { T_intconst } 
+  | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? {  T_realconst }
   | (letter)(letter|digit|'_')* {T_id}
   
   | '\'' const_char '\'' {T_charconst}
-  |'\"' const_char* '\"' {T_stringconst}
+  | '\"' const_char* '\"' {T_stringconst}
   | eof {T_eof}
-  | special_chars as str {T_special_char}
+  | special_chars {T_special_char}
   | "/*" { (* enter multiline comment *) multiline_comment lexbuf }
   | "//" { (* enter single line comment *) line_comment lexbuf }
-  | ("#include" whitespace* "\"" (letter)(letter|digit|'_')* ".h" "\"") {link lexbuf; lexer lexbuf}
-  | _ as chr     { lexical_error lexbuf (Printf.sprintf "awesome evagelia: '%c' (ascii: %d)"
+  | ('#' whitespace* "include" whitespace* '\"' const_char* '\"') {lexer lexbuf}
+  | _ as chr     { lexical_error lexbuf (Printf.sprintf "unmatched char: '%c' (ascii: %d)"
                     chr (Char.code chr));
                     lexer lexbuf }
   
   and multiline_comment = parse     (* why this matches to the closest "*/" ?? *)
     "/*" { multiline_comment lexbuf }
   | "*/" { lexer lexbuf } (* somehow nested comments are not allowed because the closest "*/" is matched but idk why *)
-  | eof  { lexical_error lexbuf "Multi-line comments cannot span in multiple files"; (* "Multi-line comments cannot span in multiple files\n" *)
+  | eof  { lexical_error lexbuf "Multi-line comments cannot span in multiple files"; (* "Multi-line comments cannot span in multiple files" *)
             lexer lexbuf }
-  |newline {update_position lexbuf; multiline_comment lexbuf}
+  | newline {increase_lnum lexbuf; multiline_comment lexbuf}
   | _ { (* nothing *) multiline_comment lexbuf }
 
   and line_comment = parse 
     eof  { (* exit comment *) lexer lexbuf }
-  | newline { update_position lexbuf; lexer lexbuf}
+  | newline { increase_lnum lexbuf; lexer lexbuf}
   | _    { (* nothing *) line_comment lexbuf } 
 
 
