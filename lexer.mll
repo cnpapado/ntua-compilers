@@ -1,12 +1,11 @@
 {
-module Parser = Parser
 open Parser
 
 type token = 
     | T_bool | T_break | T_byref | T_char | T_continue | T_delete
     | T_double | T_else | T_for | T_false | T_if | T_int
     | T_new | T_NULL | T_return | T_true | T_void
-    | T_intconst | T_realconst | T_id | T_charconst | T_stringconst | T_eof 
+    | T_intconst | T_doubleconst | T_id | T_charconst | T_stringconst | T_eof 
     | T_special_char (* this token is recognized by its lexeme *)
 
 (* let update_loc lexbuf line position = *)
@@ -76,8 +75,8 @@ rule lexer = parse
   | "void" { T_void }
   | whitespace+ {lexer lexbuf}  
   |newline {update_position lexbuf; lexer lexbuf}
-  | '-'? digit+ { T_intconst }
-  | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? {  T_realconst }
+  | '-'? digit+ { T_intconst (int_of_string(lexeme lexbuf)) }
+  | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? {  T_doubleconst (float_of_string(lexeme lexbuf))}
   | (letter)(letter|digit|'_')* {T_id}
   
   | '\'' const_char '\'' {T_charconst}
@@ -126,7 +125,7 @@ rule lexer = parse
       | T_true   -> "T_true"
       | T_void  -> "T_void"
       | T_intconst  -> "T_intconst"
-      | T_realconst  -> "T_realconst"
+      | T_doubleconst  -> "T_doubleconst"
       | T_id  -> "T_id"
       | T_charconst  -> "T_charconst"
       | T_stringconst  -> "T_stringconst"
