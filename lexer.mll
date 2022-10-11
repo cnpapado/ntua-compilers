@@ -1,12 +1,11 @@
 {
-
-open Lexing
+open Parser
 
 type token = 
     | T_bool | T_break | T_byref | T_char | T_continue | T_delete
     | T_double | T_else | T_for | T_false | T_if | T_int
     | T_new | T_NULL | T_return | T_true | T_void
-    | T_intconst | T_realconst | T_id | T_charconst | T_stringconst | T_eof 
+    | T_intconst | T_doubleconst | T_id | T_charconst | T_stringconst | T_eof 
     | T_special_char (* this token is recognized by its lexeme *)
 
 
@@ -114,7 +113,7 @@ rule lexer = parse
       | T_true   -> "T_true"
       | T_void  -> "T_void"
       | T_intconst  -> "T_intconst"
-      | T_realconst  -> "T_realconst"
+      | T_doubleconst  -> "T_doubleconst"
       | T_id  -> "T_id"
       | T_charconst  -> "T_charconst"
       | T_stringconst  -> "T_stringconst"
@@ -122,7 +121,8 @@ rule lexer = parse
       | T_eof -> "EOF"
       | T_special_char -> "special symbol" 
 
-  let main =
+
+(* let main =
     let lexbuf = Lexing.from_channel stdin in
     let rec loop () =
       let token = lexer lexbuf in
@@ -130,4 +130,5 @@ rule lexer = parse
         (string_of_token token) (Lexing.lexeme lexbuf);
       if token <> T_eof then loop () in
     loop ()
+*)
 }
