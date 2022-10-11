@@ -1,41 +1,65 @@
-# OS type: Linux/Win DJGPP
-ifdef OS
-   EXE=.exe
-else
-   EXE=
-endif
+# # OS type: Linux/Win DJGPP
+# ifdef OS
+#    EXE=.exe
+# else
+#    EXE=
+# endif
 
-OCAMLC_FLAGS=-g # add debugging information while compiling and linking in order to debug with ocamldebug
-OCAMLC=ocamlc
-OCAMLDEP=ocamldep
+# OCAMLC_FLAGS=-g # add debugging information while compiling and linking in order to debug with ocamldebug
+# OCAMLC=ocamlc
+# OCAMLDEP=ocamldep
 
-%.cmo: %.ml %.mli
-	$(OCAMLC) $(OCAMLC_FLAGS) -c $<
+# %.cmo: %.ml %.mli
+# 	$(OCAMLC) $(OCAMLC_FLAGS) -c $<
 
-%.cmi: %.mli
-	$(OCAMLC) $(OCAMLC_FLAGS) -c $<
+# %.cmi: %.mli
+# 	$(OCAMLC) $(OCAMLC_FLAGS) -c $<
 
-%.cmo %.cmi: %.ml
-	$(OCAMLC) $(OCAMLC_FLAGS) -c $<
+# %.cmo %.cmi: %.ml
+# 	$(OCAMLC) $(OCAMLC_FLAGS) -c $<
 
-minibasic$(EXE): lexer.cmo Parser.cmo main.cmo
-	$(OCAMLC) $(OCAMLC_FLAGS) -o $@ $^
+# edsger$(EXE): lexer.cmo parser.cmo main.cmo
+# 	$(OCAMLC) $(OCAMLC_FLAGS) -o $@ $^
 
-lexer.ml: lexer.mll
-	ocamllex -o $@ $<
+# lexer.ml: lexer.mll
+# 	ocamllex -o $@ $<
 
-Parser.ml Parser.mli: Parser.mly
-	ocamlyacc -v Parser.mly
+# parser.ml parser.mli: parser.mly
+# 	ocamlyacc -v parser.mly
 
 .PHONY: clean distclean
 
--include .depend
+# -include .depend
 
-depend: lexer.ml lexer.mli Parser.ml Parser.mli main.ml
-	$(OCAMLDEP) $^ > .depend
+# depend: lexer.ml lexer.mli parser.ml parser.mli main.ml
+# 	$(OCAMLDEP) $^ > .depend
+
+edsger: lexer.cmo parser.cmo main.cmo
+	ocamlc -o edsger lexer.cmo parser.cmo main.cmo
+
+main.cmo: main.ml
+	ocamlc -c main.ml
+
+lexer.cmo: lexer.ml lexer.cmi parser.cmo parser.cmi
+	ocamlc -c lexer.ml
+
+lexer.cmi: lexer.mli parser.cmo parser.cmi
+	ocamlc -c lexer.mli
+
+parser.cmo: parser.ml parser.cmi
+	ocamlc -c parser.ml
+
+parser.cmi: parser.mli
+	ocamlc -c parser.mli
+
+parser.ml parser.mli: parser.mly
+	ocamlyacc -v parser.mly
+
+lexer.ml: lexer.mll
+	ocamllex lexer.mll
 
 clean:
-	$(RM) lexer.ml Parser.ml Parser.mli Parser.output *.cmo *.cmi *~
+	$(RM) edsger lexer.ml parser.ml parser.mli parser.output *.cmo *.cmi *~
 
 distclean: clean
-	$(RM) minibasic$(EXE) .depend
+	$(RM) edsger$(EXE) .depend

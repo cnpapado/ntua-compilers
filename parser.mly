@@ -3,29 +3,29 @@
     open Printf
 %}
 
-%token T_bool "bool"
-%token T_break "break"
-%token T_byref "byref"
-%token T_char "char"
-%token T_continue "continue"
-%token T_delete "delete"
-%token T_double "double"
-%token T_else "else"
-%token T_for "for"
-%token T_false "false"
-%token T_if "if"
-%token T_int "int"
-%token T_new "new"
-%token T_NULL "NULL"
-%token T_return "return"
-%token T_true "true"
-%token T_void "void"
-%token T_eof "eof"
-%token<int> T_intconst 
-%token<float> T_doubleconst
-%token<string> T_id
-%token<char> T_charconst
-%token<string> T_stringliteral
+%token T_bool 
+%token T_break
+%token T_byref
+%token T_char 
+%token T_continue 
+%token T_delete 
+%token T_double 
+%token T_else 
+%token T_for 
+%token T_false 
+%token T_if 
+%token T_int 
+%token T_new 
+%token T_NULL 
+%token T_return 
+%token T_true 
+%token T_void 
+%token T_eof 
+%token T_intconst 
+%token T_doubleconst
+%token T_id
+%token T_charconst
+%token T_stringliteral
 %token T_special_char
 
 %nonassoc "==" "!=" ">" "<" "<=" ">="
@@ -66,10 +66,10 @@ variable_declaration : ttype declarator_list ";" { () }
 ttype : basic_type { () }
       | basic_type "*" { () }
 ;
-basic_type : "int"  { () }
-           | "char" { () }
-           | "bool" { () }
-           | "double" { () }
+basic_type : T_int  { () }
+           | T_char { () }
+           | T_bool { () }
+           | T_double { () }
 ;
 
 declarator : T_id { () } 
@@ -82,7 +82,7 @@ function_declaration : result_type T_id "(" parameter_list ")" { () }
 ;
 
 result_type : ttype { () }
-            | "void" { () }
+            | T_void { () }
 ;
 
 
@@ -90,13 +90,13 @@ parameter_list : parameter { () }
                | parameter_list "," parameter { () }
 ;
 parameter : ttype T_id { () } 
-          | "byref" ttype T_id { () }
+          | T_byref ttype T_id { () }
 ;
 
 function_definition : result_type T_id "(" ")" ";"
-                      "{" declaration_list statement_list "}" { () }
+                      "{" optional_declaration_list statement_list "}" { () } /* check this ??????? */
                     | result_type T_id "(" parameter_list ")" ";"
-                      "{" declaration_list statement_list "}" { () } 
+                      "{" optional_declaration_list statement_list "}" { () } /* check this ??????? */
 ;
 
 optional_expression : /* nothing */ { () }
@@ -111,8 +111,12 @@ optional_expression_list : /* nothing */ { () }
                          | expression_list { () }
 ;
 
-optional_statement_list : /* nothing */ { () }
+statement_list : statement { () }
                | statement_list statement { () }
+;
+
+optional_statement_list : /* nothing */ { () }
+                        | statement_list { () }
 ;
 
 optional_T_id : /* nothing */ { () }
@@ -122,20 +126,20 @@ optional_T_id : /* nothing */ { () }
 statement : ";" { () }
           | expression ";" { () }
           | "{" optional_statement_list "}" { () }
-          | "if" "(" expression ")" statement { () }
-          | "if" "(" expression ")" statement "else" statement { () }
-          | optional_T_id ":" "for" "(" optional_expression ";" optional_expression ";" optional_expression ")" statement { () } 
-          | "continue" optional_T_id ";" { () }
-          | "break" optional_T_id ";" { () }
-          | "return" optional_expression ";" { () }        
+          | T_if "(" expression ")" statement { () }
+          | T_if "(" expression ")" statement "else" statement { () }
+          | optional_T_id ":" T_for "(" optional_expression ";" optional_expression ";" optional_expression ")" statement { () } 
+          | T_continue optional_T_id ";" { () }
+          | T_break optional_T_id ";" { () }
+          | T_return optional_expression ";" { () }        
 ;
 
 expression :
            T_id { () }
            |"(" expression ")" { () } 
-           |"true" { () }
-           | "false" { () }
-           | "NULL" { () }
+           | T_true { () }
+           | T_false { () }
+           | T_NULL { () }
            | T_intconst { () }
            | T_charconst { () }
            | T_doubleconst { () }
@@ -146,9 +150,9 @@ expression :
            | expression binary_assignment expression { () }
            | "(" ttype ")" expression { () }
            | expression "?" expression ":" expression { () }
-           | "new" ttype { () }
-           | "new" ttype "[" expression "]" { () }
-           | "delete" expression { () }
+           | T_new ttype { () }
+           | T_new ttype "[" expression "]" { () }
+           | T_delete expression { () }
 ;
 
 constant_expression : expression { () } /* ????????????????????????? */

@@ -1,13 +1,13 @@
 {
 open Parser
 
-type token = 
+(* type token = 
     | T_bool | T_break | T_byref | T_char | T_continue | T_delete
     | T_double | T_else | T_for | T_false | T_if | T_int
     | T_new | T_NULL | T_return | T_true | T_void
     | T_intconst | T_doubleconst | T_id | T_charconst | T_stringconst | T_eof 
     | T_special_char (* this token is recognized by its lexeme *)
-
+*)
 
 let increase_lnum lexbuf = 
   let 
@@ -64,11 +64,11 @@ rule lexer = parse
   | whitespace+ {lexer lexbuf} (* consume whitespaces *)  
   | newline {increase_lnum lexbuf; lexer lexbuf} (*consume newlines *)
   | '-'? digit+ { T_intconst } 
-  | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? {  T_realconst }
+  | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? { T_doubleconst }
   | (letter)(letter|digit|'_')* {T_id}
   
   | '\'' const_char '\'' {T_charconst}
-  | '\"' const_char* '\"' {T_stringconst}
+  | '\"' const_char* '\"' { T_stringliteral }  (* ??????????? is stringconst the parser's strinliteral*)
   | eof {T_eof}
   | special_chars {T_special_char}
   | "/*" { (* enter multiline comment *) multiline_comment lexbuf }
@@ -116,7 +116,7 @@ rule lexer = parse
       | T_doubleconst  -> "T_doubleconst"
       | T_id  -> "T_id"
       | T_charconst  -> "T_charconst"
-      | T_stringconst  -> "T_stringconst"
+      | T_stringliteral  -> "T_stringliteral"
       | T_int -> "T_int"
       | T_eof -> "EOF"
       | T_special_char -> "special symbol" 

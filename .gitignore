@@ -1,5 +1,8 @@
-lexer.cmi
-lexer.cmo
+*.cmi
+*.cmo
 lexer.ml
+parser.ml
+parser.mli
+parser.output
 minibasic
 edsger
