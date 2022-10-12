@@ -26,11 +26,45 @@
 %token T_id
 %token T_charconst
 %token T_stringliteral
-%token T_special_char
 
-%nonassoc "==" "!=" ">" "<" "<=" ">="
-%left "*" "/" "%" "+" "-" "&&" "||"
-%right "=" "+=" "-=" "*=" "/=" "%="
+//Special chars
+%token T_assign     // "="
+%token T_eq         // "=="
+%token T_neq        // "!="
+%token T_gt         // ">"
+%token T_lt         // "<" 
+%token T_ge         // ">="
+%token T_le         // "<="
+%token T_plus       // "+"
+%token T_minus      // "-"
+%token T_times      // "*"
+%token T_div        // "/"
+%token T_mod        // "%"
+%token T_bitand     // "&"
+%token T_bitnot     // "!"
+%token T_and        // "&&"
+%token T_or         // "||"
+%token T_q          // "?"
+%token T_colon      // ":"
+%token T_comma      // ","
+%token T_plusplus   // "++"
+%token T_minusminus // "--"
+%token T_pluseq     // "+="
+%token T_minuseq    // "-="
+%token T_timeseq    // "*="
+%token T_diveq      // "/="
+%token T_modeq      // "%="
+%token T_semicol    // ";"
+%token T_lparen     // "("
+%token T_rparen     // ")"
+%token T_lbracket   // "["
+%token T_rbracket   // "]"
+%token T_lcurl      // "{"
+%token T_rcurl      // "}"
+
+%nonassoc T_eq T_neq T_gt T_lt T_le T_ge
+%left T_times T_div T_mod T_plus T_minus T_and T_or
+%right T_assign T_pluseq T_minuseq T_timeseq T_diveq T_modeq
 
 %start program
 %type<unit> program
@@ -56,15 +90,20 @@ declaration : variable_declaration { () }
             | function_definition { () }
 ;
 
-declarator_list : declarator { () }
-                | declarator "," declarator_list { () }
+declarator : T_id { () } 
+           | T_id T_lbracket constant_expression T_rbracket { () }
+;
 
-variable_declaration : ttype declarator_list ";" { () }
+declarator_list : declarator { () }
+                | declarator T_comma declarator_list { () }
+;
+
+variable_declaration : ttype declarator_list T_semicol { () }
 ;
 
 
 ttype : basic_type { () }
-      | basic_type "*" { () }
+      | basic_type T_times { () }
 ;
 basic_type : T_int  { () }
            | T_char { () }
@@ -72,13 +111,8 @@ basic_type : T_int  { () }
            | T_double { () }
 ;
 
-declarator : T_id { () } 
-           | T_id "[" constant_expression "]" { () }
-;
-
-
-function_declaration : result_type T_id "(" parameter_list ")" { () }
-                     | result_type T_id "(" ")" { () }
+function_declaration : result_type T_id T_lparen parameter_list T_rparen { () }
+                     | result_type T_id T_lparen T_rparen { () }
 ;
 
 result_type : ttype { () }
@@ -87,16 +121,16 @@ result_type : ttype { () }
 
 
 parameter_list : parameter { () }
-               | parameter_list "," parameter { () }
+               | parameter_list T_comma parameter { () }
 ;
 parameter : ttype T_id { () } 
           | T_byref ttype T_id { () }
 ;
 
-function_definition : result_type T_id "(" ")" ";"
-                      "{" optional_declaration_list statement_list "}" { () } /* check this ??????? */
-                    | result_type T_id "(" parameter_list ")" ";"
-                      "{" optional_declaration_list statement_list "}" { () } /* check this ??????? */
+function_definition : result_type T_id T_lparen T_rparen T_semicol
+                      T_lcurl optional_declaration_list statement_list T_rcurl { () } /* check this ??????? */
+                    | result_type T_id T_lparen parameter_list T_rparen T_semicol
+                      T_lcurl optional_declaration_list statement_list T_rcurl { () } /* check this ??????? */
 ;
 
 optional_expression : /* nothing */ { () }
@@ -104,7 +138,7 @@ optional_expression : /* nothing */ { () }
 ;
 
 expression_list : expression { () }
-                | expression "," expression_list { () }
+                | expression T_comma expression_list { () }
 ;
 
 optional_expression_list : /* nothing */ { () }
@@ -123,20 +157,19 @@ optional_T_id : /* nothing */ { () }
               | T_id { () }
 ;
 
-statement : ";" { () }
-          | expression ";" { () }
-          | "{" optional_statement_list "}" { () }
-          | T_if "(" expression ")" statement { () }
-          | T_if "(" expression ")" statement "else" statement { () }
-          | optional_T_id ":" T_for "(" optional_expression ";" optional_expression ";" optional_expression ")" statement { () } 
-          | T_continue optional_T_id ";" { () }
-          | T_break optional_T_id ";" { () }
-          | T_return optional_expression ";" { () }        
+statement : T_semicol { () }
+          | expression T_semicol { () }
+          | T_lcurl optional_statement_list T_rcurl { () }
+          | T_if T_lparen expression T_rparen statement { () }
+          | T_if T_lparen expression T_rparen statement T_else statement { () }
+          | optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement { () } 
+          | T_continue optional_T_id T_semicol { () }
+          | T_break optional_T_id T_semicol { () }
+          | T_return optional_expression T_semicol { () }        
 ;
 
-expression :
-           T_id { () }
-           |"(" expression ")" { () } 
+expression : T_id { () }
+           | T_lparen expression T_rparen { () } 
            | T_true { () }
            | T_false { () }
            | T_NULL { () }
@@ -144,51 +177,51 @@ expression :
            | T_charconst { () }
            | T_doubleconst { () }
            | T_stringliteral { () }
-           | T_id "(" optional_expression_list ")" { () }
-           | expression "[" expression "]" { () }
+           | T_id T_lparen optional_expression_list T_rparen { () }
+           | expression T_lbracket expression T_rbracket { () }
            | unary_operator expression { () }
            | expression binary_assignment expression { () }
-           | "(" ttype ")" expression { () }
-           | expression "?" expression ":" expression { () }
+           | T_lparen ttype T_rparen expression { () }
+           | expression T_q expression T_colon expression { () }
            | T_new ttype { () }
-           | T_new ttype "[" expression "]" { () }
+           | T_new ttype T_lbracket expression T_rbracket { () }
            | T_delete expression { () }
 ;
 
-constant_expression : expression { () } /* ????????????????????????? */
+constant_expression : expression { () } 
 ;
 
-unary_operator : "&" { () }
-               | "*" { () }
-               | "+" { () }
-               | "-" { () }
-               | "!" { () }
+unary_operator : T_bitand { () }
+               | T_times { () }
+               | T_plus { () }
+               | T_minus { () }
+               | T_bitnot { () }
 ;
 
-binary_operator : "*" { () }
-                | "/" { () }
-                | "%" { () }
-                | "+" { () }
-                | "-" { () }
-                | "<" { () }
-                | ">" { () }
-                | "<=" { () }
-                | ">=" { () }
-                | "==" { () }
-                | "!=" { () }
-                | "&&" { () }
-                | "||" { () }
-                | "," { () }
+binary_operator : T_times { () }
+                | T_div { () }
+                | T_mod { () }
+                | T_plus { () }
+                | T_minus { () }
+                | T_lt { () }
+                | T_gt { () }
+                | T_le { () }
+                | T_ge { () }
+                | T_eq { () }
+                | T_neq { () }
+                | T_and { () }
+                | T_or { () }
+                | T_comma { () }
 ;
 
-unary_assignment :  "++" { () }
-                 | "--" { () }
+unary_assignment : T_plusplus { () }
+                 | T_minusminus { () }
 ;
 
-binary_assignment :  "=" { () }
-                  | "*=" { () }
-                  | "/=" { () }
-                  | "%=" { () }
-                  | "+=" { () }
-                  | "-=" { () }
+binary_assignment : T_assign { () }
+                  | T_timeseq { () }
+                  | T_diveq { () }
+                  | T_modeq { () }
+                  | T_pluseq { () }
+                  | T_minuseq { () }
 ;

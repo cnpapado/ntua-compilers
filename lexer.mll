@@ -36,11 +36,11 @@ let esc_char = "\\t" | "\\r" | "\\n" | "\\'" | "\\\\" | "\\\"" | "\\0" | (ascii_
 let const_char = (_ # ['\'' '\"' '\\'] | esc_char)?  
 (*when '\'' the input ''' gets rejected-rightfully so- while the escape chars ensure that '\'' gets accepted *) 
 (* ^            ['\t' '\r' '\n' '\'' '\"' '\\']|  *)
-let special_chars =  "="  | "==" | "!=" | ">"  | "<"  | ">=" | "<=" |
+(* let special_chars =  "="  | "==" | "!=" | ">"  | "<"  | ">=" | "<=" |
                       "+"  | "-"  | "*"  | "/"  | "%"  | "&"  | "!"  |
                       "&&" | "||" | "?"  | ":"  | ","  | "++" | "--" |
                       "+=" | "-=" | "*=" | "/=" | "%=" | ";"  | "("  |
-                      ")"  | "["  | "]"  | "{" | "}"
+                      ")"  | "["  | "]"  | "{" | "}" *)
 
 
 rule lexer = parse 
@@ -61,6 +61,40 @@ rule lexer = parse
   | "return" { T_return }
   | "true" { T_true }
   | "void" { T_void }
+  | '='  { T_assign     }              
+  | "==" { T_eq         }       
+  | "!=" { T_neq        }        
+  | '>'  { T_gt         }      
+  | '<'  { T_lt         }       
+  | ">=" { T_ge         }       
+  | "<=" { T_le         }       
+  | '+'  { T_plus       }     
+  | '-'  { T_minus      }      
+  | '*'  { T_times      }      
+  | '%'  { T_div        }    
+  | '%'  { T_mod        }       
+  | '&'  { T_bitand     }          
+  | '!'  { T_bitnot     }          
+  | "&&" { T_and        }        
+  | "||" { T_or         }       
+  | '?'  { T_q          }     
+  | ':'  { T_colon      }         
+  | ','  { T_comma      }         
+  | "++" { T_plusplus   }             
+  | "--" { T_minusminus }               
+  | "+=" { T_pluseq     }           
+  | "-=" { T_minuseq    }            
+  | "*=" { T_timeseq    }          
+  | "/=" { T_diveq      }       
+  | "%=" { T_modeq      }       
+  | ';'  { T_semicol    }           
+  | '('  { T_lparen     }          
+  | ')'  { T_rparen     }          
+  | '['  { T_lbracket   }            
+  | ']'  { T_rbracket   }            
+  | '{'  { T_lcurl      }         
+  | '}'  { T_rcurl      }         
+  
   | whitespace+ {lexer lexbuf} (* consume whitespaces *)  
   | newline {increase_lnum lexbuf; lexer lexbuf} (*consume newlines *)
   | '-'? digit+ { T_intconst } 
@@ -70,7 +104,8 @@ rule lexer = parse
   | '\'' const_char '\'' {T_charconst}
   | '\"' const_char* '\"' { T_stringliteral }  (* ??????????? is stringconst the parser's strinliteral*)
   | eof {T_eof}
-  | special_chars {T_special_char}
+
+
   | "/*" { (* enter multiline comment *) multiline_comment lexbuf }
   | "//" { (* enter single line comment *) line_comment lexbuf }
   | ('#' whitespace* "include" whitespace* '\"' const_char* '\"') {lexer lexbuf}
@@ -94,7 +129,7 @@ rule lexer = parse
 
 
 {
-  let string_of_token token =
+  (* let string_of_token token =
     match token with
       | T_bool     -> "T_bool"
       | T_break    -> "T_break"
@@ -119,7 +154,7 @@ rule lexer = parse
       | T_stringliteral  -> "T_stringliteral"
       | T_int -> "T_int"
       | T_eof -> "EOF"
-      | T_special_char -> "special symbol" 
+      | T_special_char -> "special symbol"  *)
 
 
 (* let main =
