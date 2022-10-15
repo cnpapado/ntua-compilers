@@ -86,11 +86,18 @@ optional_declaration_list : /* nothing */ { () }
 ; 
 
 declaration : variable_declaration { () }
-            | function_declaration { () }
-            | function_definition { () }
+            | function_declaration function_body { () }
+
+            
+;
+function_body: /*nothing*/ { () } 
+             | T_lbracket inside_brackets T_rbracket { () }
 ;
 
-declarator : T_id { () } 
+inside_brackets: optional_declaration_list optional_statement_list { () } /* check this ??????? */ 
+;
+
+declarator : T_id  { () } 
            | T_id T_lbracket constant_expression T_rbracket { () }
 ;
 
@@ -102,9 +109,13 @@ variable_declaration : ttype declarator_list T_semicol { () }
 ;
 
 
-ttype : basic_type { () }
-      | basic_type T_times { () }
+ttype : basic_type optional_T_times{ () }
 ;
+
+optional_T_times: /*nothing*/{ () }
+                 | optional_T_times T_times { () }
+;
+
 basic_type : T_int  { () }
            | T_char { () }
            | T_bool { () }
@@ -123,15 +134,11 @@ result_type : ttype { () }
 parameter_list : parameter { () }
                | parameter_list T_comma parameter { () }
 ;
+
 parameter : ttype T_id { () } 
           | T_byref ttype T_id { () }
 ;
 
-function_definition : result_type T_id T_lparen T_rparen T_semicol
-                      T_lcurl optional_declaration_list statement_list T_rcurl { () } /* check this ??????? */
-                    | result_type T_id T_lparen parameter_list T_rparen T_semicol
-                      T_lcurl optional_declaration_list statement_list T_rcurl { () } /* check this ??????? */
-;
 
 optional_expression : /* nothing */ { () }
                     | expression { () }
@@ -148,6 +155,7 @@ optional_expression_list : /* nothing */ { () }
 statement_list : statement { () }
                | statement_list statement { () }
 ;
+
 
 optional_statement_list : /* nothing */ { () }
                         | statement_list { () }
@@ -178,16 +186,22 @@ expression : T_id { () }
            | T_doubleconst { () }
            | T_stringliteral { () }
            | T_id T_lparen optional_expression_list T_rparen { () }
-           | expression T_lbracket expression T_rbracket { () }
+           | expression after_expression { () }
            | unary_operator expression { () }
-           | expression binary_assignment expression { () }
+           | unary_assignment expression { () }
            | T_lparen ttype T_rparen expression { () }
-           | expression T_q expression T_colon expression { () }
-           | T_new ttype { () }
-           | T_new ttype T_lbracket expression T_rbracket { () }
+           | T_new ttype optional_new{ () }
            | T_delete expression { () }
 ;
 
+after_expression: T_lbracket expression T_rbracket { () }
+                | binary_operator expression { () }
+                | unary_assignment { () }
+                | binary_assignment expression { () }
+                | T_q expression T_colon expression { () }
+
+optional_new : /*nothing*/ { () }
+             | T_lbracket expression T_rbracket { () }
 constant_expression : expression { () } 
 ;
 
