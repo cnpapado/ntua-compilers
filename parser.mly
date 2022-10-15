@@ -186,19 +186,27 @@ expression : T_id { () }
            | T_doubleconst { () }
            | T_stringliteral { () }
            | T_id T_lparen optional_expression_list T_rparen { () }
-           | expression after_expression { () }
-           | unary_operator expression { () }
-           | unary_assignment expression { () }
+           | expression T_lbracket expression T_rbracket { () }
+           | expression infix expression { () }
+           | expression postfix { () }
+           | prefix expression { () }
            | T_lparen ttype T_rparen expression { () }
            | T_new ttype optional_new{ () }
            | T_delete expression { () }
 ;
 
-after_expression: T_lbracket expression T_rbracket { () }
-                | binary_operator expression { () }
-                | unary_assignment { () }
-                | binary_assignment expression { () }
-                | T_q expression T_colon expression { () }
+infix :  binary_operator { () }
+       | binary_assignment { () }
+       | T_q expression T_colon { () }
+;
+
+postfix : unary_assignment { () }
+;
+
+prefix :  unary_assignment { () }
+        | unary_operator { () }
+;
+
 
 optional_new : /*nothing*/ { () }
              | T_lbracket expression T_rbracket { () }
