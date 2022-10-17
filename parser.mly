@@ -63,7 +63,8 @@
 %token T_rcurl      // "}"
 
 %nonassoc T_eq T_neq T_gt T_lt T_le T_ge
-%left T_times T_div T_mod T_plus T_minus T_and T_or
+%left T_plus T_minus 
+%left T_times T_div T_mod T_and T_or T_comma
 %right T_assign T_pluseq T_minuseq T_timeseq T_diveq T_modeq
 
 %start program
@@ -122,14 +123,16 @@ basic_type : T_int  { () }
            | T_double { () }
 ;
 
-function_declaration : result_type T_id T_lparen parameter_list T_rparen { () }
-                     | result_type T_id T_lparen T_rparen { () }
+function_declaration : result_type T_id T_lparen optional_parameter_list T_rparen { () }
 ;
 
 result_type : ttype { () }
             | T_void { () }
 ;
 
+optional_parameter_list :  /*nothing*/ { () }
+                         | parameter_list { () }
+;
 
 parameter_list : parameter { () }
                | parameter_list T_comma parameter { () }
@@ -145,7 +148,7 @@ optional_expression : /* nothing */ { () }
 ;
 
 expression_list : expression { () }
-                | expression T_comma expression_list { () }
+                | expression_list T_comma expression { () }
 ;
 
 optional_expression_list : /* nothing */ { () }
@@ -176,8 +179,8 @@ statement : T_semicol { () }
           | T_return optional_expression T_semicol { () }        
 ;
 
-expression : T_id { () }
-           | T_lparen expression T_rparen { () } 
+expression : T_id after_id{ () }
+           | T_lparen after_lparen { () } 
            | T_true { () }
            | T_false { () }
            | T_NULL { () }
@@ -185,35 +188,72 @@ expression : T_id { () }
            | T_charconst { () }
            | T_doubleconst { () }
            | T_stringliteral { () }
-           | T_id T_lparen optional_expression_list T_rparen { () }
+           | T_bitand %prec expression{ () }
+           | T_times  %prec expression { () }
+           | T_plus   %prec expression{ () }
+           | T_minus  %prec expression { () }
+           | T_bitnot  %prec expression { () }
+           | T_delete  %prec expression { () }
+           | T_plusplus  %prec expression{ () }
+           | T_minusminus %prec expression{ () }
            | expression T_lbracket expression T_rbracket { () }
-           | expression infix expression { () }
-           | expression postfix { () }
-           | prefix expression { () }
-           | T_lparen ttype T_rparen expression { () }
-           | T_new ttype optional_new{ () }
-           | T_delete expression { () }
+           | expression T_plusplus { () }
+           | expression T_minusminus { () }
+           | expression T_times %prec expression{ () }
+           | expression T_div %prec expression{ () }
+           | expression T_mod %prec expression{ () }
+           | expression T_plus %prec expression{ () }
+           | expression T_minus %prec expression { () }
+           | expression T_lt %prec expression { () }
+           | expression T_gt %prec expression { () }
+           | expression T_le %prec expression { () }
+           | expression T_ge %prec expression { () }
+           | expression T_eq %prec expression { () }
+           | expression T_neq %prec expression { () }
+           | expression T_and %prec expression { () }
+           | expression T_or %prec expression { () }
+           | expression T_comma %prec expression{ () }
+           | expression T_assign %prec expression{ () }
+           | expression T_timeseq %prec expression{ () }
+           | expression T_diveq %prec expression{ () }
+           | expression T_modeq %prec expression{ () }
+           | expression T_pluseq %prec expression{ () }
+           | expression T_minuseq %prec expression{ () }
+           | expression T_q expression T_colon { () }
+           | T_new ttype optional_new { () }
+;
+after_id :  /*nothing*/ { () }
+          | T_lparen optional_expression_list T_rparen { () }
 ;
 
-infix :  binary_operator { () }
+
+after_lparen :  expression T_rparen { () }
+             | ttype T_rparen { () }
+;
+
+/*infix :  binary_operator { () }
        | binary_assignment { () }
        | T_q expression T_colon { () }
-;
+;*/
 
-postfix : unary_assignment { () }
-;
+/*postfix : unary_assignment { () }
+         | T_lbracket expression T_rbracket { () }
+; */
 
-prefix :  unary_assignment { () }
-        | unary_operator { () }
-;
+/*prefix :  unary_operator { () }
+        | unary_assignment { () }
+        | T_delete { () }
+;*/
 
 
 optional_new : /*nothing*/ { () }
              | T_lbracket expression T_rbracket { () }
+;
+
 constant_expression : expression { () } 
 ;
 
-unary_operator : T_bitand { () }
+/*unary_operator : T_bitand { () }
                | T_times { () }
                | T_plus { () }
                | T_minus { () }
@@ -246,4 +286,4 @@ binary_assignment : T_assign { () }
                   | T_modeq { () }
                   | T_pluseq { () }
                   | T_minuseq { () }
-;
+;*/
