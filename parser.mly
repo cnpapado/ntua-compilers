@@ -179,7 +179,7 @@ statement : T_semicol { () }
           | T_return optional_expression T_semicol { () }        
 ;
 
-expression : T_id after_id{ () }
+expression : T_id{ () }
            | T_lparen after_lparen { () } 
            | T_true { () }
            | T_false { () }
@@ -188,42 +188,16 @@ expression : T_id after_id{ () }
            | T_charconst { () }
            | T_doubleconst { () }
            | T_stringliteral { () }
-           | T_bitand %prec expression{ () }
-           | T_times  %prec expression { () }
-           | T_plus   %prec expression{ () }
-           | T_minus  %prec expression { () }
-           | T_bitnot  %prec expression { () }
-           | T_delete  %prec expression { () }
-           | T_plusplus  %prec expression{ () }
-           | T_minusminus %prec expression{ () }
-           | expression T_lbracket expression T_rbracket { () }
-           | expression T_plusplus { () }
-           | expression T_minusminus { () }
-           | expression T_times %prec expression{ () }
-           | expression T_div %prec expression{ () }
-           | expression T_mod %prec expression{ () }
-           | expression T_plus %prec expression{ () }
-           | expression T_minus %prec expression { () }
-           | expression T_lt %prec expression { () }
-           | expression T_gt %prec expression { () }
-           | expression T_le %prec expression { () }
-           | expression T_ge %prec expression { () }
-           | expression T_eq %prec expression { () }
-           | expression T_neq %prec expression { () }
-           | expression T_and %prec expression { () }
-           | expression T_or %prec expression { () }
-           | expression T_comma %prec expression{ () }
-           | expression T_assign %prec expression{ () }
-           | expression T_timeseq %prec expression{ () }
-           | expression T_diveq %prec expression{ () }
-           | expression T_modeq %prec expression{ () }
-           | expression T_pluseq %prec expression{ () }
-           | expression T_minuseq %prec expression{ () }
+           | T_id T_lparen optional_expression_list T_rparen { () }
+           | expression T_lbracket expression T_rbracket { () } 
+           | unary_expression { () }
+           | binary_expression { () }
+           | unary_assignment { () }
+           | binary_assignment { () }
+           | T_lparen ttype T_rparen expression { () }
            | expression T_q expression T_colon { () }
            | T_new ttype optional_new { () }
-;
-after_id :  /*nothing*/ { () }
-          | T_lparen optional_expression_list T_rparen { () }
+           | T_delete expression { () }
 ;
 
 
@@ -231,20 +205,41 @@ after_lparen :  expression T_rparen { () }
              | ttype T_rparen { () }
 ;
 
-/*infix :  binary_operator { () }
-       | binary_assignment { () }
-       | T_q expression T_colon { () }
-;*/
+unary_expression : T_bitand expression{ () }
+           | T_times expression { () }
+           | T_plus expression{ () }
+           | T_minus expression { () }
+           | T_bitnot expression { () }
+;
 
-/*postfix : unary_assignment { () }
-         | T_lbracket expression T_rbracket { () }
-; */
+binary_expression : expression T_times expression{ () }
+                  | expression T_div expression{ () }
+                  | expression T_mod expression{ () }
+                  | expression T_plus expression{ () }
+                  | expression T_minus expression { () }
+                  | expression T_lt expression { () }
+                  | expression T_gt expression { () }
+                  | expression T_le expression { () }
+                  | expression T_ge expression { () }
+                  | expression T_eq expression { () }
+                  | expression T_neq expression { () }
+                  | expression T_and expression { () }
+                  | expression T_or expression { () }
+                  | expression T_comma expression{ () }
+;
 
-/*prefix :  unary_operator { () }
-        | unary_assignment { () }
-        | T_delete { () }
-;*/
+unary_assignment : T_plusplus expression { () }
+                 | T_minusminus expression { () }
+                 | expression T_plusplus { () }
+                 | expression T_minusminus { () }
+;
 
+binary_assignment : expression T_assign expression{ () }
+                  | expression T_timeseq expression{ () }
+                  | expression T_diveq expression{ () }
+                  | expression T_modeq expression{ () }
+                  | expression T_pluseq expression{ () }
+                  | expression T_minuseq expression{ () }
 
 optional_new : /*nothing*/ { () }
              | T_lbracket expression T_rbracket { () }
