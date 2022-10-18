@@ -86,9 +86,14 @@
 %left T_or 
 %left T_and
 %nonassoc T_assign T_neq T_gt T_lt T_le T_ge
-%left T_plus, T_minus
-%left T_times, T_div, T_mod
-
+%left T_plus T_minus
+%left T_times T_div T_mod
+// %nonassoc TYPE_CAST
+// %nonassoc PREFIX // is nonassoc correct??
+%nonassoc T_delete // is nonassoc correct??
+// %nonassoc POINTER_REF_DEREF UPLUS_UMINUS LOG_NOT
+// %nonassoc POSTFIX // is nonassoc correct??
+// %nonassoc T_lbracket T_rbracket T_lparen T_rparen
 
 
 
@@ -223,7 +228,7 @@ expression : T_id { () }
            | binary_expression { () }
            | unary_assignment { () }
            | binary_assignment { () }
-           | T_lparen ttype T_rparen expression { () }
+           | T_lparen ttype T_rparen expression /* %prec TYPE_CAST */ { () }
            | expression T_q expression T_colon { () }
            | T_new ttype optional_new { () }
            | T_delete expression { () }
@@ -234,11 +239,11 @@ after_lparen :  expression T_rparen { () }
              | ttype T_rparen { () }
 ;
 
-unary_expression : T_bitand expression{ () }
-           | T_times expression { () }
-           | T_plus expression{ () }
-           | T_minus expression { () }
-           | T_bitnot expression { () }
+unary_expression : T_bitand expression /* %prec POINTER_REF_DEREF */ { () }
+                 | T_times expression /* %prec POINTER_REF_DEREF */ { () }
+                 | T_plus expression /* %prec UPLUS_UMINUS */ { () }
+                 | T_minus expression /* %prec UPLUS_UMINUS */ { () }
+                 | T_bitnot expression /* %prec LOG_NOT */ { () }
 ;
 
 binary_expression : expression T_times expression { () }
@@ -257,10 +262,10 @@ binary_expression : expression T_times expression { () }
                   | expression T_comma expression{ () }
 ;
 
-unary_assignment : T_plusplus expression { () }
-                 | T_minusminus expression { () }
-                 | expression T_plusplus { () }
-                 | expression T_minusminus { () }
+unary_assignment : T_plusplus expression /* %prec PREFIX */ { () }
+                 | T_minusminus expression /* %prec PREFIX */ { () }
+                 | expression T_plusplus /* %prec POSTFIX*/  { () }
+                 | expression T_minusminus /* %prec POSTFIX*/  { () }
 ;
 
 binary_assignment : expression T_assign expression{ () }

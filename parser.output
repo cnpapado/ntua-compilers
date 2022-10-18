@@ -1,0 +1,4976 @@
+   0  $accept : %entry% $end
+
+   1  program : optional_declaration_list T_eof
+
+   2  optional_declaration_list :
+   3                            | optional_declaration_list declaration
+
+   4  declaration : variable_declaration
+   5              | function_declaration function_body
+
+   6  function_body :
+   7                | T_lbracket inside_brackets T_rbracket
+
+   8  inside_brackets : optional_declaration_list optional_statement_list
+
+   9  declarator : T_id
+  10             | T_id T_lbracket constant_expression T_rbracket
+
+  11  declarator_list : declarator
+  12                  | declarator T_comma declarator_list
+
+  13  variable_declaration : ttype declarator_list T_semicol
+
+  14  ttype : basic_type optional_T_times
+
+  15  optional_T_times :
+  16                   | optional_T_times T_times
+
+  17  basic_type : T_int
+  18             | T_char
+  19             | T_bool
+  20             | T_double
+
+  21  function_declaration : result_type T_id T_lparen optional_parameter_list T_rparen
+
+  22  result_type : ttype
+  23              | T_void
+
+  24  optional_parameter_list :
+  25                          | parameter_list
+
+  26  parameter_list : parameter
+  27                 | parameter_list T_comma parameter
+
+  28  parameter : ttype T_id
+  29            | T_byref ttype T_id
+
+  30  optional_expression :
+  31                      | expression
+
+  32  expression_list : expression
+  33                  | expression_list T_comma expression
+
+  34  optional_expression_list :
+  35                           | expression_list
+
+  36  statement_list : statement
+  37                 | statement_list statement
+
+  38  optional_statement_list :
+  39                          | statement_list
+
+  40  optional_T_id :
+  41                | T_id
+
+  42  statement : T_semicol
+  43            | expression T_semicol
+  44            | T_lcurl optional_statement_list T_rcurl
+  45            | T_if T_lparen expression T_rparen statement
+  46            | T_if T_lparen expression T_rparen statement T_else statement
+  47            | optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement
+  48            | T_continue optional_T_id T_semicol
+  49            | T_break optional_T_id T_semicol
+  50            | T_return optional_expression T_semicol
+
+  51  expression : T_id
+  52             | T_lparen after_lparen
+  53             | T_true
+  54             | T_false
+  55             | T_NULL
+  56             | T_intconst
+  57             | T_charconst
+  58             | T_doubleconst
+  59             | T_stringliteral
+  60             | T_id T_lparen optional_expression_list T_rparen
+  61             | expression T_lbracket expression T_rbracket
+  62             | unary_expression
+  63             | binary_expression
+  64             | unary_assignment
+  65             | binary_assignment
+  66             | T_lparen ttype T_rparen expression
+  67             | expression T_q expression T_colon
+  68             | T_new ttype optional_new
+  69             | T_delete expression
+
+  70  after_lparen : expression T_rparen
+  71               | ttype T_rparen
+
+  72  unary_expression : T_bitand expression
+  73                   | T_times expression
+  74                   | T_plus expression
+  75                   | T_minus expression
+  76                   | T_bitnot expression
+
+  77  binary_expression : expression T_times expression
+  78                    | expression T_div expression
+  79                    | expression T_mod expression
+  80                    | expression T_plus expression
+  81                    | expression T_minus expression
+  82                    | expression T_lt expression
+  83                    | expression T_gt expression
+  84                    | expression T_le expression
+  85                    | expression T_ge expression
+  86                    | expression T_eq expression
+  87                    | expression T_neq expression
+  88                    | expression T_and expression
+  89                    | expression T_or expression
+  90                    | expression T_comma expression
+
+  91  unary_assignment : T_plusplus expression
+  92                   | T_minusminus expression
+  93                   | expression T_plusplus
+  94                   | expression T_minusminus
+
+  95  binary_assignment : expression T_assign expression
+  96                    | expression T_timeseq expression
+  97                    | expression T_diveq expression
+  98                    | expression T_modeq expression
+  99                    | expression T_pluseq expression
+ 100                    | expression T_minuseq expression
+
+ 101  optional_new :
+ 102               | T_lbracket expression T_rbracket
+
+ 103  constant_expression : expression
+
+ 104  %entry% : '\001' program
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . program  (104)
+	optional_declaration_list : .  (2)
+
+	.  reduce 2
+
+	program  goto 3
+	optional_declaration_list  goto 4
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	%entry% : '\001' program .  (104)
+
+	.  reduce 104
+
+
+state 4
+	program : optional_declaration_list . T_eof  (1)
+	optional_declaration_list : optional_declaration_list . declaration  (3)
+
+	T_bool  shift 5
+	T_char  shift 6
+	T_double  shift 7
+	T_int  shift 8
+	T_void  shift 9
+	T_eof  shift 10
+	.  error
+
+	declaration  goto 11
+	variable_declaration  goto 12
+	function_declaration  goto 13
+	ttype  goto 14
+	basic_type  goto 15
+	result_type  goto 16
+
+
+state 5
+	basic_type : T_bool .  (19)
+
+	.  reduce 19
+
+
+state 6
+	basic_type : T_char .  (18)
+
+	.  reduce 18
+
+
+state 7
+	basic_type : T_double .  (20)
+
+	.  reduce 20
+
+
+state 8
+	basic_type : T_int .  (17)
+
+	.  reduce 17
+
+
+state 9
+	result_type : T_void .  (23)
+
+	.  reduce 23
+
+
+state 10
+	program : optional_declaration_list T_eof .  (1)
+
+	.  reduce 1
+
+
+state 11
+	optional_declaration_list : optional_declaration_list declaration .  (3)
+
+	.  reduce 3
+
+
+state 12
+	declaration : variable_declaration .  (4)
+
+	.  reduce 4
+
+
+state 13
+	declaration : function_declaration . function_body  (5)
+	function_body : .  (6)
+
+	T_lbracket  shift 17
+	T_bool  reduce 6
+	T_break  reduce 6
+	T_char  reduce 6
+	T_continue  reduce 6
+	T_delete  reduce 6
+	T_double  reduce 6
+	T_false  reduce 6
+	T_if  reduce 6
+	T_int  reduce 6
+	T_new  reduce 6
+	T_NULL  reduce 6
+	T_return  reduce 6
+	T_true  reduce 6
+	T_void  reduce 6
+	T_eof  reduce 6
+	T_intconst  reduce 6
+	T_doubleconst  reduce 6
+	T_id  reduce 6
+	T_charconst  reduce 6
+	T_stringliteral  reduce 6
+	T_plus  reduce 6
+	T_minus  reduce 6
+	T_times  reduce 6
+	T_bitand  reduce 6
+	T_bitnot  reduce 6
+	T_colon  reduce 6
+	T_plusplus  reduce 6
+	T_minusminus  reduce 6
+	T_semicol  reduce 6
+	T_lparen  reduce 6
+	T_rbracket  reduce 6
+	T_lcurl  reduce 6
+
+	function_body  goto 18
+
+
+14: shift/reduce conflict (shift 19, reduce 22) on T_id
+state 14
+	variable_declaration : ttype . declarator_list T_semicol  (13)
+	result_type : ttype .  (22)
+
+	T_id  shift 19
+
+	declarator  goto 20
+	declarator_list  goto 21
+
+
+state 15
+	ttype : basic_type . optional_T_times  (14)
+	optional_T_times : .  (15)
+
+	.  reduce 15
+
+	optional_T_times  goto 22
+
+
+state 16
+	function_declaration : result_type . T_id T_lparen optional_parameter_list T_rparen  (21)
+
+	T_id  shift 23
+	.  error
+
+
+state 17
+	function_body : T_lbracket . inside_brackets T_rbracket  (7)
+	optional_declaration_list : .  (2)
+
+	.  reduce 2
+
+	optional_declaration_list  goto 24
+	inside_brackets  goto 25
+
+
+state 18
+	declaration : function_declaration function_body .  (5)
+
+	.  reduce 5
+
+
+state 19
+	declarator : T_id .  (9)
+	declarator : T_id . T_lbracket constant_expression T_rbracket  (10)
+
+	T_lbracket  shift 26
+	T_comma  reduce 9
+	T_semicol  reduce 9
+
+
+state 20
+	declarator_list : declarator .  (11)
+	declarator_list : declarator . T_comma declarator_list  (12)
+
+	T_comma  shift 27
+	T_semicol  reduce 11
+
+
+state 21
+	variable_declaration : ttype declarator_list . T_semicol  (13)
+
+	T_semicol  shift 28
+	.  error
+
+
+22: shift/reduce conflict (shift 29, reduce 14) on T_times
+state 22
+	ttype : basic_type optional_T_times .  (14)
+	optional_T_times : optional_T_times . T_times  (16)
+
+	T_times  shift 29
+	T_id  reduce 14
+	T_assign  reduce 14
+	T_eq  reduce 14
+	T_neq  reduce 14
+	T_gt  reduce 14
+	T_lt  reduce 14
+	T_ge  reduce 14
+	T_le  reduce 14
+	T_plus  reduce 14
+	T_minus  reduce 14
+	T_div  reduce 14
+	T_mod  reduce 14
+	T_and  reduce 14
+	T_or  reduce 14
+	T_q  reduce 14
+	T_colon  reduce 14
+	T_comma  reduce 14
+	T_plusplus  reduce 14
+	T_minusminus  reduce 14
+	T_pluseq  reduce 14
+	T_minuseq  reduce 14
+	T_timeseq  reduce 14
+	T_diveq  reduce 14
+	T_modeq  reduce 14
+	T_semicol  reduce 14
+	T_rparen  reduce 14
+	T_lbracket  reduce 14
+	T_rbracket  reduce 14
+
+
+state 23
+	function_declaration : result_type T_id . T_lparen optional_parameter_list T_rparen  (21)
+
+	T_lparen  shift 30
+	.  error
+
+
+state 24
+	optional_declaration_list : optional_declaration_list . declaration  (3)
+	inside_brackets : optional_declaration_list . optional_statement_list  (8)
+	optional_statement_list : .  (38)
+	optional_T_id : .  (40)
+
+	T_bool  shift 5
+	T_break  shift 31
+	T_char  shift 6
+	T_continue  shift 32
+	T_delete  shift 33
+	T_double  shift 7
+	T_false  shift 34
+	T_if  shift 35
+	T_int  shift 8
+	T_new  shift 36
+	T_NULL  shift 37
+	T_return  shift 38
+	T_true  shift 39
+	T_void  shift 9
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 42
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_semicol  shift 52
+	T_lparen  shift 53
+	T_lcurl  shift 54
+	T_colon  reduce 40
+	T_rbracket  reduce 38
+
+	declaration  goto 11
+	variable_declaration  goto 12
+	function_declaration  goto 13
+	optional_statement_list  goto 55
+	ttype  goto 14
+	basic_type  goto 15
+	result_type  goto 16
+	expression  goto 56
+	statement_list  goto 57
+	statement  goto 58
+	optional_T_id  goto 59
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 25
+	function_body : T_lbracket inside_brackets . T_rbracket  (7)
+
+	T_rbracket  shift 64
+	.  error
+
+
+state 26
+	declarator : T_id T_lbracket . constant_expression T_rbracket  (10)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	constant_expression  goto 66
+	expression  goto 67
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 27
+	declarator_list : declarator T_comma . declarator_list  (12)
+
+	T_id  shift 19
+	.  error
+
+	declarator  goto 20
+	declarator_list  goto 68
+
+
+state 28
+	variable_declaration : ttype declarator_list T_semicol .  (13)
+
+	.  reduce 13
+
+
+state 29
+	optional_T_times : optional_T_times T_times .  (16)
+
+	.  reduce 16
+
+
+state 30
+	function_declaration : result_type T_id T_lparen . optional_parameter_list T_rparen  (21)
+	optional_parameter_list : .  (24)
+
+	T_bool  shift 5
+	T_byref  shift 69
+	T_char  shift 6
+	T_double  shift 7
+	T_int  shift 8
+	T_rparen  reduce 24
+
+	ttype  goto 70
+	basic_type  goto 15
+	optional_parameter_list  goto 71
+	parameter_list  goto 72
+	parameter  goto 73
+
+
+state 31
+	statement : T_break . optional_T_id T_semicol  (49)
+	optional_T_id : .  (40)
+
+	T_id  shift 74
+	T_semicol  reduce 40
+
+	optional_T_id  goto 75
+
+
+state 32
+	statement : T_continue . optional_T_id T_semicol  (48)
+	optional_T_id : .  (40)
+
+	T_id  shift 74
+	T_semicol  reduce 40
+
+	optional_T_id  goto 76
+
+
+state 33
+	expression : T_delete . expression  (69)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 77
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 34
+	expression : T_false .  (54)
+
+	.  reduce 54
+
+
+state 35
+	statement : T_if . T_lparen expression T_rparen statement  (45)
+	statement : T_if . T_lparen expression T_rparen statement T_else statement  (46)
+
+	T_lparen  shift 78
+	.  error
+
+
+state 36
+	expression : T_new . ttype optional_new  (68)
+
+	T_bool  shift 5
+	T_char  shift 6
+	T_double  shift 7
+	T_int  shift 8
+	.  error
+
+	ttype  goto 79
+	basic_type  goto 15
+
+
+state 37
+	expression : T_NULL .  (55)
+
+	.  reduce 55
+
+
+state 38
+	statement : T_return . optional_expression T_semicol  (50)
+	optional_expression : .  (30)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	T_semicol  reduce 30
+
+	optional_expression  goto 80
+	expression  goto 81
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 39
+	expression : T_true .  (53)
+
+	.  reduce 53
+
+
+state 40
+	expression : T_intconst .  (56)
+
+	.  reduce 56
+
+
+state 41
+	expression : T_doubleconst .  (58)
+
+	.  reduce 58
+
+
+state 42
+	optional_T_id : T_id .  (41)
+	expression : T_id .  (51)
+	expression : T_id . T_lparen optional_expression_list T_rparen  (60)
+
+	T_lparen  shift 82
+	T_assign  reduce 51
+	T_eq  reduce 51
+	T_neq  reduce 51
+	T_gt  reduce 51
+	T_lt  reduce 51
+	T_ge  reduce 51
+	T_le  reduce 51
+	T_plus  reduce 51
+	T_minus  reduce 51
+	T_times  reduce 51
+	T_div  reduce 51
+	T_mod  reduce 51
+	T_and  reduce 51
+	T_or  reduce 51
+	T_q  reduce 51
+	T_colon  reduce 41
+	T_comma  reduce 51
+	T_plusplus  reduce 51
+	T_minusminus  reduce 51
+	T_pluseq  reduce 51
+	T_minuseq  reduce 51
+	T_timeseq  reduce 51
+	T_diveq  reduce 51
+	T_modeq  reduce 51
+	T_semicol  reduce 51
+	T_lbracket  reduce 51
+
+
+state 43
+	expression : T_charconst .  (57)
+
+	.  reduce 57
+
+
+state 44
+	expression : T_stringliteral .  (59)
+
+	.  reduce 59
+
+
+state 45
+	unary_expression : T_plus . expression  (74)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 83
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 46
+	unary_expression : T_minus . expression  (75)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 84
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 47
+	unary_expression : T_times . expression  (73)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 85
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 48
+	unary_expression : T_bitand . expression  (72)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 86
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 49
+	unary_expression : T_bitnot . expression  (76)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 87
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 50
+	unary_assignment : T_plusplus . expression  (91)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 88
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 51
+	unary_assignment : T_minusminus . expression  (92)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 89
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 52
+	statement : T_semicol .  (42)
+
+	.  reduce 42
+
+
+state 53
+	expression : T_lparen . after_lparen  (52)
+	expression : T_lparen . ttype T_rparen expression  (66)
+
+	T_bool  shift 5
+	T_char  shift 6
+	T_delete  shift 33
+	T_double  shift 7
+	T_false  shift 34
+	T_int  shift 8
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	ttype  goto 90
+	basic_type  goto 15
+	expression  goto 91
+	after_lparen  goto 92
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 54
+	statement : T_lcurl . optional_statement_list T_rcurl  (44)
+	optional_statement_list : .  (38)
+	optional_T_id : .  (40)
+
+	T_break  shift 31
+	T_continue  shift 32
+	T_delete  shift 33
+	T_false  shift 34
+	T_if  shift 35
+	T_new  shift 36
+	T_NULL  shift 37
+	T_return  shift 38
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 42
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_semicol  shift 52
+	T_lparen  shift 53
+	T_lcurl  shift 54
+	T_colon  reduce 40
+	T_rcurl  reduce 38
+
+	optional_statement_list  goto 93
+	expression  goto 56
+	statement_list  goto 57
+	statement  goto 58
+	optional_T_id  goto 59
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 55
+	inside_brackets : optional_declaration_list optional_statement_list .  (8)
+
+	.  reduce 8
+
+
+state 56
+	statement : expression . T_semicol  (43)
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_semicol  shift 117
+	T_lbracket  shift 118
+	.  error
+
+
+state 57
+	statement_list : statement_list . statement  (37)
+	optional_statement_list : statement_list .  (39)
+	optional_T_id : .  (40)
+
+	T_break  shift 31
+	T_continue  shift 32
+	T_delete  shift 33
+	T_false  shift 34
+	T_if  shift 35
+	T_new  shift 36
+	T_NULL  shift 37
+	T_return  shift 38
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 42
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_semicol  shift 52
+	T_lparen  shift 53
+	T_lcurl  shift 54
+	T_colon  reduce 40
+	T_rbracket  reduce 39
+	T_rcurl  reduce 39
+
+	expression  goto 56
+	statement  goto 119
+	optional_T_id  goto 59
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 58
+	statement_list : statement .  (36)
+
+	.  reduce 36
+
+
+state 59
+	statement : optional_T_id . T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (47)
+
+	T_colon  shift 120
+	.  error
+
+
+state 60
+	expression : unary_expression .  (62)
+
+	.  reduce 62
+
+
+state 61
+	expression : binary_expression .  (63)
+
+	.  reduce 63
+
+
+state 62
+	expression : unary_assignment .  (64)
+
+	.  reduce 64
+
+
+state 63
+	expression : binary_assignment .  (65)
+
+	.  reduce 65
+
+
+state 64
+	function_body : T_lbracket inside_brackets T_rbracket .  (7)
+
+	.  reduce 7
+
+
+state 65
+	expression : T_id .  (51)
+	expression : T_id . T_lparen optional_expression_list T_rparen  (60)
+
+	T_lparen  shift 82
+	T_assign  reduce 51
+	T_eq  reduce 51
+	T_neq  reduce 51
+	T_gt  reduce 51
+	T_lt  reduce 51
+	T_ge  reduce 51
+	T_le  reduce 51
+	T_plus  reduce 51
+	T_minus  reduce 51
+	T_times  reduce 51
+	T_div  reduce 51
+	T_mod  reduce 51
+	T_and  reduce 51
+	T_or  reduce 51
+	T_q  reduce 51
+	T_colon  reduce 51
+	T_comma  reduce 51
+	T_plusplus  reduce 51
+	T_minusminus  reduce 51
+	T_pluseq  reduce 51
+	T_minuseq  reduce 51
+	T_timeseq  reduce 51
+	T_diveq  reduce 51
+	T_modeq  reduce 51
+	T_semicol  reduce 51
+	T_rparen  reduce 51
+	T_lbracket  reduce 51
+	T_rbracket  reduce 51
+
+
+state 66
+	declarator : T_id T_lbracket constant_expression . T_rbracket  (10)
+
+	T_rbracket  shift 121
+	.  error
+
+
+state 67
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+	constant_expression : expression .  (103)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_rbracket  reduce 103
+
+
+state 68
+	declarator_list : declarator T_comma declarator_list .  (12)
+
+	.  reduce 12
+
+
+state 69
+	parameter : T_byref . ttype T_id  (29)
+
+	T_bool  shift 5
+	T_char  shift 6
+	T_double  shift 7
+	T_int  shift 8
+	.  error
+
+	ttype  goto 122
+	basic_type  goto 15
+
+
+state 70
+	parameter : ttype . T_id  (28)
+
+	T_id  shift 123
+	.  error
+
+
+state 71
+	function_declaration : result_type T_id T_lparen optional_parameter_list . T_rparen  (21)
+
+	T_rparen  shift 124
+	.  error
+
+
+state 72
+	optional_parameter_list : parameter_list .  (25)
+	parameter_list : parameter_list . T_comma parameter  (27)
+
+	T_comma  shift 125
+	T_rparen  reduce 25
+
+
+state 73
+	parameter_list : parameter .  (26)
+
+	.  reduce 26
+
+
+state 74
+	optional_T_id : T_id .  (41)
+
+	.  reduce 41
+
+
+state 75
+	statement : T_break optional_T_id . T_semicol  (49)
+
+	T_semicol  shift 126
+	.  error
+
+
+state 76
+	statement : T_continue optional_T_id . T_semicol  (48)
+
+	T_semicol  shift 127
+	.  error
+
+
+77: shift/reduce conflict (shift 108, reduce 69) on T_q
+77: shift/reduce conflict (shift 110, reduce 69) on T_plusplus
+77: shift/reduce conflict (shift 111, reduce 69) on T_minusminus
+77: shift/reduce conflict (shift 118, reduce 69) on T_lbracket
+state 77
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	expression : T_delete expression .  (69)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_assign  reduce 69
+	T_eq  reduce 69
+	T_neq  reduce 69
+	T_gt  reduce 69
+	T_lt  reduce 69
+	T_ge  reduce 69
+	T_le  reduce 69
+	T_plus  reduce 69
+	T_minus  reduce 69
+	T_times  reduce 69
+	T_div  reduce 69
+	T_mod  reduce 69
+	T_and  reduce 69
+	T_or  reduce 69
+	T_colon  reduce 69
+	T_comma  reduce 69
+	T_pluseq  reduce 69
+	T_minuseq  reduce 69
+	T_timeseq  reduce 69
+	T_diveq  reduce 69
+	T_modeq  reduce 69
+	T_semicol  reduce 69
+	T_rparen  reduce 69
+	T_rbracket  reduce 69
+
+
+state 78
+	statement : T_if T_lparen . expression T_rparen statement  (45)
+	statement : T_if T_lparen . expression T_rparen statement T_else statement  (46)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 128
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+79: shift/reduce conflict (shift 129, reduce 101) on T_lbracket
+state 79
+	expression : T_new ttype . optional_new  (68)
+	optional_new : .  (101)
+
+	T_lbracket  shift 129
+	T_assign  reduce 101
+	T_eq  reduce 101
+	T_neq  reduce 101
+	T_gt  reduce 101
+	T_lt  reduce 101
+	T_ge  reduce 101
+	T_le  reduce 101
+	T_plus  reduce 101
+	T_minus  reduce 101
+	T_times  reduce 101
+	T_div  reduce 101
+	T_mod  reduce 101
+	T_and  reduce 101
+	T_or  reduce 101
+	T_q  reduce 101
+	T_colon  reduce 101
+	T_comma  reduce 101
+	T_plusplus  reduce 101
+	T_minusminus  reduce 101
+	T_pluseq  reduce 101
+	T_minuseq  reduce 101
+	T_timeseq  reduce 101
+	T_diveq  reduce 101
+	T_modeq  reduce 101
+	T_semicol  reduce 101
+	T_rparen  reduce 101
+	T_rbracket  reduce 101
+
+	optional_new  goto 130
+
+
+state 80
+	statement : T_return optional_expression . T_semicol  (50)
+
+	T_semicol  shift 131
+	.  error
+
+
+state 81
+	optional_expression : expression .  (31)
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_semicol  reduce 31
+	T_rparen  reduce 31
+
+
+state 82
+	expression : T_id T_lparen . optional_expression_list T_rparen  (60)
+	optional_expression_list : .  (34)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	T_rparen  reduce 34
+
+	expression  goto 132
+	expression_list  goto 133
+	optional_expression_list  goto 134
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+83: shift/reduce conflict (shift 108, reduce 74) on T_q
+83: shift/reduce conflict (shift 110, reduce 74) on T_plusplus
+83: shift/reduce conflict (shift 111, reduce 74) on T_minusminus
+83: shift/reduce conflict (shift 118, reduce 74) on T_lbracket
+state 83
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	unary_expression : T_plus expression .  (74)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_assign  reduce 74
+	T_eq  reduce 74
+	T_neq  reduce 74
+	T_gt  reduce 74
+	T_lt  reduce 74
+	T_ge  reduce 74
+	T_le  reduce 74
+	T_plus  reduce 74
+	T_minus  reduce 74
+	T_and  reduce 74
+	T_or  reduce 74
+	T_colon  reduce 74
+	T_comma  reduce 74
+	T_pluseq  reduce 74
+	T_minuseq  reduce 74
+	T_timeseq  reduce 74
+	T_diveq  reduce 74
+	T_modeq  reduce 74
+	T_semicol  reduce 74
+	T_rparen  reduce 74
+	T_rbracket  reduce 74
+
+
+84: shift/reduce conflict (shift 108, reduce 75) on T_q
+84: shift/reduce conflict (shift 110, reduce 75) on T_plusplus
+84: shift/reduce conflict (shift 111, reduce 75) on T_minusminus
+84: shift/reduce conflict (shift 118, reduce 75) on T_lbracket
+state 84
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	unary_expression : T_minus expression .  (75)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_assign  reduce 75
+	T_eq  reduce 75
+	T_neq  reduce 75
+	T_gt  reduce 75
+	T_lt  reduce 75
+	T_ge  reduce 75
+	T_le  reduce 75
+	T_plus  reduce 75
+	T_minus  reduce 75
+	T_and  reduce 75
+	T_or  reduce 75
+	T_colon  reduce 75
+	T_comma  reduce 75
+	T_pluseq  reduce 75
+	T_minuseq  reduce 75
+	T_timeseq  reduce 75
+	T_diveq  reduce 75
+	T_modeq  reduce 75
+	T_semicol  reduce 75
+	T_rparen  reduce 75
+	T_rbracket  reduce 75
+
+
+85: shift/reduce conflict (shift 108, reduce 73) on T_q
+85: shift/reduce conflict (shift 110, reduce 73) on T_plusplus
+85: shift/reduce conflict (shift 111, reduce 73) on T_minusminus
+85: shift/reduce conflict (shift 118, reduce 73) on T_lbracket
+state 85
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	unary_expression : T_times expression .  (73)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_assign  reduce 73
+	T_eq  reduce 73
+	T_neq  reduce 73
+	T_gt  reduce 73
+	T_lt  reduce 73
+	T_ge  reduce 73
+	T_le  reduce 73
+	T_plus  reduce 73
+	T_minus  reduce 73
+	T_times  reduce 73
+	T_div  reduce 73
+	T_mod  reduce 73
+	T_and  reduce 73
+	T_or  reduce 73
+	T_colon  reduce 73
+	T_comma  reduce 73
+	T_pluseq  reduce 73
+	T_minuseq  reduce 73
+	T_timeseq  reduce 73
+	T_diveq  reduce 73
+	T_modeq  reduce 73
+	T_semicol  reduce 73
+	T_rparen  reduce 73
+	T_rbracket  reduce 73
+
+
+86: shift/reduce conflict (shift 94, reduce 72) on T_assign
+86: shift/reduce conflict (shift 95, reduce 72) on T_eq
+86: shift/reduce conflict (shift 96, reduce 72) on T_neq
+86: shift/reduce conflict (shift 97, reduce 72) on T_gt
+86: shift/reduce conflict (shift 98, reduce 72) on T_lt
+86: shift/reduce conflict (shift 99, reduce 72) on T_ge
+86: shift/reduce conflict (shift 100, reduce 72) on T_le
+86: shift/reduce conflict (shift 101, reduce 72) on T_plus
+86: shift/reduce conflict (shift 102, reduce 72) on T_minus
+86: shift/reduce conflict (shift 103, reduce 72) on T_times
+86: shift/reduce conflict (shift 104, reduce 72) on T_div
+86: shift/reduce conflict (shift 105, reduce 72) on T_mod
+86: shift/reduce conflict (shift 106, reduce 72) on T_and
+86: shift/reduce conflict (shift 107, reduce 72) on T_or
+86: shift/reduce conflict (shift 108, reduce 72) on T_q
+86: shift/reduce conflict (shift 109, reduce 72) on T_comma
+86: shift/reduce conflict (shift 110, reduce 72) on T_plusplus
+86: shift/reduce conflict (shift 111, reduce 72) on T_minusminus
+86: shift/reduce conflict (shift 112, reduce 72) on T_pluseq
+86: shift/reduce conflict (shift 113, reduce 72) on T_minuseq
+86: shift/reduce conflict (shift 114, reduce 72) on T_timeseq
+86: shift/reduce conflict (shift 115, reduce 72) on T_diveq
+86: shift/reduce conflict (shift 116, reduce 72) on T_modeq
+86: shift/reduce conflict (shift 118, reduce 72) on T_lbracket
+state 86
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	unary_expression : T_bitand expression .  (72)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 72
+	T_semicol  reduce 72
+	T_rparen  reduce 72
+	T_rbracket  reduce 72
+
+
+87: shift/reduce conflict (shift 94, reduce 76) on T_assign
+87: shift/reduce conflict (shift 95, reduce 76) on T_eq
+87: shift/reduce conflict (shift 96, reduce 76) on T_neq
+87: shift/reduce conflict (shift 97, reduce 76) on T_gt
+87: shift/reduce conflict (shift 98, reduce 76) on T_lt
+87: shift/reduce conflict (shift 99, reduce 76) on T_ge
+87: shift/reduce conflict (shift 100, reduce 76) on T_le
+87: shift/reduce conflict (shift 101, reduce 76) on T_plus
+87: shift/reduce conflict (shift 102, reduce 76) on T_minus
+87: shift/reduce conflict (shift 103, reduce 76) on T_times
+87: shift/reduce conflict (shift 104, reduce 76) on T_div
+87: shift/reduce conflict (shift 105, reduce 76) on T_mod
+87: shift/reduce conflict (shift 106, reduce 76) on T_and
+87: shift/reduce conflict (shift 107, reduce 76) on T_or
+87: shift/reduce conflict (shift 108, reduce 76) on T_q
+87: shift/reduce conflict (shift 109, reduce 76) on T_comma
+87: shift/reduce conflict (shift 110, reduce 76) on T_plusplus
+87: shift/reduce conflict (shift 111, reduce 76) on T_minusminus
+87: shift/reduce conflict (shift 112, reduce 76) on T_pluseq
+87: shift/reduce conflict (shift 113, reduce 76) on T_minuseq
+87: shift/reduce conflict (shift 114, reduce 76) on T_timeseq
+87: shift/reduce conflict (shift 115, reduce 76) on T_diveq
+87: shift/reduce conflict (shift 116, reduce 76) on T_modeq
+87: shift/reduce conflict (shift 118, reduce 76) on T_lbracket
+state 87
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	unary_expression : T_bitnot expression .  (76)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 76
+	T_semicol  reduce 76
+	T_rparen  reduce 76
+	T_rbracket  reduce 76
+
+
+88: shift/reduce conflict (shift 94, reduce 91) on T_assign
+88: shift/reduce conflict (shift 95, reduce 91) on T_eq
+88: shift/reduce conflict (shift 96, reduce 91) on T_neq
+88: shift/reduce conflict (shift 97, reduce 91) on T_gt
+88: shift/reduce conflict (shift 98, reduce 91) on T_lt
+88: shift/reduce conflict (shift 99, reduce 91) on T_ge
+88: shift/reduce conflict (shift 100, reduce 91) on T_le
+88: shift/reduce conflict (shift 101, reduce 91) on T_plus
+88: shift/reduce conflict (shift 102, reduce 91) on T_minus
+88: shift/reduce conflict (shift 103, reduce 91) on T_times
+88: shift/reduce conflict (shift 104, reduce 91) on T_div
+88: shift/reduce conflict (shift 105, reduce 91) on T_mod
+88: shift/reduce conflict (shift 106, reduce 91) on T_and
+88: shift/reduce conflict (shift 107, reduce 91) on T_or
+88: shift/reduce conflict (shift 108, reduce 91) on T_q
+88: shift/reduce conflict (shift 109, reduce 91) on T_comma
+88: shift/reduce conflict (shift 110, reduce 91) on T_plusplus
+88: shift/reduce conflict (shift 111, reduce 91) on T_minusminus
+88: shift/reduce conflict (shift 112, reduce 91) on T_pluseq
+88: shift/reduce conflict (shift 113, reduce 91) on T_minuseq
+88: shift/reduce conflict (shift 114, reduce 91) on T_timeseq
+88: shift/reduce conflict (shift 115, reduce 91) on T_diveq
+88: shift/reduce conflict (shift 116, reduce 91) on T_modeq
+88: shift/reduce conflict (shift 118, reduce 91) on T_lbracket
+state 88
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : T_plusplus expression .  (91)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 91
+	T_semicol  reduce 91
+	T_rparen  reduce 91
+	T_rbracket  reduce 91
+
+
+89: shift/reduce conflict (shift 94, reduce 92) on T_assign
+89: shift/reduce conflict (shift 95, reduce 92) on T_eq
+89: shift/reduce conflict (shift 96, reduce 92) on T_neq
+89: shift/reduce conflict (shift 97, reduce 92) on T_gt
+89: shift/reduce conflict (shift 98, reduce 92) on T_lt
+89: shift/reduce conflict (shift 99, reduce 92) on T_ge
+89: shift/reduce conflict (shift 100, reduce 92) on T_le
+89: shift/reduce conflict (shift 101, reduce 92) on T_plus
+89: shift/reduce conflict (shift 102, reduce 92) on T_minus
+89: shift/reduce conflict (shift 103, reduce 92) on T_times
+89: shift/reduce conflict (shift 104, reduce 92) on T_div
+89: shift/reduce conflict (shift 105, reduce 92) on T_mod
+89: shift/reduce conflict (shift 106, reduce 92) on T_and
+89: shift/reduce conflict (shift 107, reduce 92) on T_or
+89: shift/reduce conflict (shift 108, reduce 92) on T_q
+89: shift/reduce conflict (shift 109, reduce 92) on T_comma
+89: shift/reduce conflict (shift 110, reduce 92) on T_plusplus
+89: shift/reduce conflict (shift 111, reduce 92) on T_minusminus
+89: shift/reduce conflict (shift 112, reduce 92) on T_pluseq
+89: shift/reduce conflict (shift 113, reduce 92) on T_minuseq
+89: shift/reduce conflict (shift 114, reduce 92) on T_timeseq
+89: shift/reduce conflict (shift 115, reduce 92) on T_diveq
+89: shift/reduce conflict (shift 116, reduce 92) on T_modeq
+89: shift/reduce conflict (shift 118, reduce 92) on T_lbracket
+state 89
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : T_minusminus expression .  (92)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 92
+	T_semicol  reduce 92
+	T_rparen  reduce 92
+	T_rbracket  reduce 92
+
+
+state 90
+	expression : T_lparen ttype . T_rparen expression  (66)
+	after_lparen : ttype . T_rparen  (71)
+
+	T_rparen  shift 135
+	.  error
+
+
+state 91
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	after_lparen : expression . T_rparen  (70)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_rparen  shift 136
+	T_lbracket  shift 118
+	.  error
+
+
+state 92
+	expression : T_lparen after_lparen .  (52)
+
+	.  reduce 52
+
+
+state 93
+	statement : T_lcurl optional_statement_list . T_rcurl  (44)
+
+	T_rcurl  shift 137
+	.  error
+
+
+state 94
+	binary_assignment : expression T_assign . expression  (95)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 138
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 95
+	binary_expression : expression T_eq . expression  (86)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 139
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 96
+	binary_expression : expression T_neq . expression  (87)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 140
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 97
+	binary_expression : expression T_gt . expression  (83)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 141
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 98
+	binary_expression : expression T_lt . expression  (82)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 142
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 99
+	binary_expression : expression T_ge . expression  (85)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 143
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 100
+	binary_expression : expression T_le . expression  (84)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 144
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 101
+	binary_expression : expression T_plus . expression  (80)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 145
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 102
+	binary_expression : expression T_minus . expression  (81)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 146
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 103
+	binary_expression : expression T_times . expression  (77)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 147
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 104
+	binary_expression : expression T_div . expression  (78)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 148
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 105
+	binary_expression : expression T_mod . expression  (79)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 149
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 106
+	binary_expression : expression T_and . expression  (88)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 150
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 107
+	binary_expression : expression T_or . expression  (89)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 151
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 108
+	expression : expression T_q . expression T_colon  (67)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 152
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 109
+	binary_expression : expression T_comma . expression  (90)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 153
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 110
+	unary_assignment : expression T_plusplus .  (93)
+
+	.  reduce 93
+
+
+state 111
+	unary_assignment : expression T_minusminus .  (94)
+
+	.  reduce 94
+
+
+state 112
+	binary_assignment : expression T_pluseq . expression  (99)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 154
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 113
+	binary_assignment : expression T_minuseq . expression  (100)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 155
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 114
+	binary_assignment : expression T_timeseq . expression  (96)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 156
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 115
+	binary_assignment : expression T_diveq . expression  (97)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 157
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 116
+	binary_assignment : expression T_modeq . expression  (98)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 158
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 117
+	statement : expression T_semicol .  (43)
+
+	.  reduce 43
+
+
+state 118
+	expression : expression T_lbracket . expression T_rbracket  (61)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 159
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 119
+	statement_list : statement_list statement .  (37)
+
+	.  reduce 37
+
+
+state 120
+	statement : optional_T_id T_colon . T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (47)
+
+	T_for  shift 160
+	.  error
+
+
+state 121
+	declarator : T_id T_lbracket constant_expression T_rbracket .  (10)
+
+	.  reduce 10
+
+
+state 122
+	parameter : T_byref ttype . T_id  (29)
+
+	T_id  shift 161
+	.  error
+
+
+state 123
+	parameter : ttype T_id .  (28)
+
+	.  reduce 28
+
+
+state 124
+	function_declaration : result_type T_id T_lparen optional_parameter_list T_rparen .  (21)
+
+	.  reduce 21
+
+
+state 125
+	parameter_list : parameter_list T_comma . parameter  (27)
+
+	T_bool  shift 5
+	T_byref  shift 69
+	T_char  shift 6
+	T_double  shift 7
+	T_int  shift 8
+	.  error
+
+	ttype  goto 70
+	basic_type  goto 15
+	parameter  goto 162
+
+
+state 126
+	statement : T_break optional_T_id T_semicol .  (49)
+
+	.  reduce 49
+
+
+state 127
+	statement : T_continue optional_T_id T_semicol .  (48)
+
+	.  reduce 48
+
+
+state 128
+	statement : T_if T_lparen expression . T_rparen statement  (45)
+	statement : T_if T_lparen expression . T_rparen statement T_else statement  (46)
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_rparen  shift 163
+	T_lbracket  shift 118
+	.  error
+
+
+state 129
+	optional_new : T_lbracket . expression T_rbracket  (102)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 164
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 130
+	expression : T_new ttype optional_new .  (68)
+
+	.  reduce 68
+
+
+state 131
+	statement : T_return optional_expression T_semicol .  (50)
+
+	.  reduce 50
+
+
+132: shift/reduce conflict (shift 109, reduce 32) on T_comma
+state 132
+	expression_list : expression .  (32)
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_rparen  reduce 32
+
+
+state 133
+	expression_list : expression_list . T_comma expression  (33)
+	optional_expression_list : expression_list .  (35)
+
+	T_comma  shift 165
+	T_rparen  reduce 35
+
+
+state 134
+	expression : T_id T_lparen optional_expression_list . T_rparen  (60)
+
+	T_rparen  shift 166
+	.  error
+
+
+135: shift/reduce conflict (shift 45, reduce 71) on T_plus
+135: shift/reduce conflict (shift 46, reduce 71) on T_minus
+135: shift/reduce conflict (shift 47, reduce 71) on T_times
+135: shift/reduce conflict (shift 50, reduce 71) on T_plusplus
+135: shift/reduce conflict (shift 51, reduce 71) on T_minusminus
+state 135
+	expression : T_lparen ttype T_rparen . expression  (66)
+	after_lparen : ttype T_rparen .  (71)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	T_assign  reduce 71
+	T_eq  reduce 71
+	T_neq  reduce 71
+	T_gt  reduce 71
+	T_lt  reduce 71
+	T_ge  reduce 71
+	T_le  reduce 71
+	T_div  reduce 71
+	T_mod  reduce 71
+	T_and  reduce 71
+	T_or  reduce 71
+	T_q  reduce 71
+	T_colon  reduce 71
+	T_comma  reduce 71
+	T_pluseq  reduce 71
+	T_minuseq  reduce 71
+	T_timeseq  reduce 71
+	T_diveq  reduce 71
+	T_modeq  reduce 71
+	T_semicol  reduce 71
+	T_rparen  reduce 71
+	T_lbracket  reduce 71
+	T_rbracket  reduce 71
+
+	expression  goto 167
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 136
+	after_lparen : expression T_rparen .  (70)
+
+	.  reduce 70
+
+
+state 137
+	statement : T_lcurl optional_statement_list T_rcurl .  (44)
+
+	.  reduce 44
+
+
+138: shift/reduce conflict (shift 108, reduce 95) on T_q
+138: shift/reduce conflict (shift 110, reduce 95) on T_plusplus
+138: shift/reduce conflict (shift 111, reduce 95) on T_minusminus
+138: shift/reduce conflict (shift 118, reduce 95) on T_lbracket
+state 138
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression T_assign expression .  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_eq  reduce 95
+	T_and  reduce 95
+	T_or  reduce 95
+	T_colon  reduce 95
+	T_comma  reduce 95
+	T_pluseq  reduce 95
+	T_minuseq  reduce 95
+	T_timeseq  reduce 95
+	T_diveq  reduce 95
+	T_modeq  reduce 95
+	T_semicol  reduce 95
+	T_rparen  reduce 95
+	T_rbracket  reduce 95
+
+
+139: shift/reduce conflict (shift 108, reduce 86) on T_q
+139: shift/reduce conflict (shift 110, reduce 86) on T_plusplus
+139: shift/reduce conflict (shift 111, reduce 86) on T_minusminus
+139: shift/reduce conflict (shift 118, reduce 86) on T_lbracket
+state 139
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression T_eq expression .  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 86
+	T_comma  reduce 86
+	T_semicol  reduce 86
+	T_rparen  reduce 86
+	T_rbracket  reduce 86
+
+
+140: shift/reduce conflict (shift 108, reduce 87) on T_q
+140: shift/reduce conflict (shift 110, reduce 87) on T_plusplus
+140: shift/reduce conflict (shift 111, reduce 87) on T_minusminus
+140: shift/reduce conflict (shift 118, reduce 87) on T_lbracket
+state 140
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression T_neq expression .  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_eq  reduce 87
+	T_and  reduce 87
+	T_or  reduce 87
+	T_colon  reduce 87
+	T_comma  reduce 87
+	T_pluseq  reduce 87
+	T_minuseq  reduce 87
+	T_timeseq  reduce 87
+	T_diveq  reduce 87
+	T_modeq  reduce 87
+	T_semicol  reduce 87
+	T_rparen  reduce 87
+	T_rbracket  reduce 87
+
+
+141: shift/reduce conflict (shift 108, reduce 83) on T_q
+141: shift/reduce conflict (shift 110, reduce 83) on T_plusplus
+141: shift/reduce conflict (shift 111, reduce 83) on T_minusminus
+141: shift/reduce conflict (shift 118, reduce 83) on T_lbracket
+state 141
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression T_gt expression .  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_eq  reduce 83
+	T_and  reduce 83
+	T_or  reduce 83
+	T_colon  reduce 83
+	T_comma  reduce 83
+	T_pluseq  reduce 83
+	T_minuseq  reduce 83
+	T_timeseq  reduce 83
+	T_diveq  reduce 83
+	T_modeq  reduce 83
+	T_semicol  reduce 83
+	T_rparen  reduce 83
+	T_rbracket  reduce 83
+
+
+142: shift/reduce conflict (shift 108, reduce 82) on T_q
+142: shift/reduce conflict (shift 110, reduce 82) on T_plusplus
+142: shift/reduce conflict (shift 111, reduce 82) on T_minusminus
+142: shift/reduce conflict (shift 118, reduce 82) on T_lbracket
+state 142
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression T_lt expression .  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_eq  reduce 82
+	T_and  reduce 82
+	T_or  reduce 82
+	T_colon  reduce 82
+	T_comma  reduce 82
+	T_pluseq  reduce 82
+	T_minuseq  reduce 82
+	T_timeseq  reduce 82
+	T_diveq  reduce 82
+	T_modeq  reduce 82
+	T_semicol  reduce 82
+	T_rparen  reduce 82
+	T_rbracket  reduce 82
+
+
+143: shift/reduce conflict (shift 108, reduce 85) on T_q
+143: shift/reduce conflict (shift 110, reduce 85) on T_plusplus
+143: shift/reduce conflict (shift 111, reduce 85) on T_minusminus
+143: shift/reduce conflict (shift 118, reduce 85) on T_lbracket
+state 143
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression T_ge expression .  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_eq  reduce 85
+	T_and  reduce 85
+	T_or  reduce 85
+	T_colon  reduce 85
+	T_comma  reduce 85
+	T_pluseq  reduce 85
+	T_minuseq  reduce 85
+	T_timeseq  reduce 85
+	T_diveq  reduce 85
+	T_modeq  reduce 85
+	T_semicol  reduce 85
+	T_rparen  reduce 85
+	T_rbracket  reduce 85
+
+
+144: shift/reduce conflict (shift 108, reduce 84) on T_q
+144: shift/reduce conflict (shift 110, reduce 84) on T_plusplus
+144: shift/reduce conflict (shift 111, reduce 84) on T_minusminus
+144: shift/reduce conflict (shift 118, reduce 84) on T_lbracket
+state 144
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression T_le expression .  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_eq  reduce 84
+	T_and  reduce 84
+	T_or  reduce 84
+	T_colon  reduce 84
+	T_comma  reduce 84
+	T_pluseq  reduce 84
+	T_minuseq  reduce 84
+	T_timeseq  reduce 84
+	T_diveq  reduce 84
+	T_modeq  reduce 84
+	T_semicol  reduce 84
+	T_rparen  reduce 84
+	T_rbracket  reduce 84
+
+
+145: shift/reduce conflict (shift 108, reduce 80) on T_q
+145: shift/reduce conflict (shift 110, reduce 80) on T_plusplus
+145: shift/reduce conflict (shift 111, reduce 80) on T_minusminus
+145: shift/reduce conflict (shift 118, reduce 80) on T_lbracket
+state 145
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression T_plus expression .  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_assign  reduce 80
+	T_eq  reduce 80
+	T_neq  reduce 80
+	T_gt  reduce 80
+	T_lt  reduce 80
+	T_ge  reduce 80
+	T_le  reduce 80
+	T_plus  reduce 80
+	T_minus  reduce 80
+	T_and  reduce 80
+	T_or  reduce 80
+	T_colon  reduce 80
+	T_comma  reduce 80
+	T_pluseq  reduce 80
+	T_minuseq  reduce 80
+	T_timeseq  reduce 80
+	T_diveq  reduce 80
+	T_modeq  reduce 80
+	T_semicol  reduce 80
+	T_rparen  reduce 80
+	T_rbracket  reduce 80
+
+
+146: shift/reduce conflict (shift 108, reduce 81) on T_q
+146: shift/reduce conflict (shift 110, reduce 81) on T_plusplus
+146: shift/reduce conflict (shift 111, reduce 81) on T_minusminus
+146: shift/reduce conflict (shift 118, reduce 81) on T_lbracket
+state 146
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression T_minus expression .  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_assign  reduce 81
+	T_eq  reduce 81
+	T_neq  reduce 81
+	T_gt  reduce 81
+	T_lt  reduce 81
+	T_ge  reduce 81
+	T_le  reduce 81
+	T_plus  reduce 81
+	T_minus  reduce 81
+	T_and  reduce 81
+	T_or  reduce 81
+	T_colon  reduce 81
+	T_comma  reduce 81
+	T_pluseq  reduce 81
+	T_minuseq  reduce 81
+	T_timeseq  reduce 81
+	T_diveq  reduce 81
+	T_modeq  reduce 81
+	T_semicol  reduce 81
+	T_rparen  reduce 81
+	T_rbracket  reduce 81
+
+
+147: shift/reduce conflict (shift 108, reduce 77) on T_q
+147: shift/reduce conflict (shift 110, reduce 77) on T_plusplus
+147: shift/reduce conflict (shift 111, reduce 77) on T_minusminus
+147: shift/reduce conflict (shift 118, reduce 77) on T_lbracket
+state 147
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression T_times expression .  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_assign  reduce 77
+	T_eq  reduce 77
+	T_neq  reduce 77
+	T_gt  reduce 77
+	T_lt  reduce 77
+	T_ge  reduce 77
+	T_le  reduce 77
+	T_plus  reduce 77
+	T_minus  reduce 77
+	T_times  reduce 77
+	T_div  reduce 77
+	T_mod  reduce 77
+	T_and  reduce 77
+	T_or  reduce 77
+	T_colon  reduce 77
+	T_comma  reduce 77
+	T_pluseq  reduce 77
+	T_minuseq  reduce 77
+	T_timeseq  reduce 77
+	T_diveq  reduce 77
+	T_modeq  reduce 77
+	T_semicol  reduce 77
+	T_rparen  reduce 77
+	T_rbracket  reduce 77
+
+
+148: shift/reduce conflict (shift 108, reduce 78) on T_q
+148: shift/reduce conflict (shift 110, reduce 78) on T_plusplus
+148: shift/reduce conflict (shift 111, reduce 78) on T_minusminus
+148: shift/reduce conflict (shift 118, reduce 78) on T_lbracket
+state 148
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression T_div expression .  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_assign  reduce 78
+	T_eq  reduce 78
+	T_neq  reduce 78
+	T_gt  reduce 78
+	T_lt  reduce 78
+	T_ge  reduce 78
+	T_le  reduce 78
+	T_plus  reduce 78
+	T_minus  reduce 78
+	T_times  reduce 78
+	T_div  reduce 78
+	T_mod  reduce 78
+	T_and  reduce 78
+	T_or  reduce 78
+	T_colon  reduce 78
+	T_comma  reduce 78
+	T_pluseq  reduce 78
+	T_minuseq  reduce 78
+	T_timeseq  reduce 78
+	T_diveq  reduce 78
+	T_modeq  reduce 78
+	T_semicol  reduce 78
+	T_rparen  reduce 78
+	T_rbracket  reduce 78
+
+
+149: shift/reduce conflict (shift 108, reduce 79) on T_q
+149: shift/reduce conflict (shift 110, reduce 79) on T_plusplus
+149: shift/reduce conflict (shift 111, reduce 79) on T_minusminus
+149: shift/reduce conflict (shift 118, reduce 79) on T_lbracket
+state 149
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression T_mod expression .  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_assign  reduce 79
+	T_eq  reduce 79
+	T_neq  reduce 79
+	T_gt  reduce 79
+	T_lt  reduce 79
+	T_ge  reduce 79
+	T_le  reduce 79
+	T_plus  reduce 79
+	T_minus  reduce 79
+	T_times  reduce 79
+	T_div  reduce 79
+	T_mod  reduce 79
+	T_and  reduce 79
+	T_or  reduce 79
+	T_colon  reduce 79
+	T_comma  reduce 79
+	T_pluseq  reduce 79
+	T_minuseq  reduce 79
+	T_timeseq  reduce 79
+	T_diveq  reduce 79
+	T_modeq  reduce 79
+	T_semicol  reduce 79
+	T_rparen  reduce 79
+	T_rbracket  reduce 79
+
+
+150: shift/reduce conflict (shift 108, reduce 88) on T_q
+150: shift/reduce conflict (shift 110, reduce 88) on T_plusplus
+150: shift/reduce conflict (shift 111, reduce 88) on T_minusminus
+150: shift/reduce conflict (shift 118, reduce 88) on T_lbracket
+state 150
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression T_and expression .  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_eq  reduce 88
+	T_and  reduce 88
+	T_or  reduce 88
+	T_colon  reduce 88
+	T_comma  reduce 88
+	T_pluseq  reduce 88
+	T_minuseq  reduce 88
+	T_timeseq  reduce 88
+	T_diveq  reduce 88
+	T_modeq  reduce 88
+	T_semicol  reduce 88
+	T_rparen  reduce 88
+	T_rbracket  reduce 88
+
+
+151: shift/reduce conflict (shift 108, reduce 89) on T_q
+151: shift/reduce conflict (shift 110, reduce 89) on T_plusplus
+151: shift/reduce conflict (shift 111, reduce 89) on T_minusminus
+151: shift/reduce conflict (shift 118, reduce 89) on T_lbracket
+state 151
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression T_or expression .  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_lbracket  shift 118
+	T_eq  reduce 89
+	T_or  reduce 89
+	T_colon  reduce 89
+	T_comma  reduce 89
+	T_pluseq  reduce 89
+	T_minuseq  reduce 89
+	T_timeseq  reduce 89
+	T_diveq  reduce 89
+	T_modeq  reduce 89
+	T_semicol  reduce 89
+	T_rparen  reduce 89
+	T_rbracket  reduce 89
+
+
+state 152
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	expression : expression T_q expression . T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_colon  shift 168
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	.  error
+
+
+153: shift/reduce conflict (shift 108, reduce 90) on T_q
+153: shift/reduce conflict (shift 110, reduce 90) on T_plusplus
+153: shift/reduce conflict (shift 111, reduce 90) on T_minusminus
+153: shift/reduce conflict (shift 118, reduce 90) on T_lbracket
+state 153
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	binary_expression : expression T_comma expression .  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 90
+	T_comma  reduce 90
+	T_semicol  reduce 90
+	T_rparen  reduce 90
+	T_rbracket  reduce 90
+
+
+154: shift/reduce conflict (shift 108, reduce 99) on T_q
+154: shift/reduce conflict (shift 110, reduce 99) on T_plusplus
+154: shift/reduce conflict (shift 111, reduce 99) on T_minusminus
+154: shift/reduce conflict (shift 118, reduce 99) on T_lbracket
+state 154
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression T_pluseq expression .  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 99
+	T_comma  reduce 99
+	T_semicol  reduce 99
+	T_rparen  reduce 99
+	T_rbracket  reduce 99
+
+
+155: shift/reduce conflict (shift 108, reduce 100) on T_q
+155: shift/reduce conflict (shift 110, reduce 100) on T_plusplus
+155: shift/reduce conflict (shift 111, reduce 100) on T_minusminus
+155: shift/reduce conflict (shift 118, reduce 100) on T_lbracket
+state 155
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+	binary_assignment : expression T_minuseq expression .  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 100
+	T_comma  reduce 100
+	T_semicol  reduce 100
+	T_rparen  reduce 100
+	T_rbracket  reduce 100
+
+
+156: shift/reduce conflict (shift 108, reduce 96) on T_q
+156: shift/reduce conflict (shift 110, reduce 96) on T_plusplus
+156: shift/reduce conflict (shift 111, reduce 96) on T_minusminus
+156: shift/reduce conflict (shift 118, reduce 96) on T_lbracket
+state 156
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression T_timeseq expression .  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 96
+	T_comma  reduce 96
+	T_semicol  reduce 96
+	T_rparen  reduce 96
+	T_rbracket  reduce 96
+
+
+157: shift/reduce conflict (shift 108, reduce 97) on T_q
+157: shift/reduce conflict (shift 110, reduce 97) on T_plusplus
+157: shift/reduce conflict (shift 111, reduce 97) on T_minusminus
+157: shift/reduce conflict (shift 118, reduce 97) on T_lbracket
+state 157
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression T_diveq expression .  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 97
+	T_comma  reduce 97
+	T_semicol  reduce 97
+	T_rparen  reduce 97
+	T_rbracket  reduce 97
+
+
+158: shift/reduce conflict (shift 108, reduce 98) on T_q
+158: shift/reduce conflict (shift 110, reduce 98) on T_plusplus
+158: shift/reduce conflict (shift 111, reduce 98) on T_minusminus
+158: shift/reduce conflict (shift 118, reduce 98) on T_lbracket
+state 158
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression T_modeq expression .  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 98
+	T_comma  reduce 98
+	T_semicol  reduce 98
+	T_rparen  reduce 98
+	T_rbracket  reduce 98
+
+
+state 159
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression T_lbracket expression . T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_rbracket  shift 169
+	.  error
+
+
+state 160
+	statement : optional_T_id T_colon T_for . T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (47)
+
+	T_lparen  shift 170
+	.  error
+
+
+state 161
+	parameter : T_byref ttype T_id .  (29)
+
+	.  reduce 29
+
+
+state 162
+	parameter_list : parameter_list T_comma parameter .  (27)
+
+	.  reduce 27
+
+
+state 163
+	statement : T_if T_lparen expression T_rparen . statement  (45)
+	statement : T_if T_lparen expression T_rparen . statement T_else statement  (46)
+	optional_T_id : .  (40)
+
+	T_break  shift 31
+	T_continue  shift 32
+	T_delete  shift 33
+	T_false  shift 34
+	T_if  shift 35
+	T_new  shift 36
+	T_NULL  shift 37
+	T_return  shift 38
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 42
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_semicol  shift 52
+	T_lparen  shift 53
+	T_lcurl  shift 54
+	T_colon  reduce 40
+
+	expression  goto 56
+	statement  goto 171
+	optional_T_id  goto 59
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 164
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+	optional_new : T_lbracket expression . T_rbracket  (102)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_rbracket  shift 172
+	.  error
+
+
+state 165
+	expression_list : expression_list T_comma . expression  (33)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	.  error
+
+	expression  goto 173
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 166
+	expression : T_id T_lparen optional_expression_list T_rparen .  (60)
+
+	.  reduce 60
+
+
+167: shift/reduce conflict (shift 94, reduce 66) on T_assign
+167: shift/reduce conflict (shift 95, reduce 66) on T_eq
+167: shift/reduce conflict (shift 96, reduce 66) on T_neq
+167: shift/reduce conflict (shift 97, reduce 66) on T_gt
+167: shift/reduce conflict (shift 98, reduce 66) on T_lt
+167: shift/reduce conflict (shift 99, reduce 66) on T_ge
+167: shift/reduce conflict (shift 100, reduce 66) on T_le
+167: shift/reduce conflict (shift 101, reduce 66) on T_plus
+167: shift/reduce conflict (shift 102, reduce 66) on T_minus
+167: shift/reduce conflict (shift 103, reduce 66) on T_times
+167: shift/reduce conflict (shift 104, reduce 66) on T_div
+167: shift/reduce conflict (shift 105, reduce 66) on T_mod
+167: shift/reduce conflict (shift 106, reduce 66) on T_and
+167: shift/reduce conflict (shift 107, reduce 66) on T_or
+167: shift/reduce conflict (shift 108, reduce 66) on T_q
+167: shift/reduce conflict (shift 109, reduce 66) on T_comma
+167: shift/reduce conflict (shift 110, reduce 66) on T_plusplus
+167: shift/reduce conflict (shift 111, reduce 66) on T_minusminus
+167: shift/reduce conflict (shift 112, reduce 66) on T_pluseq
+167: shift/reduce conflict (shift 113, reduce 66) on T_minuseq
+167: shift/reduce conflict (shift 114, reduce 66) on T_timeseq
+167: shift/reduce conflict (shift 115, reduce 66) on T_diveq
+167: shift/reduce conflict (shift 116, reduce 66) on T_modeq
+167: shift/reduce conflict (shift 118, reduce 66) on T_lbracket
+state 167
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : T_lparen ttype T_rparen expression .  (66)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_comma  shift 109
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_colon  reduce 66
+	T_semicol  reduce 66
+	T_rparen  reduce 66
+	T_rbracket  reduce 66
+
+
+state 168
+	expression : expression T_q expression T_colon .  (67)
+
+	.  reduce 67
+
+
+state 169
+	expression : expression T_lbracket expression T_rbracket .  (61)
+
+	.  reduce 61
+
+
+state 170
+	statement : optional_T_id T_colon T_for T_lparen . optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (47)
+	optional_expression : .  (30)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	T_semicol  reduce 30
+
+	optional_expression  goto 174
+	expression  goto 81
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+171: shift/reduce conflict (shift 175, reduce 45) on T_else
+state 171
+	statement : T_if T_lparen expression T_rparen statement .  (45)
+	statement : T_if T_lparen expression T_rparen statement . T_else statement  (46)
+
+	T_else  shift 175
+	T_break  reduce 45
+	T_continue  reduce 45
+	T_delete  reduce 45
+	T_false  reduce 45
+	T_if  reduce 45
+	T_new  reduce 45
+	T_NULL  reduce 45
+	T_return  reduce 45
+	T_true  reduce 45
+	T_intconst  reduce 45
+	T_doubleconst  reduce 45
+	T_id  reduce 45
+	T_charconst  reduce 45
+	T_stringliteral  reduce 45
+	T_plus  reduce 45
+	T_minus  reduce 45
+	T_times  reduce 45
+	T_bitand  reduce 45
+	T_bitnot  reduce 45
+	T_colon  reduce 45
+	T_plusplus  reduce 45
+	T_minusminus  reduce 45
+	T_semicol  reduce 45
+	T_lparen  reduce 45
+	T_rbracket  reduce 45
+	T_lcurl  reduce 45
+	T_rcurl  reduce 45
+
+
+state 172
+	optional_new : T_lbracket expression T_rbracket .  (102)
+
+	.  reduce 102
+
+
+state 173
+	expression_list : expression_list T_comma expression .  (33)
+	expression : expression . T_lbracket expression T_rbracket  (61)
+	expression : expression . T_q expression T_colon  (67)
+	binary_expression : expression . T_times expression  (77)
+	binary_expression : expression . T_div expression  (78)
+	binary_expression : expression . T_mod expression  (79)
+	binary_expression : expression . T_plus expression  (80)
+	binary_expression : expression . T_minus expression  (81)
+	binary_expression : expression . T_lt expression  (82)
+	binary_expression : expression . T_gt expression  (83)
+	binary_expression : expression . T_le expression  (84)
+	binary_expression : expression . T_ge expression  (85)
+	binary_expression : expression . T_eq expression  (86)
+	binary_expression : expression . T_neq expression  (87)
+	binary_expression : expression . T_and expression  (88)
+	binary_expression : expression . T_or expression  (89)
+	binary_expression : expression . T_comma expression  (90)
+	unary_assignment : expression . T_plusplus  (93)
+	unary_assignment : expression . T_minusminus  (94)
+	binary_assignment : expression . T_assign expression  (95)
+	binary_assignment : expression . T_timeseq expression  (96)
+	binary_assignment : expression . T_diveq expression  (97)
+	binary_assignment : expression . T_modeq expression  (98)
+	binary_assignment : expression . T_pluseq expression  (99)
+	binary_assignment : expression . T_minuseq expression  (100)
+
+	T_assign  shift 94
+	T_eq  shift 95
+	T_neq  shift 96
+	T_gt  shift 97
+	T_lt  shift 98
+	T_ge  shift 99
+	T_le  shift 100
+	T_plus  shift 101
+	T_minus  shift 102
+	T_times  shift 103
+	T_div  shift 104
+	T_mod  shift 105
+	T_and  shift 106
+	T_or  shift 107
+	T_q  shift 108
+	T_plusplus  shift 110
+	T_minusminus  shift 111
+	T_pluseq  shift 112
+	T_minuseq  shift 113
+	T_timeseq  shift 114
+	T_diveq  shift 115
+	T_modeq  shift 116
+	T_lbracket  shift 118
+	T_comma  reduce 33
+	T_rparen  reduce 33
+
+
+state 174
+	statement : optional_T_id T_colon T_for T_lparen optional_expression . T_semicol optional_expression T_semicol optional_expression T_rparen statement  (47)
+
+	T_semicol  shift 176
+	.  error
+
+
+state 175
+	statement : T_if T_lparen expression T_rparen statement T_else . statement  (46)
+	optional_T_id : .  (40)
+
+	T_break  shift 31
+	T_continue  shift 32
+	T_delete  shift 33
+	T_false  shift 34
+	T_if  shift 35
+	T_new  shift 36
+	T_NULL  shift 37
+	T_return  shift 38
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 42
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_semicol  shift 52
+	T_lparen  shift 53
+	T_lcurl  shift 54
+	T_colon  reduce 40
+
+	expression  goto 56
+	statement  goto 177
+	optional_T_id  goto 59
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 176
+	statement : optional_T_id T_colon T_for T_lparen optional_expression T_semicol . optional_expression T_semicol optional_expression T_rparen statement  (47)
+	optional_expression : .  (30)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	T_semicol  reduce 30
+
+	optional_expression  goto 178
+	expression  goto 81
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 177
+	statement : T_if T_lparen expression T_rparen statement T_else statement .  (46)
+
+	.  reduce 46
+
+
+state 178
+	statement : optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression . T_semicol optional_expression T_rparen statement  (47)
+
+	T_semicol  shift 179
+	.  error
+
+
+state 179
+	statement : optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol . optional_expression T_rparen statement  (47)
+	optional_expression : .  (30)
+
+	T_delete  shift 33
+	T_false  shift 34
+	T_new  shift 36
+	T_NULL  shift 37
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 65
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_lparen  shift 53
+	T_rparen  reduce 30
+
+	optional_expression  goto 180
+	expression  goto 81
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 180
+	statement : optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression . T_rparen statement  (47)
+
+	T_rparen  shift 181
+	.  error
+
+
+state 181
+	statement : optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen . statement  (47)
+	optional_T_id : .  (40)
+
+	T_break  shift 31
+	T_continue  shift 32
+	T_delete  shift 33
+	T_false  shift 34
+	T_if  shift 35
+	T_new  shift 36
+	T_NULL  shift 37
+	T_return  shift 38
+	T_true  shift 39
+	T_intconst  shift 40
+	T_doubleconst  shift 41
+	T_id  shift 42
+	T_charconst  shift 43
+	T_stringliteral  shift 44
+	T_plus  shift 45
+	T_minus  shift 46
+	T_times  shift 47
+	T_bitand  shift 48
+	T_bitnot  shift 49
+	T_plusplus  shift 50
+	T_minusminus  shift 51
+	T_semicol  shift 52
+	T_lparen  shift 53
+	T_lcurl  shift 54
+	T_colon  reduce 40
+
+	expression  goto 56
+	statement  goto 182
+	optional_T_id  goto 59
+	unary_expression  goto 60
+	binary_expression  goto 61
+	unary_assignment  goto 62
+	binary_assignment  goto 63
+
+
+state 182
+	statement : optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement .  (47)
+
+	.  reduce 47
+
+
+Rules never reduced:
+	result_type : ttype  (22)
+
+
+State 14 contains 1 shift/reduce conflict.
+State 22 contains 1 shift/reduce conflict.
+State 77 contains 4 shift/reduce conflicts.
+State 79 contains 1 shift/reduce conflict.
+State 83 contains 4 shift/reduce conflicts.
+State 84 contains 4 shift/reduce conflicts.
+State 85 contains 4 shift/reduce conflicts.
+State 86 contains 24 shift/reduce conflicts.
+State 87 contains 24 shift/reduce conflicts.
+State 88 contains 24 shift/reduce conflicts.
+State 89 contains 24 shift/reduce conflicts.
+State 132 contains 1 shift/reduce conflict.
+State 135 contains 5 shift/reduce conflicts.
+State 138 contains 4 shift/reduce conflicts.
+State 139 contains 4 shift/reduce conflicts.
+State 140 contains 4 shift/reduce conflicts.
+State 141 contains 4 shift/reduce conflicts.
+State 142 contains 4 shift/reduce conflicts.
+State 143 contains 4 shift/reduce conflicts.
+State 144 contains 4 shift/reduce conflicts.
+State 145 contains 4 shift/reduce conflicts.
+State 146 contains 4 shift/reduce conflicts.
+State 147 contains 4 shift/reduce conflicts.
+State 148 contains 4 shift/reduce conflicts.
+State 149 contains 4 shift/reduce conflicts.
+State 150 contains 4 shift/reduce conflicts.
+State 151 contains 4 shift/reduce conflicts.
+State 153 contains 4 shift/reduce conflicts.
+State 154 contains 4 shift/reduce conflicts.
+State 155 contains 4 shift/reduce conflicts.
+State 156 contains 4 shift/reduce conflicts.
+State 157 contains 4 shift/reduce conflicts.
+State 158 contains 4 shift/reduce conflicts.
+State 167 contains 24 shift/reduce conflicts.
+State 171 contains 1 shift/reduce conflict.
+
+
+59 terminals, 33 nonterminals
+105 grammar rules, 183 states
