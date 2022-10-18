@@ -62,10 +62,39 @@
 %token T_lcurl      // "{"
 %token T_rcurl      // "}"
 
-%nonassoc T_eq T_neq T_gt T_lt T_le T_ge
-%left T_plus T_minus 
-%left T_times T_div T_mod T_and T_or T_comma
-%right T_assign T_pluseq T_minuseq T_timeseq T_diveq T_modeq
+
+/* Precedence (proteraiothta) = the order in which (different) operations are performed 
+   Associativity (prosetairistikothta) = operators of the same precedence in the absence of parentheses 
+
+   %left/right declaration makes all operators left/right-associative 
+   %nonassoc declares that it is a syntax error to find the same operator twice “in a row”
+   
+   The relative precedence of different operators is controlled by the order in which they are declared. The first %left
+   or %right declaration in the file declares the operators whose precedence is lowest, the next such declaration
+   declares the operators whose precedence is a little higher, and so on.
+*/
+
+
+// 
+// %left T_plus T_minus 
+// %left T_times T_div T_mod T_and T_or T_comma
+// %right T_assign T_pluseq T_minuseq T_timeseq T_diveq T_modeq
+
+
+%left T_comma
+%right T_eq, T_pluseq, T_minuseq, T_timeseq, T_modeq, T_diveq
+%left T_or 
+%left T_and
+%nonassoc T_assign T_neq T_gt T_lt T_le T_ge
+%left T_plus, T_minus
+%left T_times, T_div, T_mod
+
+
+
+
+
+
+
 
 %start program
 %type<unit> program
@@ -113,7 +142,7 @@ variable_declaration : ttype declarator_list T_semicol { () }
 ttype : basic_type optional_T_times{ () }
 ;
 
-optional_T_times: /*nothing*/{ () }
+optional_T_times : /*nothing*/{ () }
                  | optional_T_times T_times { () }
 ;
 
@@ -131,7 +160,7 @@ result_type : ttype { () }
 ;
 
 optional_parameter_list :  /*nothing*/ { () }
-                         | parameter_list { () }
+                        | parameter_list { () }
 ;
 
 parameter_list : parameter { () }
@@ -179,7 +208,7 @@ statement : T_semicol { () }
           | T_return optional_expression T_semicol { () }        
 ;
 
-expression : T_id{ () }
+expression : T_id { () }
            | T_lparen after_lparen { () } 
            | T_true { () }
            | T_false { () }
@@ -212,10 +241,10 @@ unary_expression : T_bitand expression{ () }
            | T_bitnot expression { () }
 ;
 
-binary_expression : expression T_times expression{ () }
-                  | expression T_div expression{ () }
-                  | expression T_mod expression{ () }
-                  | expression T_plus expression{ () }
+binary_expression : expression T_times expression { () }
+                  | expression T_div expression { () }
+                  | expression T_mod expression { () }
+                  | expression T_plus expression { () }
                   | expression T_minus expression { () }
                   | expression T_lt expression { () }
                   | expression T_gt expression { () }
@@ -247,38 +276,3 @@ optional_new : /*nothing*/ { () }
 
 constant_expression : expression { () } 
 ;
-
-/*unary_operator : T_bitand { () }
-               | T_times { () }
-               | T_plus { () }
-               | T_minus { () }
-               | T_bitnot { () }
-;
-
-binary_operator : T_times { () }
-                | T_div { () }
-                | T_mod { () }
-                | T_plus { () }
-                | T_minus { () }
-                | T_lt { () }
-                | T_gt { () }
-                | T_le { () }
-                | T_ge { () }
-                | T_eq { () }
-                | T_neq { () }
-                | T_and { () }
-                | T_or { () }
-                | T_comma { () }
-;
-
-unary_assignment : T_plusplus { () }
-                 | T_minusminus { () }
-;
-
-binary_assignment : T_assign { () }
-                  | T_timeseq { () }
-                  | T_diveq { () }
-                  | T_modeq { () }
-                  | T_pluseq { () }
-                  | T_minuseq { () }
-;*/
