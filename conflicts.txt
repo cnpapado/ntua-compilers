@@ -1,0 +1,93 @@
+=================
+| Sto state 79: |
+=================
+T_new ttype . optional_new me l_bracket shift sto  optional_new : T_lbracket . expression T_rbracket
+
+ή reduce 
+optional_new -> T_lbracket expression T_rbracket
+
+
+
+
+
+=================
+| Sto state 87: |
+=================
+       =
+       *
+       !=
+       >
+       <
+       <=
+       + 
+       -
+       *
+       /
+exp .  %     exp
+       &&
+       ||
+       ?
+       ,
+       ++
+       +=
+       *=
+       /=
+       %=
+       )
+
+       ή
+
+unary_exp -> ! exp
+
+
+
+==================
+| Sto state 132: |
+==================
+exp . , exp
+
+ή reduce σε expression list
+
+
+
+========================================
+| Sta states 140-158: kati me plusplus |
+========================================
+unary_assignment : expression . T_plusplus  (93)
+
+==================
+| Sto state 167: |
+==================
+       =
+       *
+       !=
+       >
+       <
+       <=
+       + 
+       -
+       *
+       /
+exp .  %     exp
+       &&
+       ||
+       ?
+       ,
+       ++
+       +=
+       *=
+       /=
+       %=
+       )
+
+
+       ή
+
+
+reduce: exp -> (type) exp       
+
+
+
+==============================
+| Sto state 171: dangling if |
+==============================

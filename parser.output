@@ -1304,10 +1304,6 @@ state 76
 	.  error
 
 
-77: shift/reduce conflict (shift 108, reduce 69) on T_q
-77: shift/reduce conflict (shift 110, reduce 69) on T_plusplus
-77: shift/reduce conflict (shift 111, reduce 69) on T_minusminus
-77: shift/reduce conflict (shift 118, reduce 69) on T_lbracket
 state 77
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -1335,7 +1331,6 @@ state 77
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
@@ -1353,6 +1348,7 @@ state 77
 	T_mod  reduce 69
 	T_and  reduce 69
 	T_or  reduce 69
+	T_q  reduce 69
 	T_colon  reduce 69
 	T_comma  reduce 69
 	T_pluseq  reduce 69
@@ -1528,10 +1524,6 @@ state 82
 	binary_assignment  goto 63
 
 
-83: shift/reduce conflict (shift 108, reduce 74) on T_q
-83: shift/reduce conflict (shift 110, reduce 74) on T_plusplus
-83: shift/reduce conflict (shift 111, reduce 74) on T_minusminus
-83: shift/reduce conflict (shift 118, reduce 74) on T_lbracket
 state 83
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -1562,7 +1554,6 @@ state 83
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
@@ -1577,6 +1568,7 @@ state 83
 	T_minus  reduce 74
 	T_and  reduce 74
 	T_or  reduce 74
+	T_q  reduce 74
 	T_colon  reduce 74
 	T_comma  reduce 74
 	T_pluseq  reduce 74
@@ -1589,10 +1581,6 @@ state 83
 	T_rbracket  reduce 74
 
 
-84: shift/reduce conflict (shift 108, reduce 75) on T_q
-84: shift/reduce conflict (shift 110, reduce 75) on T_plusplus
-84: shift/reduce conflict (shift 111, reduce 75) on T_minusminus
-84: shift/reduce conflict (shift 118, reduce 75) on T_lbracket
 state 84
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -1623,7 +1611,6 @@ state 84
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
@@ -1638,6 +1625,7 @@ state 84
 	T_minus  reduce 75
 	T_and  reduce 75
 	T_or  reduce 75
+	T_q  reduce 75
 	T_colon  reduce 75
 	T_comma  reduce 75
 	T_pluseq  reduce 75
@@ -1650,10 +1638,6 @@ state 84
 	T_rbracket  reduce 75
 
 
-85: shift/reduce conflict (shift 108, reduce 73) on T_q
-85: shift/reduce conflict (shift 110, reduce 73) on T_plusplus
-85: shift/reduce conflict (shift 111, reduce 73) on T_minusminus
-85: shift/reduce conflict (shift 118, reduce 73) on T_lbracket
 state 85
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -1681,7 +1665,6 @@ state 85
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
@@ -1699,6 +1682,7 @@ state 85
 	T_mod  reduce 73
 	T_and  reduce 73
 	T_or  reduce 73
+	T_q  reduce 73
 	T_colon  reduce 73
 	T_comma  reduce 73
 	T_pluseq  reduce 73
@@ -1711,30 +1695,6 @@ state 85
 	T_rbracket  reduce 73
 
 
-86: shift/reduce conflict (shift 94, reduce 72) on T_assign
-86: shift/reduce conflict (shift 95, reduce 72) on T_eq
-86: shift/reduce conflict (shift 96, reduce 72) on T_neq
-86: shift/reduce conflict (shift 97, reduce 72) on T_gt
-86: shift/reduce conflict (shift 98, reduce 72) on T_lt
-86: shift/reduce conflict (shift 99, reduce 72) on T_ge
-86: shift/reduce conflict (shift 100, reduce 72) on T_le
-86: shift/reduce conflict (shift 101, reduce 72) on T_plus
-86: shift/reduce conflict (shift 102, reduce 72) on T_minus
-86: shift/reduce conflict (shift 103, reduce 72) on T_times
-86: shift/reduce conflict (shift 104, reduce 72) on T_div
-86: shift/reduce conflict (shift 105, reduce 72) on T_mod
-86: shift/reduce conflict (shift 106, reduce 72) on T_and
-86: shift/reduce conflict (shift 107, reduce 72) on T_or
-86: shift/reduce conflict (shift 108, reduce 72) on T_q
-86: shift/reduce conflict (shift 109, reduce 72) on T_comma
-86: shift/reduce conflict (shift 110, reduce 72) on T_plusplus
-86: shift/reduce conflict (shift 111, reduce 72) on T_minusminus
-86: shift/reduce conflict (shift 112, reduce 72) on T_pluseq
-86: shift/reduce conflict (shift 113, reduce 72) on T_minuseq
-86: shift/reduce conflict (shift 114, reduce 72) on T_timeseq
-86: shift/reduce conflict (shift 115, reduce 72) on T_diveq
-86: shift/reduce conflict (shift 116, reduce 72) on T_modeq
-86: shift/reduce conflict (shift 118, reduce 72) on T_lbracket
 state 86
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -1762,60 +1722,36 @@ state 86
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_assign  shift 94
-	T_eq  shift 95
-	T_neq  shift 96
-	T_gt  shift 97
-	T_lt  shift 98
-	T_ge  shift 99
-	T_le  shift 100
-	T_plus  shift 101
-	T_minus  shift 102
-	T_times  shift 103
-	T_div  shift 104
-	T_mod  shift 105
-	T_and  shift 106
-	T_or  shift 107
-	T_q  shift 108
-	T_comma  shift 109
 	T_plusplus  shift 110
 	T_minusminus  shift 111
-	T_pluseq  shift 112
-	T_minuseq  shift 113
-	T_timeseq  shift 114
-	T_diveq  shift 115
-	T_modeq  shift 116
 	T_lbracket  shift 118
+	T_assign  reduce 72
+	T_eq  reduce 72
+	T_neq  reduce 72
+	T_gt  reduce 72
+	T_lt  reduce 72
+	T_ge  reduce 72
+	T_le  reduce 72
+	T_plus  reduce 72
+	T_minus  reduce 72
+	T_times  reduce 72
+	T_div  reduce 72
+	T_mod  reduce 72
+	T_and  reduce 72
+	T_or  reduce 72
+	T_q  reduce 72
 	T_colon  reduce 72
+	T_comma  reduce 72
+	T_pluseq  reduce 72
+	T_minuseq  reduce 72
+	T_timeseq  reduce 72
+	T_diveq  reduce 72
+	T_modeq  reduce 72
 	T_semicol  reduce 72
 	T_rparen  reduce 72
 	T_rbracket  reduce 72
 
 
-87: shift/reduce conflict (shift 94, reduce 76) on T_assign
-87: shift/reduce conflict (shift 95, reduce 76) on T_eq
-87: shift/reduce conflict (shift 96, reduce 76) on T_neq
-87: shift/reduce conflict (shift 97, reduce 76) on T_gt
-87: shift/reduce conflict (shift 98, reduce 76) on T_lt
-87: shift/reduce conflict (shift 99, reduce 76) on T_ge
-87: shift/reduce conflict (shift 100, reduce 76) on T_le
-87: shift/reduce conflict (shift 101, reduce 76) on T_plus
-87: shift/reduce conflict (shift 102, reduce 76) on T_minus
-87: shift/reduce conflict (shift 103, reduce 76) on T_times
-87: shift/reduce conflict (shift 104, reduce 76) on T_div
-87: shift/reduce conflict (shift 105, reduce 76) on T_mod
-87: shift/reduce conflict (shift 106, reduce 76) on T_and
-87: shift/reduce conflict (shift 107, reduce 76) on T_or
-87: shift/reduce conflict (shift 108, reduce 76) on T_q
-87: shift/reduce conflict (shift 109, reduce 76) on T_comma
-87: shift/reduce conflict (shift 110, reduce 76) on T_plusplus
-87: shift/reduce conflict (shift 111, reduce 76) on T_minusminus
-87: shift/reduce conflict (shift 112, reduce 76) on T_pluseq
-87: shift/reduce conflict (shift 113, reduce 76) on T_minuseq
-87: shift/reduce conflict (shift 114, reduce 76) on T_timeseq
-87: shift/reduce conflict (shift 115, reduce 76) on T_diveq
-87: shift/reduce conflict (shift 116, reduce 76) on T_modeq
-87: shift/reduce conflict (shift 118, reduce 76) on T_lbracket
 state 87
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -1843,60 +1779,36 @@ state 87
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_assign  shift 94
-	T_eq  shift 95
-	T_neq  shift 96
-	T_gt  shift 97
-	T_lt  shift 98
-	T_ge  shift 99
-	T_le  shift 100
-	T_plus  shift 101
-	T_minus  shift 102
-	T_times  shift 103
-	T_div  shift 104
-	T_mod  shift 105
-	T_and  shift 106
-	T_or  shift 107
-	T_q  shift 108
-	T_comma  shift 109
 	T_plusplus  shift 110
 	T_minusminus  shift 111
-	T_pluseq  shift 112
-	T_minuseq  shift 113
-	T_timeseq  shift 114
-	T_diveq  shift 115
-	T_modeq  shift 116
 	T_lbracket  shift 118
+	T_assign  reduce 76
+	T_eq  reduce 76
+	T_neq  reduce 76
+	T_gt  reduce 76
+	T_lt  reduce 76
+	T_ge  reduce 76
+	T_le  reduce 76
+	T_plus  reduce 76
+	T_minus  reduce 76
+	T_times  reduce 76
+	T_div  reduce 76
+	T_mod  reduce 76
+	T_and  reduce 76
+	T_or  reduce 76
+	T_q  reduce 76
 	T_colon  reduce 76
+	T_comma  reduce 76
+	T_pluseq  reduce 76
+	T_minuseq  reduce 76
+	T_timeseq  reduce 76
+	T_diveq  reduce 76
+	T_modeq  reduce 76
 	T_semicol  reduce 76
 	T_rparen  reduce 76
 	T_rbracket  reduce 76
 
 
-88: shift/reduce conflict (shift 94, reduce 91) on T_assign
-88: shift/reduce conflict (shift 95, reduce 91) on T_eq
-88: shift/reduce conflict (shift 96, reduce 91) on T_neq
-88: shift/reduce conflict (shift 97, reduce 91) on T_gt
-88: shift/reduce conflict (shift 98, reduce 91) on T_lt
-88: shift/reduce conflict (shift 99, reduce 91) on T_ge
-88: shift/reduce conflict (shift 100, reduce 91) on T_le
-88: shift/reduce conflict (shift 101, reduce 91) on T_plus
-88: shift/reduce conflict (shift 102, reduce 91) on T_minus
-88: shift/reduce conflict (shift 103, reduce 91) on T_times
-88: shift/reduce conflict (shift 104, reduce 91) on T_div
-88: shift/reduce conflict (shift 105, reduce 91) on T_mod
-88: shift/reduce conflict (shift 106, reduce 91) on T_and
-88: shift/reduce conflict (shift 107, reduce 91) on T_or
-88: shift/reduce conflict (shift 108, reduce 91) on T_q
-88: shift/reduce conflict (shift 109, reduce 91) on T_comma
-88: shift/reduce conflict (shift 110, reduce 91) on T_plusplus
-88: shift/reduce conflict (shift 111, reduce 91) on T_minusminus
-88: shift/reduce conflict (shift 112, reduce 91) on T_pluseq
-88: shift/reduce conflict (shift 113, reduce 91) on T_minuseq
-88: shift/reduce conflict (shift 114, reduce 91) on T_timeseq
-88: shift/reduce conflict (shift 115, reduce 91) on T_diveq
-88: shift/reduce conflict (shift 116, reduce 91) on T_modeq
-88: shift/reduce conflict (shift 118, reduce 91) on T_lbracket
 state 88
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -1924,60 +1836,36 @@ state 88
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_assign  shift 94
-	T_eq  shift 95
-	T_neq  shift 96
-	T_gt  shift 97
-	T_lt  shift 98
-	T_ge  shift 99
-	T_le  shift 100
-	T_plus  shift 101
-	T_minus  shift 102
-	T_times  shift 103
-	T_div  shift 104
-	T_mod  shift 105
-	T_and  shift 106
-	T_or  shift 107
-	T_q  shift 108
-	T_comma  shift 109
 	T_plusplus  shift 110
 	T_minusminus  shift 111
-	T_pluseq  shift 112
-	T_minuseq  shift 113
-	T_timeseq  shift 114
-	T_diveq  shift 115
-	T_modeq  shift 116
 	T_lbracket  shift 118
+	T_assign  reduce 91
+	T_eq  reduce 91
+	T_neq  reduce 91
+	T_gt  reduce 91
+	T_lt  reduce 91
+	T_ge  reduce 91
+	T_le  reduce 91
+	T_plus  reduce 91
+	T_minus  reduce 91
+	T_times  reduce 91
+	T_div  reduce 91
+	T_mod  reduce 91
+	T_and  reduce 91
+	T_or  reduce 91
+	T_q  reduce 91
 	T_colon  reduce 91
+	T_comma  reduce 91
+	T_pluseq  reduce 91
+	T_minuseq  reduce 91
+	T_timeseq  reduce 91
+	T_diveq  reduce 91
+	T_modeq  reduce 91
 	T_semicol  reduce 91
 	T_rparen  reduce 91
 	T_rbracket  reduce 91
 
 
-89: shift/reduce conflict (shift 94, reduce 92) on T_assign
-89: shift/reduce conflict (shift 95, reduce 92) on T_eq
-89: shift/reduce conflict (shift 96, reduce 92) on T_neq
-89: shift/reduce conflict (shift 97, reduce 92) on T_gt
-89: shift/reduce conflict (shift 98, reduce 92) on T_lt
-89: shift/reduce conflict (shift 99, reduce 92) on T_ge
-89: shift/reduce conflict (shift 100, reduce 92) on T_le
-89: shift/reduce conflict (shift 101, reduce 92) on T_plus
-89: shift/reduce conflict (shift 102, reduce 92) on T_minus
-89: shift/reduce conflict (shift 103, reduce 92) on T_times
-89: shift/reduce conflict (shift 104, reduce 92) on T_div
-89: shift/reduce conflict (shift 105, reduce 92) on T_mod
-89: shift/reduce conflict (shift 106, reduce 92) on T_and
-89: shift/reduce conflict (shift 107, reduce 92) on T_or
-89: shift/reduce conflict (shift 108, reduce 92) on T_q
-89: shift/reduce conflict (shift 109, reduce 92) on T_comma
-89: shift/reduce conflict (shift 110, reduce 92) on T_plusplus
-89: shift/reduce conflict (shift 111, reduce 92) on T_minusminus
-89: shift/reduce conflict (shift 112, reduce 92) on T_pluseq
-89: shift/reduce conflict (shift 113, reduce 92) on T_minuseq
-89: shift/reduce conflict (shift 114, reduce 92) on T_timeseq
-89: shift/reduce conflict (shift 115, reduce 92) on T_diveq
-89: shift/reduce conflict (shift 116, reduce 92) on T_modeq
-89: shift/reduce conflict (shift 118, reduce 92) on T_lbracket
 state 89
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -2005,31 +1893,31 @@ state 89
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_assign  shift 94
-	T_eq  shift 95
-	T_neq  shift 96
-	T_gt  shift 97
-	T_lt  shift 98
-	T_ge  shift 99
-	T_le  shift 100
-	T_plus  shift 101
-	T_minus  shift 102
-	T_times  shift 103
-	T_div  shift 104
-	T_mod  shift 105
-	T_and  shift 106
-	T_or  shift 107
-	T_q  shift 108
-	T_comma  shift 109
 	T_plusplus  shift 110
 	T_minusminus  shift 111
-	T_pluseq  shift 112
-	T_minuseq  shift 113
-	T_timeseq  shift 114
-	T_diveq  shift 115
-	T_modeq  shift 116
 	T_lbracket  shift 118
+	T_assign  reduce 92
+	T_eq  reduce 92
+	T_neq  reduce 92
+	T_gt  reduce 92
+	T_lt  reduce 92
+	T_ge  reduce 92
+	T_le  reduce 92
+	T_plus  reduce 92
+	T_minus  reduce 92
+	T_times  reduce 92
+	T_div  reduce 92
+	T_mod  reduce 92
+	T_and  reduce 92
+	T_or  reduce 92
+	T_q  reduce 92
 	T_colon  reduce 92
+	T_comma  reduce 92
+	T_pluseq  reduce 92
+	T_minuseq  reduce 92
+	T_timeseq  reduce 92
+	T_diveq  reduce 92
+	T_modeq  reduce 92
 	T_semicol  reduce 92
 	T_rparen  reduce 92
 	T_rbracket  reduce 92
@@ -3022,11 +2910,6 @@ state 134
 	.  error
 
 
-135: shift/reduce conflict (shift 45, reduce 71) on T_plus
-135: shift/reduce conflict (shift 46, reduce 71) on T_minus
-135: shift/reduce conflict (shift 47, reduce 71) on T_times
-135: shift/reduce conflict (shift 50, reduce 71) on T_plusplus
-135: shift/reduce conflict (shift 51, reduce 71) on T_minusminus
 state 135
 	expression : T_lparen ttype T_rparen . expression  (66)
 	after_lparen : ttype T_rparen .  (71)
@@ -3041,13 +2924,8 @@ state 135
 	T_id  shift 65
 	T_charconst  shift 43
 	T_stringliteral  shift 44
-	T_plus  shift 45
-	T_minus  shift 46
-	T_times  shift 47
 	T_bitand  shift 48
 	T_bitnot  shift 49
-	T_plusplus  shift 50
-	T_minusminus  shift 51
 	T_lparen  shift 53
 	T_assign  reduce 71
 	T_eq  reduce 71
@@ -3056,6 +2934,9 @@ state 135
 	T_lt  reduce 71
 	T_ge  reduce 71
 	T_le  reduce 71
+	T_plus  reduce 71
+	T_minus  reduce 71
+	T_times  reduce 71
 	T_div  reduce 71
 	T_mod  reduce 71
 	T_and  reduce 71
@@ -3063,6 +2944,8 @@ state 135
 	T_q  reduce 71
 	T_colon  reduce 71
 	T_comma  reduce 71
+	T_plusplus  reduce 71
+	T_minusminus  reduce 71
 	T_pluseq  reduce 71
 	T_minuseq  reduce 71
 	T_timeseq  reduce 71
@@ -3092,10 +2975,6 @@ state 137
 	.  reduce 44
 
 
-138: shift/reduce conflict (shift 108, reduce 95) on T_q
-138: shift/reduce conflict (shift 110, reduce 95) on T_plusplus
-138: shift/reduce conflict (shift 111, reduce 95) on T_minusminus
-138: shift/reduce conflict (shift 118, reduce 95) on T_lbracket
 state 138
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3128,13 +3007,13 @@ state 138
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
 	T_eq  reduce 95
 	T_and  reduce 95
 	T_or  reduce 95
+	T_q  reduce 95
 	T_colon  reduce 95
 	T_comma  reduce 95
 	T_pluseq  reduce 95
@@ -3147,10 +3026,6 @@ state 138
 	T_rbracket  reduce 95
 
 
-139: shift/reduce conflict (shift 108, reduce 86) on T_q
-139: shift/reduce conflict (shift 110, reduce 86) on T_plusplus
-139: shift/reduce conflict (shift 111, reduce 86) on T_minusminus
-139: shift/reduce conflict (shift 118, reduce 86) on T_lbracket
 state 139
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3208,10 +3083,6 @@ state 139
 	T_rbracket  reduce 86
 
 
-140: shift/reduce conflict (shift 108, reduce 87) on T_q
-140: shift/reduce conflict (shift 110, reduce 87) on T_plusplus
-140: shift/reduce conflict (shift 111, reduce 87) on T_minusminus
-140: shift/reduce conflict (shift 118, reduce 87) on T_lbracket
 state 140
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3244,13 +3115,13 @@ state 140
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
 	T_eq  reduce 87
 	T_and  reduce 87
 	T_or  reduce 87
+	T_q  reduce 87
 	T_colon  reduce 87
 	T_comma  reduce 87
 	T_pluseq  reduce 87
@@ -3263,10 +3134,6 @@ state 140
 	T_rbracket  reduce 87
 
 
-141: shift/reduce conflict (shift 108, reduce 83) on T_q
-141: shift/reduce conflict (shift 110, reduce 83) on T_plusplus
-141: shift/reduce conflict (shift 111, reduce 83) on T_minusminus
-141: shift/reduce conflict (shift 118, reduce 83) on T_lbracket
 state 141
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3299,13 +3166,13 @@ state 141
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
 	T_eq  reduce 83
 	T_and  reduce 83
 	T_or  reduce 83
+	T_q  reduce 83
 	T_colon  reduce 83
 	T_comma  reduce 83
 	T_pluseq  reduce 83
@@ -3318,10 +3185,6 @@ state 141
 	T_rbracket  reduce 83
 
 
-142: shift/reduce conflict (shift 108, reduce 82) on T_q
-142: shift/reduce conflict (shift 110, reduce 82) on T_plusplus
-142: shift/reduce conflict (shift 111, reduce 82) on T_minusminus
-142: shift/reduce conflict (shift 118, reduce 82) on T_lbracket
 state 142
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3354,13 +3217,13 @@ state 142
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
 	T_eq  reduce 82
 	T_and  reduce 82
 	T_or  reduce 82
+	T_q  reduce 82
 	T_colon  reduce 82
 	T_comma  reduce 82
 	T_pluseq  reduce 82
@@ -3373,10 +3236,6 @@ state 142
 	T_rbracket  reduce 82
 
 
-143: shift/reduce conflict (shift 108, reduce 85) on T_q
-143: shift/reduce conflict (shift 110, reduce 85) on T_plusplus
-143: shift/reduce conflict (shift 111, reduce 85) on T_minusminus
-143: shift/reduce conflict (shift 118, reduce 85) on T_lbracket
 state 143
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3409,13 +3268,13 @@ state 143
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
 	T_eq  reduce 85
 	T_and  reduce 85
 	T_or  reduce 85
+	T_q  reduce 85
 	T_colon  reduce 85
 	T_comma  reduce 85
 	T_pluseq  reduce 85
@@ -3428,10 +3287,6 @@ state 143
 	T_rbracket  reduce 85
 
 
-144: shift/reduce conflict (shift 108, reduce 84) on T_q
-144: shift/reduce conflict (shift 110, reduce 84) on T_plusplus
-144: shift/reduce conflict (shift 111, reduce 84) on T_minusminus
-144: shift/reduce conflict (shift 118, reduce 84) on T_lbracket
 state 144
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3464,13 +3319,13 @@ state 144
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
 	T_eq  reduce 84
 	T_and  reduce 84
 	T_or  reduce 84
+	T_q  reduce 84
 	T_colon  reduce 84
 	T_comma  reduce 84
 	T_pluseq  reduce 84
@@ -3483,10 +3338,6 @@ state 144
 	T_rbracket  reduce 84
 
 
-145: shift/reduce conflict (shift 108, reduce 80) on T_q
-145: shift/reduce conflict (shift 110, reduce 80) on T_plusplus
-145: shift/reduce conflict (shift 111, reduce 80) on T_minusminus
-145: shift/reduce conflict (shift 118, reduce 80) on T_lbracket
 state 145
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3517,7 +3368,6 @@ state 145
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
@@ -3532,6 +3382,7 @@ state 145
 	T_minus  reduce 80
 	T_and  reduce 80
 	T_or  reduce 80
+	T_q  reduce 80
 	T_colon  reduce 80
 	T_comma  reduce 80
 	T_pluseq  reduce 80
@@ -3544,10 +3395,6 @@ state 145
 	T_rbracket  reduce 80
 
 
-146: shift/reduce conflict (shift 108, reduce 81) on T_q
-146: shift/reduce conflict (shift 110, reduce 81) on T_plusplus
-146: shift/reduce conflict (shift 111, reduce 81) on T_minusminus
-146: shift/reduce conflict (shift 118, reduce 81) on T_lbracket
 state 146
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3578,7 +3425,6 @@ state 146
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
@@ -3593,6 +3439,7 @@ state 146
 	T_minus  reduce 81
 	T_and  reduce 81
 	T_or  reduce 81
+	T_q  reduce 81
 	T_colon  reduce 81
 	T_comma  reduce 81
 	T_pluseq  reduce 81
@@ -3605,10 +3452,6 @@ state 146
 	T_rbracket  reduce 81
 
 
-147: shift/reduce conflict (shift 108, reduce 77) on T_q
-147: shift/reduce conflict (shift 110, reduce 77) on T_plusplus
-147: shift/reduce conflict (shift 111, reduce 77) on T_minusminus
-147: shift/reduce conflict (shift 118, reduce 77) on T_lbracket
 state 147
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3636,7 +3479,6 @@ state 147
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
@@ -3654,6 +3496,7 @@ state 147
 	T_mod  reduce 77
 	T_and  reduce 77
 	T_or  reduce 77
+	T_q  reduce 77
 	T_colon  reduce 77
 	T_comma  reduce 77
 	T_pluseq  reduce 77
@@ -3666,10 +3509,6 @@ state 147
 	T_rbracket  reduce 77
 
 
-148: shift/reduce conflict (shift 108, reduce 78) on T_q
-148: shift/reduce conflict (shift 110, reduce 78) on T_plusplus
-148: shift/reduce conflict (shift 111, reduce 78) on T_minusminus
-148: shift/reduce conflict (shift 118, reduce 78) on T_lbracket
 state 148
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3697,7 +3536,6 @@ state 148
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
@@ -3715,6 +3553,7 @@ state 148
 	T_mod  reduce 78
 	T_and  reduce 78
 	T_or  reduce 78
+	T_q  reduce 78
 	T_colon  reduce 78
 	T_comma  reduce 78
 	T_pluseq  reduce 78
@@ -3727,10 +3566,6 @@ state 148
 	T_rbracket  reduce 78
 
 
-149: shift/reduce conflict (shift 108, reduce 79) on T_q
-149: shift/reduce conflict (shift 110, reduce 79) on T_plusplus
-149: shift/reduce conflict (shift 111, reduce 79) on T_minusminus
-149: shift/reduce conflict (shift 118, reduce 79) on T_lbracket
 state 149
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3758,7 +3593,6 @@ state 149
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
@@ -3776,6 +3610,7 @@ state 149
 	T_mod  reduce 79
 	T_and  reduce 79
 	T_or  reduce 79
+	T_q  reduce 79
 	T_colon  reduce 79
 	T_comma  reduce 79
 	T_pluseq  reduce 79
@@ -3788,10 +3623,6 @@ state 149
 	T_rbracket  reduce 79
 
 
-150: shift/reduce conflict (shift 108, reduce 88) on T_q
-150: shift/reduce conflict (shift 110, reduce 88) on T_plusplus
-150: shift/reduce conflict (shift 111, reduce 88) on T_minusminus
-150: shift/reduce conflict (shift 118, reduce 88) on T_lbracket
 state 150
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3830,13 +3661,13 @@ state 150
 	T_times  shift 103
 	T_div  shift 104
 	T_mod  shift 105
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
 	T_eq  reduce 88
 	T_and  reduce 88
 	T_or  reduce 88
+	T_q  reduce 88
 	T_colon  reduce 88
 	T_comma  reduce 88
 	T_pluseq  reduce 88
@@ -3849,10 +3680,6 @@ state 150
 	T_rbracket  reduce 88
 
 
-151: shift/reduce conflict (shift 108, reduce 89) on T_q
-151: shift/reduce conflict (shift 110, reduce 89) on T_plusplus
-151: shift/reduce conflict (shift 111, reduce 89) on T_minusminus
-151: shift/reduce conflict (shift 118, reduce 89) on T_lbracket
 state 151
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -3892,12 +3719,12 @@ state 151
 	T_div  shift 104
 	T_mod  shift 105
 	T_and  shift 106
-	T_q  shift 108
 	T_plusplus  shift 110
 	T_minusminus  shift 111
 	T_lbracket  shift 118
 	T_eq  reduce 89
 	T_or  reduce 89
+	T_q  reduce 89
 	T_colon  reduce 89
 	T_comma  reduce 89
 	T_pluseq  reduce 89
@@ -3965,10 +3792,6 @@ state 152
 	.  error
 
 
-153: shift/reduce conflict (shift 108, reduce 90) on T_q
-153: shift/reduce conflict (shift 110, reduce 90) on T_plusplus
-153: shift/reduce conflict (shift 111, reduce 90) on T_minusminus
-153: shift/reduce conflict (shift 118, reduce 90) on T_lbracket
 state 153
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -4026,10 +3849,6 @@ state 153
 	T_rbracket  reduce 90
 
 
-154: shift/reduce conflict (shift 108, reduce 99) on T_q
-154: shift/reduce conflict (shift 110, reduce 99) on T_plusplus
-154: shift/reduce conflict (shift 111, reduce 99) on T_minusminus
-154: shift/reduce conflict (shift 118, reduce 99) on T_lbracket
 state 154
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -4087,10 +3906,6 @@ state 154
 	T_rbracket  reduce 99
 
 
-155: shift/reduce conflict (shift 108, reduce 100) on T_q
-155: shift/reduce conflict (shift 110, reduce 100) on T_plusplus
-155: shift/reduce conflict (shift 111, reduce 100) on T_minusminus
-155: shift/reduce conflict (shift 118, reduce 100) on T_lbracket
 state 155
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -4148,10 +3963,6 @@ state 155
 	T_rbracket  reduce 100
 
 
-156: shift/reduce conflict (shift 108, reduce 96) on T_q
-156: shift/reduce conflict (shift 110, reduce 96) on T_plusplus
-156: shift/reduce conflict (shift 111, reduce 96) on T_minusminus
-156: shift/reduce conflict (shift 118, reduce 96) on T_lbracket
 state 156
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -4209,10 +4020,6 @@ state 156
 	T_rbracket  reduce 96
 
 
-157: shift/reduce conflict (shift 108, reduce 97) on T_q
-157: shift/reduce conflict (shift 110, reduce 97) on T_plusplus
-157: shift/reduce conflict (shift 111, reduce 97) on T_minusminus
-157: shift/reduce conflict (shift 118, reduce 97) on T_lbracket
 state 157
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -4270,10 +4077,6 @@ state 157
 	T_rbracket  reduce 97
 
 
-158: shift/reduce conflict (shift 108, reduce 98) on T_q
-158: shift/reduce conflict (shift 110, reduce 98) on T_plusplus
-158: shift/reduce conflict (shift 111, reduce 98) on T_minusminus
-158: shift/reduce conflict (shift 118, reduce 98) on T_lbracket
 state 158
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : expression . T_q expression T_colon  (67)
@@ -4536,30 +4339,6 @@ state 166
 	.  reduce 60
 
 
-167: shift/reduce conflict (shift 94, reduce 66) on T_assign
-167: shift/reduce conflict (shift 95, reduce 66) on T_eq
-167: shift/reduce conflict (shift 96, reduce 66) on T_neq
-167: shift/reduce conflict (shift 97, reduce 66) on T_gt
-167: shift/reduce conflict (shift 98, reduce 66) on T_lt
-167: shift/reduce conflict (shift 99, reduce 66) on T_ge
-167: shift/reduce conflict (shift 100, reduce 66) on T_le
-167: shift/reduce conflict (shift 101, reduce 66) on T_plus
-167: shift/reduce conflict (shift 102, reduce 66) on T_minus
-167: shift/reduce conflict (shift 103, reduce 66) on T_times
-167: shift/reduce conflict (shift 104, reduce 66) on T_div
-167: shift/reduce conflict (shift 105, reduce 66) on T_mod
-167: shift/reduce conflict (shift 106, reduce 66) on T_and
-167: shift/reduce conflict (shift 107, reduce 66) on T_or
-167: shift/reduce conflict (shift 108, reduce 66) on T_q
-167: shift/reduce conflict (shift 109, reduce 66) on T_comma
-167: shift/reduce conflict (shift 110, reduce 66) on T_plusplus
-167: shift/reduce conflict (shift 111, reduce 66) on T_minusminus
-167: shift/reduce conflict (shift 112, reduce 66) on T_pluseq
-167: shift/reduce conflict (shift 113, reduce 66) on T_minuseq
-167: shift/reduce conflict (shift 114, reduce 66) on T_timeseq
-167: shift/reduce conflict (shift 115, reduce 66) on T_diveq
-167: shift/reduce conflict (shift 116, reduce 66) on T_modeq
-167: shift/reduce conflict (shift 118, reduce 66) on T_lbracket
 state 167
 	expression : expression . T_lbracket expression T_rbracket  (61)
 	expression : T_lparen ttype T_rparen expression .  (66)
@@ -4587,31 +4366,31 @@ state 167
 	binary_assignment : expression . T_pluseq expression  (99)
 	binary_assignment : expression . T_minuseq expression  (100)
 
-	T_assign  shift 94
-	T_eq  shift 95
-	T_neq  shift 96
-	T_gt  shift 97
-	T_lt  shift 98
-	T_ge  shift 99
-	T_le  shift 100
-	T_plus  shift 101
-	T_minus  shift 102
-	T_times  shift 103
-	T_div  shift 104
-	T_mod  shift 105
-	T_and  shift 106
-	T_or  shift 107
-	T_q  shift 108
-	T_comma  shift 109
 	T_plusplus  shift 110
 	T_minusminus  shift 111
-	T_pluseq  shift 112
-	T_minuseq  shift 113
-	T_timeseq  shift 114
-	T_diveq  shift 115
-	T_modeq  shift 116
 	T_lbracket  shift 118
+	T_assign  reduce 66
+	T_eq  reduce 66
+	T_neq  reduce 66
+	T_gt  reduce 66
+	T_lt  reduce 66
+	T_ge  reduce 66
+	T_le  reduce 66
+	T_plus  reduce 66
+	T_minus  reduce 66
+	T_times  reduce 66
+	T_div  reduce 66
+	T_mod  reduce 66
+	T_and  reduce 66
+	T_or  reduce 66
+	T_q  reduce 66
 	T_colon  reduce 66
+	T_comma  reduce 66
+	T_pluseq  reduce 66
+	T_minuseq  reduce 66
+	T_timeseq  reduce 66
+	T_diveq  reduce 66
+	T_modeq  reduce 66
 	T_semicol  reduce 66
 	T_rparen  reduce 66
 	T_rbracket  reduce 66
@@ -4937,40 +4716,10 @@ Rules never reduced:
 
 State 14 contains 1 shift/reduce conflict.
 State 22 contains 1 shift/reduce conflict.
-State 77 contains 4 shift/reduce conflicts.
 State 79 contains 1 shift/reduce conflict.
-State 83 contains 4 shift/reduce conflicts.
-State 84 contains 4 shift/reduce conflicts.
-State 85 contains 4 shift/reduce conflicts.
-State 86 contains 24 shift/reduce conflicts.
-State 87 contains 24 shift/reduce conflicts.
-State 88 contains 24 shift/reduce conflicts.
-State 89 contains 24 shift/reduce conflicts.
 State 132 contains 1 shift/reduce conflict.
-State 135 contains 5 shift/reduce conflicts.
-State 138 contains 4 shift/reduce conflicts.
-State 139 contains 4 shift/reduce conflicts.
-State 140 contains 4 shift/reduce conflicts.
-State 141 contains 4 shift/reduce conflicts.
-State 142 contains 4 shift/reduce conflicts.
-State 143 contains 4 shift/reduce conflicts.
-State 144 contains 4 shift/reduce conflicts.
-State 145 contains 4 shift/reduce conflicts.
-State 146 contains 4 shift/reduce conflicts.
-State 147 contains 4 shift/reduce conflicts.
-State 148 contains 4 shift/reduce conflicts.
-State 149 contains 4 shift/reduce conflicts.
-State 150 contains 4 shift/reduce conflicts.
-State 151 contains 4 shift/reduce conflicts.
-State 153 contains 4 shift/reduce conflicts.
-State 154 contains 4 shift/reduce conflicts.
-State 155 contains 4 shift/reduce conflicts.
-State 156 contains 4 shift/reduce conflicts.
-State 157 contains 4 shift/reduce conflicts.
-State 158 contains 4 shift/reduce conflicts.
-State 167 contains 24 shift/reduce conflicts.
 State 171 contains 1 shift/reduce conflict.
 
 
-59 terminals, 33 nonterminals
+62 terminals, 33 nonterminals
 105 grammar rules, 183 states
