@@ -180,9 +180,8 @@ ttype : basic_type %prec SHIFT_ON_TIMESLIST { () }
       | basic_type T_times_list { () }
 ;
 
-
-T_times_list : T_times { () }
-             | T_times T_times_list { () }
+optional_T_times : /*nothing*/ { () }
+                 | optional_T_times T_times { () }
 ;
 
 basic_type : T_int  { () }
@@ -220,7 +219,7 @@ expression_list : expression %prec SHIFT_ON_COMMA { () }
 ;
 
 optional_expression_list : /* nothing */ { () }
-                         | expression_list { () }
+                         | expression_list T_comma expression { () }
 ;
 
 statement_list : statement { () }
