@@ -147,11 +147,13 @@ variable_declaration : ttype declarator_list T_semicol { () }
 ;
 
 
-ttype : basic_type optional_T_times{ () }
+ttype : basic_type { () }
+      | basic_type T_times_list { () }
 ;
 
-optional_T_times : /*nothing*/{ () }
-                 | optional_T_times T_times { () }
+
+T_times_list : T_times { () }
+             | T_times T_times_list { () }
 ;
 
 basic_type : T_int  { () }
@@ -160,19 +162,13 @@ basic_type : T_int  { () }
            | T_double { () }
 ;
 
-function_declaration : result_type T_id T_lparen optional_parameter_list T_rparen { () }
+function_declaration : ttype T_id T_lparen optional_parameter_list T_rparen { () }
+                     | T_void T_id T_lparen optional_parameter_list T_rparen { () }
 ;
 
-result_type : ttype { () }
-            | T_void { () }
-;
 
 optional_parameter_list :  /*nothing*/ { () }
-                        | parameter_list { () }
-;
-
-parameter_list : parameter { () }
-               | parameter_list T_comma parameter { () }
+                        | parameter optional_parameter_list { () }
 ;
 
 parameter : ttype T_id { () } 
