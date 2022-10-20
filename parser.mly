@@ -147,13 +147,11 @@ variable_declaration : ttype declarator_list T_semicol { () }
 ;
 
 
-ttype : basic_type { () }
-      | basic_type T_times_list { () }
+ttype : basic_type optional_T_times { () }
 ;
 
-
-T_times_list : T_times { () }
-             | T_times T_times_list { () }
+optional_T_times : /*nothing*/ { () }
+                 | optional_T_times T_times { () }
 ;
 
 basic_type : T_int  { () }
@@ -185,7 +183,7 @@ expression_list : expression { () }
 ;
 
 optional_expression_list : /* nothing */ { () }
-                         | expression_list { () }
+                         | expression_list T_comma expression { () }
 ;
 
 statement_list : statement { () }
@@ -274,8 +272,8 @@ binary_assignment : expression T_assign expression{ () }
                   | expression T_pluseq expression{ () }
                   | expression T_minuseq expression{ () }
 
-optional_new : /*nothing*/ { () }
-             | T_lbracket expression T_rbracket { () }
+optional_new : T_lbracket expression T_rbracket { () }
+             | /*nothing*/ { () } 
 ;
 
 constant_expression : expression { () } 
