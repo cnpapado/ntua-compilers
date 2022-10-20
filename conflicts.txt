@@ -1,5 +1,5 @@
 =================
-| Sto state 79: |
+| Sto state 85: |
 =================
 T_new ttype . optional_new me l_bracket shift sto  optional_new : T_lbracket . expression T_rbracket
 

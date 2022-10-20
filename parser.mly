@@ -63,7 +63,11 @@
 %token T_rcurl      // "}"
 
 
-/* Precedence (proteraiothta) = the order in which (different) operations are performed 
+/* ======================================
+   | About precedence and associativity |
+   ======================================
+
+   Precedence (proteraiothta) = the order in which (different) operations are performed 
    Associativity (prosetairistikothta) = operators of the same precedence in the absence of parentheses 
 
    %left/right declaration makes all operators left/right-associative 
@@ -72,15 +76,15 @@
    The relative precedence of different operators is controlled by the order in which they are declared. The first %left
    or %right declaration in the file declares the operators whose precedence is lowest, the next such declaration
    declares the operators whose precedence is a little higher, and so on.
+
+   low precedence
+         ||
+         ||
+         \/
+   high precedence
 */
 
-
-// 
-// %left T_plus T_minus 
-// %left T_times T_div T_mod T_and T_or T_comma
-// %right T_assign T_pluseq T_minuseq T_timeseq T_diveq T_modeq
-
-
+%nonassoc SHIFT_ON_COMMA // comma in expression lists, as opposed to comma as a binary operator 
 %left T_comma
 %right T_eq, T_pluseq, T_minuseq, T_timeseq, T_modeq, T_diveq
 %nonassoc T_q T_colon
@@ -88,6 +92,7 @@
 %left T_and
 %nonassoc T_assign T_neq T_gt T_lt T_le T_ge
 %left T_plus T_minus
+%nonassoc SHIFT_ON_TIMESLIST
 %left T_times T_div T_mod
 %nonassoc TYPE_CAST
 %nonassoc PREFIX // is nonassoc correct??
@@ -96,11 +101,31 @@
 %nonassoc POINTER_REF_DEREF // UPLUS_UMINUS LOG_NOT
 %right T_bitnot // see "State 87" on conflicts.txt and https://en.cppreference.com/w/c/language/operator_precedence
 %nonassoc T_plusplus T_minusminus // is nonassoc correct??
+%nonassoc SHIFT_ON_NEW
 %nonassoc T_lbracket T_rbracket T_lparen T_rparen
 
 
+/* ==============================
+   | About conflicts resolution |
+   ==============================
 
+   The resolution of conflicts works by comparing the precedence of 
+   the rule being considered with that of the lookahead token. 
+   
+   Bison sets the precedence of a rule based on the 
+   precedence of the last token in that rule (unless specified otherwise by %prec -see "Note" below). 
+   
+   If the token's precedence is higher, the choice is to shift. 
+   If the rule's precedence is higher, the choice is to reduce.
 
+   (Or in other words we shift or reduce based on which action has the higher precedence, 
+    where the "precedence of shift" is the lookahead's one and the "precedence of reducing" it
+    the production's one.)
+
+   Note: %prec refers to the whole rule!
+   It's telling yacc how to disambiguate that branch of the parse tree 
+   relative to other similar branches. See also https://docs.oracle.com/cd/E19504-01/802-5880/6i9k05dh3/index.html 
+*/
 
 
 
@@ -146,8 +171,12 @@ declarator_list : declarator { () }
 variable_declaration : ttype declarator_list T_semicol { () }
 ;
 
-
-ttype : basic_type { () }
+/* In ttype we want to enforce shifting (even if this is the default action for yacc).
+   For this we need the lookahead token's (T_times) precedence to be higher than 
+   the reduce production's one (specified by the %prec). That's why we declare SHIFT_ON_TIMESLIST
+   right above the T_times. 
+*/
+ttype : basic_type %prec SHIFT_ON_TIMESLIST { () }
       | basic_type T_times_list { () }
 ;
 
@@ -180,7 +209,13 @@ optional_expression : /* nothing */ { () }
                     | expression { () }
 ;
 
-expression_list : expression { () }
+/* In [ exp ',' exp ',' exp ] ambiguity (reduce exp as an exp_list or shift ',') 
+   we want to enforce shifting.
+   For this we need the lookahead token's (T_comma) precedence to be higher than 
+   the reduce production's one (specified by the %prec). That's why we declare REDUCE_ON_COMMA
+   right above the T_comma. 
+*/
+expression_list : expression %prec SHIFT_ON_COMMA { () }
                 | expression_list T_comma expression { () }
 ;
 
@@ -201,16 +236,26 @@ optional_T_id : /* nothing */ { () }
               | T_id { () }
 ;
 
-statement : T_semicol { () }
-          | expression T_semicol { () }
-          | T_lcurl optional_statement_list T_rcurl { () }
-          | T_if T_lparen expression T_rparen statement { () }
-          | T_if T_lparen expression T_rparen statement T_else statement { () }
-          | optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement { () } 
-          | T_continue optional_T_id T_semicol { () }
-          | T_break optional_T_id T_semicol { () }
-          | T_return optional_expression T_semicol { () }        
+/* About dangling-if: To avoid declaring a precedence for T_else (and having to decide 
+   where to place it with relation to the other token's precedences),
+   I modified the grammar in order to fix the ambiguity.
+*/
+statement : matched_if { () } 
+          | unmatched_if { () }
 ;
+          
+matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if { () }
+           | T_semicol { () }
+           | expression T_semicol { () }
+           | T_lcurl optional_statement_list T_rcurl { () }
+           | optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement { () } 
+           | T_continue optional_T_id T_semicol { () }
+           | T_break optional_T_id T_semicol { () }
+           | T_return optional_expression T_semicol { () }        
+;
+
+unmatched_if : T_if T_lparen expression T_rparen statement { () }
+             | T_if T_lparen expression T_rparen matched_if T_else unmatched_if { () }
 
 expression : T_id { () }
            | T_lparen after_lparen { () } 
@@ -258,7 +303,7 @@ binary_expression : expression T_times expression { () }
                   | expression T_neq expression { () }
                   | expression T_and expression { () }
                   | expression T_or expression { () }
-                  | expression T_comma expression{ () }
+                  | expression T_comma expression { () }
 ;
 
 unary_assignment : T_plusplus expression %prec PREFIX { () }
@@ -274,7 +319,14 @@ binary_assignment : expression T_assign expression{ () }
                   | expression T_pluseq expression{ () }
                   | expression T_minuseq expression{ () }
 
-optional_new : /*nothing*/ { () }
+/* When an [ T_new ttype . '[' ] is encountered, there is a shift/reduce conflict 
+   between reducing epsilon as optional_new or shifting an T_lbrace, 
+   in which we want to enforce shifting (even if this is the default action for yacc).
+   For this we need the lookahead token's (T_lbrace) precedence to be higher than 
+   the reduce production's one (specified by the %prec). That's why we declare SHIFT_ON_NEW
+   right above the T_lbrace. 
+*/
+optional_new : /*nothing*/ %prec SHIFT_ON_NEW { () }
              | T_lbracket expression T_rbracket { () }
 ;
 
