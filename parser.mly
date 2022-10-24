@@ -176,12 +176,12 @@ variable_declaration : ttype declarator_list T_semicol { () }
    the reduce production's one (specified by the %prec). That's why we declare SHIFT_ON_TIMESLIST
    right above the T_times. 
 */
-ttype : basic_type %prec SHIFT_ON_TIMESLIST { () }
-      | basic_type T_times_list { () }
+ttype : basic_type { () }
+      | basic_type T_times_list %prec SHIFT_ON_TIMESLIST { () }
 ;
 
-optional_T_times : /*nothing*/ { () }
-                 | optional_T_times T_times { () }
+T_times_list : /*nothing*/ { () }
+             | T_times_list T_times { () }
 ;
 
 basic_type : T_int  { () }
