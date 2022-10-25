@@ -176,12 +176,11 @@ variable_declaration : ttype declarator_list T_semicol { () }
    the reduce production's one (specified by the %prec). That's why we declare SHIFT_ON_TIMESLIST
    right above the T_times. 
 */
-ttype : basic_type { () }
-      | basic_type T_times_list %prec SHIFT_ON_TIMESLIST { () }
+ttype : basic_type optional_T_times_list %prec SHIFT_ON_TIMESLIST { () }
 ;
 
-T_times_list : /*nothing*/ { () }
-             | T_times_list T_times { () }
+optional_T_times_list : /*nothing*/ { () }
+                      | optional_T_times_list T_times { () }
 ;
 
 basic_type : T_int  { () }
@@ -218,9 +217,9 @@ expression_list : expression %prec SHIFT_ON_COMMA { () }
                 | expression_list T_comma expression { () }
 ;
 
-optional_expression_list : /* nothing */ { () }
-                         | expression_list T_comma expression { () }
-;
+// optional_expression_list : /* nothing */ { () }
+//                          | expression_list T_comma expression { () }
+// ;
 
 statement_list : statement { () }
                | statement_list statement { () }
@@ -238,6 +237,9 @@ optional_T_id : /* nothing */ { () }
 /* About dangling-if: To avoid declaring a precedence for T_else (and having to decide 
    where to place it with relation to the other token's precedences),
    I modified the grammar in order to fix the ambiguity.
+
+   For some reason s/r conflicts remained so we ended up giving the reduce rule lower 
+   precedence than the T_else.++++++++
 */
 statement : matched_if { () } 
           | unmatched_if { () }
@@ -255,6 +257,7 @@ matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if { ()
 
 unmatched_if : T_if T_lparen expression T_rparen statement { () }
              | T_if T_lparen expression T_rparen matched_if T_else unmatched_if { () }
+;
 
 expression : T_id { () }
            | T_lparen after_lparen { () } 
@@ -265,7 +268,8 @@ expression : T_id { () }
            | T_charconst { () }
            | T_doubleconst { () }
            | T_stringliteral { () }
-           | T_id T_lparen optional_expression_list T_rparen { () }
+           | T_id T_lparen T_rparen { () }
+           | T_id T_lparen expression_list T_rparen { () }
            | expression T_lbracket expression T_rbracket { () } 
            | unary_expression { () }
            | binary_expression { () }
