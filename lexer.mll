@@ -1,5 +1,6 @@
 {
 open Parser
+open Lexing
 
 (* type token = 
     | T_bool | T_break | T_byref | T_char | T_continue | T_delete
@@ -97,12 +98,12 @@ rule lexer = parse
   
   | whitespace+ {lexer lexbuf} (* consume whitespaces *)  
   | newline {increase_lnum lexbuf; lexer lexbuf} (*consume newlines *)
-  | '-'? digit+ { T_intconst } 
-  | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? { T_doubleconst }
+  | '-'? digit+ { T_intconst (int_of_string (lexeme lexbuf))} 
+  | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? { T_doubleconst (float_of_string (lexeme lexbuf))}
   | (letter)(letter|digit|'_')* {T_id}
   
-  | '\'' const_char '\'' {T_charconst}
-  | '\"' const_char* '\"' { T_stringliteral }  (* ??????????? is stringconst the parser's strinliteral*)
+  | '\'' const_char '\'' { T_charconst (lexeme lexbuf).[0]}
+  | '\"' const_char* '\"' { T_stringliteral (lexeme lexbuf)} (* ??????????? is stringconst the parser's strinliteral*)
   | eof {T_eof}
 
 

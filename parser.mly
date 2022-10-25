@@ -21,11 +21,11 @@
 %token T_true 
 %token T_void 
 %token T_eof 
-%token T_intconst 
-%token T_doubleconst
+%token<int> T_intconst 
+%token<float> T_doubleconst
 %token T_id
-%token T_charconst
-%token T_stringliteral
+%token<char> T_charconst
+%token<string> T_stringliteral
 
 //Special chars
 %token T_assign     // "="
@@ -177,11 +177,11 @@ variable_declaration : ttype declarator_list T_semicol { () }
    right above the T_times. 
 */
 ttype : basic_type %prec SHIFT_ON_TIMESLIST { () }
-      | basic_type T_times_list { () }
+      | basic_type T_times_list %prec SHIFT_ON_TIMESLIST{ () }
 ;
 
-optional_T_times : /*nothing*/ { () }
-                 | optional_T_times T_times { () }
+T_times_list :     T_times { () }
+                 | T_times_list T_times { () }
 ;
 
 basic_type : T_int  { () }
