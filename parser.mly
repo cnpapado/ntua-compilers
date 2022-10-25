@@ -21,11 +21,11 @@
 %token T_true 
 %token T_void 
 %token T_eof 
-%token T_intconst 
-%token T_doubleconst
+%token<int> T_intconst 
+%token<float> T_doubleconst
 %token T_id
-%token T_charconst
-%token T_stringliteral
+%token<char> T_charconst
+%token<string> T_stringliteral
 
 //Special chars
 %token T_assign     // "="
