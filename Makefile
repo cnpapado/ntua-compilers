@@ -27,7 +27,7 @@
 # parser.ml parser.mli: parser.mly
 # 	ocamlyacc -v parser.mly
 
-.PHONY: clean distclean
+.PHONY: clean distclean only_lexer
 
 # -include .depend
 
@@ -59,7 +59,15 @@ lexer.ml: lexer.mll
 	ocamllex lexer.mll
 
 clean:
-	$(RM) edsger lexer.ml parser.ml parser.mli parser.output *.cmo *.cmi *~
+	$(RM) lexer.ml parser.ml parser.mli *.cmo *.cmi *~
 
 distclean: clean
-	$(RM) edsger$(EXE) .depend
+	$(RM) edsger lexer 
+
+only_lexer: lexer #lexer.cmo lexer_main.cmo
+
+lexer_main.cmo: lexer_main.ml
+	ocamlc -c lexer_main.ml
+
+lexer: lexer.cmo parser.cmo lexer_main.cmo
+	ocamlc -o lexer lexer.cmo parser.cmo lexer_main.cmo
