@@ -56,87 +56,90 @@
   36  optional_statement_list :
   37                          | statement_list
 
-  38  optional_T_id :
-  39                | T_id T_colon
+  38  optional_for_label :
+  39                     | T_id T_colon
 
-  40  statement : matched_if
-  41            | unmatched_if
+  40  optional_label_semi :
+  41                      | T_id T_semicol
 
-  42  matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if
-  43             | T_semicol
-  44             | expression T_semicol
-  45             | T_lcurl optional_statement_list T_rcurl
-  46             | optional_T_id T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement
-  47             | T_continue optional_T_id T_semicol
-  48             | T_break optional_T_id T_semicol
-  49             | T_return optional_expression T_semicol
+  42  statement : matched_if
+  43            | unmatched_if
 
-  50  unmatched_if : T_if T_lparen expression T_rparen statement
-  51               | T_if T_lparen expression T_rparen matched_if T_else unmatched_if
+  44  matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if
+  45             | T_semicol
+  46             | expression T_semicol
+  47             | T_lcurl optional_statement_list T_rcurl
+  48             | optional_for_label T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement
+  49             | T_continue optional_label_semi
+  50             | T_break optional_label_semi
+  51             | T_return optional_expression T_semicol
 
-  52  expression : T_id
-  53             | T_lparen after_lparen
-  54             | T_true
-  55             | T_false
-  56             | T_NULL
-  57             | T_intconst
-  58             | T_charconst
-  59             | T_doubleconst
-  60             | T_stringliteral
-  61             | T_id T_lparen T_rparen
-  62             | T_id T_lparen expression_list T_rparen
-  63             | expression T_lbracket expression T_rbracket
-  64             | unary_expression
-  65             | binary_expression
-  66             | unary_assignment
-  67             | binary_assignment
-  68             | T_lparen ttype T_rparen expression
-  69             | expression T_q expression T_colon
-  70             | T_new ttype optional_new
-  71             | T_delete expression
+  52  unmatched_if : T_if T_lparen expression T_rparen statement
+  53               | T_if T_lparen expression T_rparen matched_if T_else unmatched_if
 
-  72  after_lparen : expression T_rparen
-  73               | ttype T_rparen
+  54  expression : T_id
+  55             | T_lparen after_lparen
+  56             | T_true
+  57             | T_false
+  58             | T_NULL
+  59             | T_intconst
+  60             | T_charconst
+  61             | T_doubleconst
+  62             | T_stringliteral
+  63             | T_id T_lparen T_rparen
+  64             | T_id T_lparen expression_list T_rparen
+  65             | expression T_lbracket expression T_rbracket
+  66             | unary_expression
+  67             | binary_expression
+  68             | unary_assignment
+  69             | binary_assignment
+  70             | T_lparen ttype T_rparen expression
+  71             | expression T_q expression T_colon
+  72             | T_new ttype optional_new
+  73             | T_delete expression
 
-  74  unary_expression : T_bitand expression
-  75                   | T_times expression
-  76                   | T_plus expression
-  77                   | T_minus expression
-  78                   | T_bitnot expression
+  74  after_lparen : expression T_rparen
+  75               | ttype T_rparen
 
-  79  binary_expression : expression T_times expression
-  80                    | expression T_div expression
-  81                    | expression T_mod expression
-  82                    | expression T_plus expression
-  83                    | expression T_minus expression
-  84                    | expression T_lt expression
-  85                    | expression T_gt expression
-  86                    | expression T_le expression
-  87                    | expression T_ge expression
-  88                    | expression T_eq expression
-  89                    | expression T_neq expression
-  90                    | expression T_and expression
-  91                    | expression T_or expression
-  92                    | expression T_comma expression
+  76  unary_expression : T_bitand expression
+  77                   | T_times expression
+  78                   | T_plus expression
+  79                   | T_minus expression
+  80                   | T_bitnot expression
 
-  93  unary_assignment : T_plusplus expression
-  94                   | T_minusminus expression
-  95                   | expression T_plusplus
-  96                   | expression T_minusminus
+  81  binary_expression : expression T_times expression
+  82                    | expression T_div expression
+  83                    | expression T_mod expression
+  84                    | expression T_plus expression
+  85                    | expression T_minus expression
+  86                    | expression T_lt expression
+  87                    | expression T_gt expression
+  88                    | expression T_le expression
+  89                    | expression T_ge expression
+  90                    | expression T_eq expression
+  91                    | expression T_neq expression
+  92                    | expression T_and expression
+  93                    | expression T_or expression
+  94                    | expression T_comma expression
 
-  97  binary_assignment : expression T_assign expression
-  98                    | expression T_timeseq expression
-  99                    | expression T_diveq expression
- 100                    | expression T_modeq expression
- 101                    | expression T_pluseq expression
- 102                    | expression T_minuseq expression
+  95  unary_assignment : T_plusplus expression
+  96                   | T_minusminus expression
+  97                   | expression T_plusplus
+  98                   | expression T_minusminus
 
- 103  optional_new :
- 104               | T_lbracket expression T_rbracket
+  99  binary_assignment : expression T_assign expression
+ 100                    | expression T_timeseq expression
+ 101                    | expression T_diveq expression
+ 102                    | expression T_modeq expression
+ 103                    | expression T_pluseq expression
+ 104                    | expression T_minuseq expression
 
- 105  constant_expression : expression
+ 105  optional_new :
+ 106               | T_lbracket expression T_rbracket
 
- 106  %entry% : '\001' program
+ 107  constant_expression : expression
+
+ 108  %entry% : '\001' program
 
 state 0
 	$accept : . %entry% $end  (0)
@@ -148,7 +151,7 @@ state 0
 
 
 state 1
-	%entry% : '\001' . program  (106)
+	%entry% : '\001' . program  (108)
 	optional_declaration_list : .  (2)
 
 	.  reduce 2
@@ -164,9 +167,9 @@ state 2
 
 
 state 3
-	%entry% : '\001' program .  (106)
+	%entry% : '\001' program .  (108)
 
-	.  reduce 106
+	.  reduce 108
 
 
 state 4
@@ -484,7 +487,7 @@ state 33
 
 
 state 34
-	expression : T_delete . expression  (71)
+	expression : T_delete . expression  (73)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -514,13 +517,13 @@ state 34
 
 
 state 35
-	expression : T_false .  (55)
+	expression : T_false .  (57)
 
-	.  reduce 55
+	.  reduce 57
 
 
 state 36
-	expression : T_new . ttype optional_new  (70)
+	expression : T_new . ttype optional_new  (72)
 
 	T_bool  shift 5
 	T_char  shift 6
@@ -533,79 +536,79 @@ state 36
 
 
 state 37
-	expression : T_NULL .  (56)
-
-	.  reduce 56
-
-
-state 38
-	expression : T_true .  (54)
-
-	.  reduce 54
-
-
-state 39
-	expression : T_intconst .  (57)
-
-	.  reduce 57
-
-
-state 40
-	expression : T_doubleconst .  (59)
-
-	.  reduce 59
-
-
-state 41
-	expression : T_id .  (52)
-	expression : T_id . T_lparen T_rparen  (61)
-	expression : T_id . T_lparen expression_list T_rparen  (62)
-
-	T_lparen  shift 67
-	T_assign  reduce 52
-	T_eq  reduce 52
-	T_neq  reduce 52
-	T_gt  reduce 52
-	T_lt  reduce 52
-	T_ge  reduce 52
-	T_le  reduce 52
-	T_plus  reduce 52
-	T_minus  reduce 52
-	T_times  reduce 52
-	T_div  reduce 52
-	T_mod  reduce 52
-	T_and  reduce 52
-	T_or  reduce 52
-	T_q  reduce 52
-	T_colon  reduce 52
-	T_comma  reduce 52
-	T_plusplus  reduce 52
-	T_minusminus  reduce 52
-	T_pluseq  reduce 52
-	T_minuseq  reduce 52
-	T_timeseq  reduce 52
-	T_diveq  reduce 52
-	T_modeq  reduce 52
-	T_semicol  reduce 52
-	T_rparen  reduce 52
-	T_lbracket  reduce 52
-	T_rbracket  reduce 52
-
-
-state 42
-	expression : T_charconst .  (58)
+	expression : T_NULL .  (58)
 
 	.  reduce 58
 
 
-state 43
-	expression : T_stringliteral .  (60)
+state 38
+	expression : T_true .  (56)
+
+	.  reduce 56
+
+
+state 39
+	expression : T_intconst .  (59)
+
+	.  reduce 59
+
+
+state 40
+	expression : T_doubleconst .  (61)
+
+	.  reduce 61
+
+
+state 41
+	expression : T_id .  (54)
+	expression : T_id . T_lparen T_rparen  (63)
+	expression : T_id . T_lparen expression_list T_rparen  (64)
+
+	T_lparen  shift 67
+	T_assign  reduce 54
+	T_eq  reduce 54
+	T_neq  reduce 54
+	T_gt  reduce 54
+	T_lt  reduce 54
+	T_ge  reduce 54
+	T_le  reduce 54
+	T_plus  reduce 54
+	T_minus  reduce 54
+	T_times  reduce 54
+	T_div  reduce 54
+	T_mod  reduce 54
+	T_and  reduce 54
+	T_or  reduce 54
+	T_q  reduce 54
+	T_colon  reduce 54
+	T_comma  reduce 54
+	T_plusplus  reduce 54
+	T_minusminus  reduce 54
+	T_pluseq  reduce 54
+	T_minuseq  reduce 54
+	T_timeseq  reduce 54
+	T_diveq  reduce 54
+	T_modeq  reduce 54
+	T_semicol  reduce 54
+	T_rparen  reduce 54
+	T_lbracket  reduce 54
+	T_rbracket  reduce 54
+
+
+state 42
+	expression : T_charconst .  (60)
 
 	.  reduce 60
 
 
+state 43
+	expression : T_stringliteral .  (62)
+
+	.  reduce 62
+
+
 state 44
-	unary_expression : T_plus . expression  (76)
+	unary_expression : T_plus . expression  (78)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -635,7 +638,7 @@ state 44
 
 
 state 45
-	unary_expression : T_minus . expression  (77)
+	unary_expression : T_minus . expression  (79)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -665,7 +668,7 @@ state 45
 
 
 state 46
-	unary_expression : T_times . expression  (75)
+	unary_expression : T_times . expression  (77)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -695,7 +698,7 @@ state 46
 
 
 state 47
-	unary_expression : T_bitand . expression  (74)
+	unary_expression : T_bitand . expression  (76)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -725,7 +728,7 @@ state 47
 
 
 state 48
-	unary_expression : T_bitnot . expression  (78)
+	unary_expression : T_bitnot . expression  (80)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -755,7 +758,7 @@ state 48
 
 
 state 49
-	unary_assignment : T_plusplus . expression  (93)
+	unary_assignment : T_plusplus . expression  (95)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -785,7 +788,7 @@ state 49
 
 
 state 50
-	unary_assignment : T_minusminus . expression  (94)
+	unary_assignment : T_minusminus . expression  (96)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -815,8 +818,8 @@ state 50
 
 
 state 51
-	expression : T_lparen . after_lparen  (53)
-	expression : T_lparen . ttype T_rparen expression  (68)
+	expression : T_lparen . after_lparen  (55)
+	expression : T_lparen . ttype T_rparen expression  (70)
 
 	T_bool  shift 5
 	T_char  shift 6
@@ -860,31 +863,31 @@ state 52
 
 
 state 53
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-	constant_expression : expression .  (105)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+	constant_expression : expression .  (107)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -910,31 +913,31 @@ state 53
 	T_diveq  shift 100
 	T_modeq  shift 101
 	T_lbracket  shift 102
-	T_rbracket  reduce 105
+	T_rbracket  reduce 107
 
 
 state 54
-	expression : unary_expression .  (64)
-
-	.  reduce 64
-
-
-state 55
-	expression : binary_expression .  (65)
-
-	.  reduce 65
-
-
-state 56
-	expression : unary_assignment .  (66)
+	expression : unary_expression .  (66)
 
 	.  reduce 66
 
 
-state 57
-	expression : binary_assignment .  (67)
+state 55
+	expression : binary_expression .  (67)
 
 	.  reduce 67
+
+
+state 56
+	expression : unary_assignment .  (68)
+
+	.  reduce 68
+
+
+state 57
+	expression : binary_assignment .  (69)
+
+	.  reduce 69
 
 
 state 58
@@ -999,101 +1002,101 @@ state 64
 
 
 state 65
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	expression : T_delete expression .  (71)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	expression : T_delete expression .  (73)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_assign  reduce 71
-	T_eq  reduce 71
-	T_neq  reduce 71
-	T_gt  reduce 71
-	T_lt  reduce 71
-	T_ge  reduce 71
-	T_le  reduce 71
-	T_plus  reduce 71
-	T_minus  reduce 71
-	T_times  reduce 71
-	T_div  reduce 71
-	T_mod  reduce 71
-	T_and  reduce 71
-	T_or  reduce 71
-	T_q  reduce 71
-	T_colon  reduce 71
-	T_comma  reduce 71
-	T_pluseq  reduce 71
-	T_minuseq  reduce 71
-	T_timeseq  reduce 71
-	T_diveq  reduce 71
-	T_modeq  reduce 71
-	T_semicol  reduce 71
-	T_rparen  reduce 71
-	T_rbracket  reduce 71
+	T_assign  reduce 73
+	T_eq  reduce 73
+	T_neq  reduce 73
+	T_gt  reduce 73
+	T_lt  reduce 73
+	T_ge  reduce 73
+	T_le  reduce 73
+	T_plus  reduce 73
+	T_minus  reduce 73
+	T_times  reduce 73
+	T_div  reduce 73
+	T_mod  reduce 73
+	T_and  reduce 73
+	T_or  reduce 73
+	T_q  reduce 73
+	T_colon  reduce 73
+	T_comma  reduce 73
+	T_pluseq  reduce 73
+	T_minuseq  reduce 73
+	T_timeseq  reduce 73
+	T_diveq  reduce 73
+	T_modeq  reduce 73
+	T_semicol  reduce 73
+	T_rparen  reduce 73
+	T_rbracket  reduce 73
 
 
 state 66
-	expression : T_new ttype . optional_new  (70)
-	optional_new : .  (103)
+	expression : T_new ttype . optional_new  (72)
+	optional_new : .  (105)
 
 	T_lbracket  shift 109
-	T_assign  reduce 103
-	T_eq  reduce 103
-	T_neq  reduce 103
-	T_gt  reduce 103
-	T_lt  reduce 103
-	T_ge  reduce 103
-	T_le  reduce 103
-	T_plus  reduce 103
-	T_minus  reduce 103
-	T_times  reduce 103
-	T_div  reduce 103
-	T_mod  reduce 103
-	T_and  reduce 103
-	T_or  reduce 103
-	T_q  reduce 103
-	T_colon  reduce 103
-	T_comma  reduce 103
-	T_plusplus  reduce 103
-	T_minusminus  reduce 103
-	T_pluseq  reduce 103
-	T_minuseq  reduce 103
-	T_timeseq  reduce 103
-	T_diveq  reduce 103
-	T_modeq  reduce 103
-	T_semicol  reduce 103
-	T_rparen  reduce 103
-	T_rbracket  reduce 103
+	T_assign  reduce 105
+	T_eq  reduce 105
+	T_neq  reduce 105
+	T_gt  reduce 105
+	T_lt  reduce 105
+	T_ge  reduce 105
+	T_le  reduce 105
+	T_plus  reduce 105
+	T_minus  reduce 105
+	T_times  reduce 105
+	T_div  reduce 105
+	T_mod  reduce 105
+	T_and  reduce 105
+	T_or  reduce 105
+	T_q  reduce 105
+	T_colon  reduce 105
+	T_comma  reduce 105
+	T_plusplus  reduce 105
+	T_minusminus  reduce 105
+	T_pluseq  reduce 105
+	T_minuseq  reduce 105
+	T_timeseq  reduce 105
+	T_diveq  reduce 105
+	T_modeq  reduce 105
+	T_semicol  reduce 105
+	T_rparen  reduce 105
+	T_rbracket  reduce 105
 
 	optional_new  goto 110
 
 
 state 67
-	expression : T_id T_lparen . T_rparen  (61)
-	expression : T_id T_lparen . expression_list T_rparen  (62)
+	expression : T_id T_lparen . T_rparen  (63)
+	expression : T_id T_lparen . expression_list T_rparen  (64)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1125,260 +1128,35 @@ state 67
 
 
 state 68
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	unary_expression : T_plus expression .  (76)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	unary_expression : T_plus expression .  (78)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_times  shift 88
 	T_div  shift 89
 	T_mod  shift 90
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_lbracket  shift 102
-	T_assign  reduce 76
-	T_eq  reduce 76
-	T_neq  reduce 76
-	T_gt  reduce 76
-	T_lt  reduce 76
-	T_ge  reduce 76
-	T_le  reduce 76
-	T_plus  reduce 76
-	T_minus  reduce 76
-	T_and  reduce 76
-	T_or  reduce 76
-	T_q  reduce 76
-	T_colon  reduce 76
-	T_comma  reduce 76
-	T_pluseq  reduce 76
-	T_minuseq  reduce 76
-	T_timeseq  reduce 76
-	T_diveq  reduce 76
-	T_modeq  reduce 76
-	T_semicol  reduce 76
-	T_rparen  reduce 76
-	T_rbracket  reduce 76
-
-
-state 69
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	unary_expression : T_minus expression .  (77)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
-	T_times  shift 88
-	T_div  shift 89
-	T_mod  shift 90
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_lbracket  shift 102
-	T_assign  reduce 77
-	T_eq  reduce 77
-	T_neq  reduce 77
-	T_gt  reduce 77
-	T_lt  reduce 77
-	T_ge  reduce 77
-	T_le  reduce 77
-	T_plus  reduce 77
-	T_minus  reduce 77
-	T_and  reduce 77
-	T_or  reduce 77
-	T_q  reduce 77
-	T_colon  reduce 77
-	T_comma  reduce 77
-	T_pluseq  reduce 77
-	T_minuseq  reduce 77
-	T_timeseq  reduce 77
-	T_diveq  reduce 77
-	T_modeq  reduce 77
-	T_semicol  reduce 77
-	T_rparen  reduce 77
-	T_rbracket  reduce 77
-
-
-state 70
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	unary_expression : T_times expression .  (75)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_lbracket  shift 102
-	T_assign  reduce 75
-	T_eq  reduce 75
-	T_neq  reduce 75
-	T_gt  reduce 75
-	T_lt  reduce 75
-	T_ge  reduce 75
-	T_le  reduce 75
-	T_plus  reduce 75
-	T_minus  reduce 75
-	T_times  reduce 75
-	T_div  reduce 75
-	T_mod  reduce 75
-	T_and  reduce 75
-	T_or  reduce 75
-	T_q  reduce 75
-	T_colon  reduce 75
-	T_comma  reduce 75
-	T_pluseq  reduce 75
-	T_minuseq  reduce 75
-	T_timeseq  reduce 75
-	T_diveq  reduce 75
-	T_modeq  reduce 75
-	T_semicol  reduce 75
-	T_rparen  reduce 75
-	T_rbracket  reduce 75
-
-
-state 71
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	unary_expression : T_bitand expression .  (74)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_lbracket  shift 102
-	T_assign  reduce 74
-	T_eq  reduce 74
-	T_neq  reduce 74
-	T_gt  reduce 74
-	T_lt  reduce 74
-	T_ge  reduce 74
-	T_le  reduce 74
-	T_plus  reduce 74
-	T_minus  reduce 74
-	T_times  reduce 74
-	T_div  reduce 74
-	T_mod  reduce 74
-	T_and  reduce 74
-	T_or  reduce 74
-	T_q  reduce 74
-	T_colon  reduce 74
-	T_comma  reduce 74
-	T_pluseq  reduce 74
-	T_minuseq  reduce 74
-	T_timeseq  reduce 74
-	T_diveq  reduce 74
-	T_modeq  reduce 74
-	T_semicol  reduce 74
-	T_rparen  reduce 74
-	T_rbracket  reduce 74
-
-
-state 72
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	unary_expression : T_bitnot expression .  (78)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
@@ -1391,9 +1169,6 @@ state 72
 	T_le  reduce 78
 	T_plus  reduce 78
 	T_minus  reduce 78
-	T_times  reduce 78
-	T_div  reduce 78
-	T_mod  reduce 78
 	T_and  reduce 78
 	T_or  reduce 78
 	T_q  reduce 78
@@ -1409,154 +1184,382 @@ state 72
 	T_rbracket  reduce 78
 
 
-state 73
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : T_plusplus expression .  (93)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+state 69
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	unary_expression : T_minus expression .  (79)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_times  shift 88
+	T_div  shift 89
+	T_mod  shift 90
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_lbracket  shift 102
+	T_assign  reduce 79
+	T_eq  reduce 79
+	T_neq  reduce 79
+	T_gt  reduce 79
+	T_lt  reduce 79
+	T_ge  reduce 79
+	T_le  reduce 79
+	T_plus  reduce 79
+	T_minus  reduce 79
+	T_and  reduce 79
+	T_or  reduce 79
+	T_q  reduce 79
+	T_colon  reduce 79
+	T_comma  reduce 79
+	T_pluseq  reduce 79
+	T_minuseq  reduce 79
+	T_timeseq  reduce 79
+	T_diveq  reduce 79
+	T_modeq  reduce 79
+	T_semicol  reduce 79
+	T_rparen  reduce 79
+	T_rbracket  reduce 79
+
+
+state 70
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	unary_expression : T_times expression .  (77)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_assign  reduce 93
-	T_eq  reduce 93
-	T_neq  reduce 93
-	T_gt  reduce 93
-	T_lt  reduce 93
-	T_ge  reduce 93
-	T_le  reduce 93
-	T_plus  reduce 93
-	T_minus  reduce 93
-	T_times  reduce 93
-	T_div  reduce 93
-	T_mod  reduce 93
-	T_and  reduce 93
-	T_or  reduce 93
-	T_q  reduce 93
-	T_colon  reduce 93
-	T_comma  reduce 93
-	T_pluseq  reduce 93
-	T_minuseq  reduce 93
-	T_timeseq  reduce 93
-	T_diveq  reduce 93
-	T_modeq  reduce 93
-	T_semicol  reduce 93
-	T_rparen  reduce 93
-	T_rbracket  reduce 93
+	T_assign  reduce 77
+	T_eq  reduce 77
+	T_neq  reduce 77
+	T_gt  reduce 77
+	T_lt  reduce 77
+	T_ge  reduce 77
+	T_le  reduce 77
+	T_plus  reduce 77
+	T_minus  reduce 77
+	T_times  reduce 77
+	T_div  reduce 77
+	T_mod  reduce 77
+	T_and  reduce 77
+	T_or  reduce 77
+	T_q  reduce 77
+	T_colon  reduce 77
+	T_comma  reduce 77
+	T_pluseq  reduce 77
+	T_minuseq  reduce 77
+	T_timeseq  reduce 77
+	T_diveq  reduce 77
+	T_modeq  reduce 77
+	T_semicol  reduce 77
+	T_rparen  reduce 77
+	T_rbracket  reduce 77
+
+
+state 71
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	unary_expression : T_bitand expression .  (76)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_lbracket  shift 102
+	T_assign  reduce 76
+	T_eq  reduce 76
+	T_neq  reduce 76
+	T_gt  reduce 76
+	T_lt  reduce 76
+	T_ge  reduce 76
+	T_le  reduce 76
+	T_plus  reduce 76
+	T_minus  reduce 76
+	T_times  reduce 76
+	T_div  reduce 76
+	T_mod  reduce 76
+	T_and  reduce 76
+	T_or  reduce 76
+	T_q  reduce 76
+	T_colon  reduce 76
+	T_comma  reduce 76
+	T_pluseq  reduce 76
+	T_minuseq  reduce 76
+	T_timeseq  reduce 76
+	T_diveq  reduce 76
+	T_modeq  reduce 76
+	T_semicol  reduce 76
+	T_rparen  reduce 76
+	T_rbracket  reduce 76
+
+
+state 72
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	unary_expression : T_bitnot expression .  (80)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_lbracket  shift 102
+	T_assign  reduce 80
+	T_eq  reduce 80
+	T_neq  reduce 80
+	T_gt  reduce 80
+	T_lt  reduce 80
+	T_ge  reduce 80
+	T_le  reduce 80
+	T_plus  reduce 80
+	T_minus  reduce 80
+	T_times  reduce 80
+	T_div  reduce 80
+	T_mod  reduce 80
+	T_and  reduce 80
+	T_or  reduce 80
+	T_q  reduce 80
+	T_colon  reduce 80
+	T_comma  reduce 80
+	T_pluseq  reduce 80
+	T_minuseq  reduce 80
+	T_timeseq  reduce 80
+	T_diveq  reduce 80
+	T_modeq  reduce 80
+	T_semicol  reduce 80
+	T_rparen  reduce 80
+	T_rbracket  reduce 80
+
+
+state 73
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : T_plusplus expression .  (95)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_lbracket  shift 102
+	T_assign  reduce 95
+	T_eq  reduce 95
+	T_neq  reduce 95
+	T_gt  reduce 95
+	T_lt  reduce 95
+	T_ge  reduce 95
+	T_le  reduce 95
+	T_plus  reduce 95
+	T_minus  reduce 95
+	T_times  reduce 95
+	T_div  reduce 95
+	T_mod  reduce 95
+	T_and  reduce 95
+	T_or  reduce 95
+	T_q  reduce 95
+	T_colon  reduce 95
+	T_comma  reduce 95
+	T_pluseq  reduce 95
+	T_minuseq  reduce 95
+	T_timeseq  reduce 95
+	T_diveq  reduce 95
+	T_modeq  reduce 95
+	T_semicol  reduce 95
+	T_rparen  reduce 95
+	T_rbracket  reduce 95
 
 
 state 74
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : T_minusminus expression .  (94)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : T_minusminus expression .  (96)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_assign  reduce 94
-	T_eq  reduce 94
-	T_neq  reduce 94
-	T_gt  reduce 94
-	T_lt  reduce 94
-	T_ge  reduce 94
-	T_le  reduce 94
-	T_plus  reduce 94
-	T_minus  reduce 94
-	T_times  reduce 94
-	T_div  reduce 94
-	T_mod  reduce 94
-	T_and  reduce 94
-	T_or  reduce 94
-	T_q  reduce 94
-	T_colon  reduce 94
-	T_comma  reduce 94
-	T_pluseq  reduce 94
-	T_minuseq  reduce 94
-	T_timeseq  reduce 94
-	T_diveq  reduce 94
-	T_modeq  reduce 94
-	T_semicol  reduce 94
-	T_rparen  reduce 94
-	T_rbracket  reduce 94
+	T_assign  reduce 96
+	T_eq  reduce 96
+	T_neq  reduce 96
+	T_gt  reduce 96
+	T_lt  reduce 96
+	T_ge  reduce 96
+	T_le  reduce 96
+	T_plus  reduce 96
+	T_minus  reduce 96
+	T_times  reduce 96
+	T_div  reduce 96
+	T_mod  reduce 96
+	T_and  reduce 96
+	T_or  reduce 96
+	T_q  reduce 96
+	T_colon  reduce 96
+	T_comma  reduce 96
+	T_pluseq  reduce 96
+	T_minuseq  reduce 96
+	T_timeseq  reduce 96
+	T_diveq  reduce 96
+	T_modeq  reduce 96
+	T_semicol  reduce 96
+	T_rparen  reduce 96
+	T_rbracket  reduce 96
 
 
 state 75
-	expression : T_lparen ttype . T_rparen expression  (68)
-	after_lparen : ttype . T_rparen  (73)
+	expression : T_lparen ttype . T_rparen expression  (70)
+	after_lparen : ttype . T_rparen  (75)
 
 	T_rparen  shift 114
 	.  error
 
 
 state 76
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	after_lparen : expression . T_rparen  (72)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	after_lparen : expression . T_rparen  (74)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -1587,9 +1590,9 @@ state 76
 
 
 state 77
-	expression : T_lparen after_lparen .  (53)
+	expression : T_lparen after_lparen .  (55)
 
-	.  reduce 53
+	.  reduce 55
 
 
 state 78
@@ -1599,7 +1602,7 @@ state 78
 
 
 state 79
-	binary_assignment : expression T_assign . expression  (97)
+	binary_assignment : expression T_assign . expression  (99)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1629,7 +1632,7 @@ state 79
 
 
 state 80
-	binary_expression : expression T_eq . expression  (88)
+	binary_expression : expression T_eq . expression  (90)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1659,7 +1662,7 @@ state 80
 
 
 state 81
-	binary_expression : expression T_neq . expression  (89)
+	binary_expression : expression T_neq . expression  (91)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1689,7 +1692,7 @@ state 81
 
 
 state 82
-	binary_expression : expression T_gt . expression  (85)
+	binary_expression : expression T_gt . expression  (87)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1719,7 +1722,7 @@ state 82
 
 
 state 83
-	binary_expression : expression T_lt . expression  (84)
+	binary_expression : expression T_lt . expression  (86)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1749,7 +1752,7 @@ state 83
 
 
 state 84
-	binary_expression : expression T_ge . expression  (87)
+	binary_expression : expression T_ge . expression  (89)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1779,7 +1782,7 @@ state 84
 
 
 state 85
-	binary_expression : expression T_le . expression  (86)
+	binary_expression : expression T_le . expression  (88)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1809,7 +1812,7 @@ state 85
 
 
 state 86
-	binary_expression : expression T_plus . expression  (82)
+	binary_expression : expression T_plus . expression  (84)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1839,7 +1842,7 @@ state 86
 
 
 state 87
-	binary_expression : expression T_minus . expression  (83)
+	binary_expression : expression T_minus . expression  (85)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1869,7 +1872,7 @@ state 87
 
 
 state 88
-	binary_expression : expression T_times . expression  (79)
+	binary_expression : expression T_times . expression  (81)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1899,7 +1902,7 @@ state 88
 
 
 state 89
-	binary_expression : expression T_div . expression  (80)
+	binary_expression : expression T_div . expression  (82)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1929,7 +1932,7 @@ state 89
 
 
 state 90
-	binary_expression : expression T_mod . expression  (81)
+	binary_expression : expression T_mod . expression  (83)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1959,7 +1962,7 @@ state 90
 
 
 state 91
-	binary_expression : expression T_and . expression  (90)
+	binary_expression : expression T_and . expression  (92)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -1989,7 +1992,7 @@ state 91
 
 
 state 92
-	binary_expression : expression T_or . expression  (91)
+	binary_expression : expression T_or . expression  (93)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2019,7 +2022,7 @@ state 92
 
 
 state 93
-	expression : expression T_q . expression T_colon  (69)
+	expression : expression T_q . expression T_colon  (71)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2049,7 +2052,7 @@ state 93
 
 
 state 94
-	binary_expression : expression T_comma . expression  (92)
+	binary_expression : expression T_comma . expression  (94)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2079,19 +2082,19 @@ state 94
 
 
 state 95
-	unary_assignment : expression T_plusplus .  (95)
+	unary_assignment : expression T_plusplus .  (97)
 
-	.  reduce 95
+	.  reduce 97
 
 
 state 96
-	unary_assignment : expression T_minusminus .  (96)
+	unary_assignment : expression T_minusminus .  (98)
 
-	.  reduce 96
+	.  reduce 98
 
 
 state 97
-	binary_assignment : expression T_pluseq . expression  (101)
+	binary_assignment : expression T_pluseq . expression  (103)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2121,7 +2124,7 @@ state 97
 
 
 state 98
-	binary_assignment : expression T_minuseq . expression  (102)
+	binary_assignment : expression T_minuseq . expression  (104)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2151,7 +2154,7 @@ state 98
 
 
 state 99
-	binary_assignment : expression T_timeseq . expression  (98)
+	binary_assignment : expression T_timeseq . expression  (100)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2181,7 +2184,7 @@ state 99
 
 
 state 100
-	binary_assignment : expression T_diveq . expression  (99)
+	binary_assignment : expression T_diveq . expression  (101)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2211,7 +2214,7 @@ state 100
 
 
 state 101
-	binary_assignment : expression T_modeq . expression  (100)
+	binary_assignment : expression T_modeq . expression  (102)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2241,7 +2244,7 @@ state 101
 
 
 state 102
-	expression : expression T_lbracket . expression T_rbracket  (63)
+	expression : expression T_lbracket . expression T_rbracket  (65)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2315,7 +2318,7 @@ state 108
 
 
 state 109
-	optional_new : T_lbracket . expression T_rbracket  (104)
+	optional_new : T_lbracket . expression T_rbracket  (106)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2345,43 +2348,43 @@ state 109
 
 
 state 110
-	expression : T_new ttype optional_new .  (70)
+	expression : T_new ttype optional_new .  (72)
 
-	.  reduce 70
+	.  reduce 72
 
 
 state 111
-	expression : T_id T_lparen T_rparen .  (61)
+	expression : T_id T_lparen T_rparen .  (63)
 
-	.  reduce 61
+	.  reduce 63
 
 
 state 112
 	expression_list : expression .  (32)
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -2412,7 +2415,7 @@ state 112
 
 state 113
 	expression_list : expression_list . T_comma expression  (33)
-	expression : T_id T_lparen expression_list . T_rparen  (62)
+	expression : T_id T_lparen expression_list . T_rparen  (64)
 
 	T_comma  shift 142
 	T_rparen  shift 143
@@ -2420,8 +2423,8 @@ state 113
 
 
 state 114
-	expression : T_lparen ttype T_rparen . expression  (68)
-	after_lparen : ttype T_rparen .  (73)
+	expression : T_lparen ttype T_rparen . expression  (70)
+	after_lparen : ttype T_rparen .  (75)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -2436,34 +2439,34 @@ state 114
 	T_bitand  shift 47
 	T_bitnot  shift 48
 	T_lparen  shift 51
-	T_assign  reduce 73
-	T_eq  reduce 73
-	T_neq  reduce 73
-	T_gt  reduce 73
-	T_lt  reduce 73
-	T_ge  reduce 73
-	T_le  reduce 73
-	T_plus  reduce 73
-	T_minus  reduce 73
-	T_times  reduce 73
-	T_div  reduce 73
-	T_mod  reduce 73
-	T_and  reduce 73
-	T_or  reduce 73
-	T_q  reduce 73
-	T_colon  reduce 73
-	T_comma  reduce 73
-	T_plusplus  reduce 73
-	T_minusminus  reduce 73
-	T_pluseq  reduce 73
-	T_minuseq  reduce 73
-	T_timeseq  reduce 73
-	T_diveq  reduce 73
-	T_modeq  reduce 73
-	T_semicol  reduce 73
-	T_rparen  reduce 73
-	T_lbracket  reduce 73
-	T_rbracket  reduce 73
+	T_assign  reduce 75
+	T_eq  reduce 75
+	T_neq  reduce 75
+	T_gt  reduce 75
+	T_lt  reduce 75
+	T_ge  reduce 75
+	T_le  reduce 75
+	T_plus  reduce 75
+	T_minus  reduce 75
+	T_times  reduce 75
+	T_div  reduce 75
+	T_mod  reduce 75
+	T_and  reduce 75
+	T_or  reduce 75
+	T_q  reduce 75
+	T_colon  reduce 75
+	T_comma  reduce 75
+	T_plusplus  reduce 75
+	T_minusminus  reduce 75
+	T_pluseq  reduce 75
+	T_minuseq  reduce 75
+	T_timeseq  reduce 75
+	T_diveq  reduce 75
+	T_modeq  reduce 75
+	T_semicol  reduce 75
+	T_rparen  reduce 75
+	T_lbracket  reduce 75
+	T_rbracket  reduce 75
 
 	expression  goto 144
 	unary_expression  goto 54
@@ -2473,38 +2476,44 @@ state 114
 
 
 state 115
-	after_lparen : expression T_rparen .  (72)
+	after_lparen : expression T_rparen .  (74)
 
-	.  reduce 72
+	.  reduce 74
 
 
 state 116
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression T_assign expression .  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression T_assign expression .  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
+	T_assign  shift 79
+	T_neq  shift 81
+	T_gt  shift 82
+	T_lt  shift 83
+	T_ge  shift 84
+	T_le  shift 85
 	T_plus  shift 86
 	T_minus  shift 87
 	T_times  shift 88
@@ -2513,48 +2522,48 @@ state 116
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_eq  reduce 97
-	T_and  reduce 97
-	T_or  reduce 97
-	T_q  reduce 97
-	T_colon  reduce 97
-	T_comma  reduce 97
-	T_pluseq  reduce 97
-	T_minuseq  reduce 97
-	T_timeseq  reduce 97
-	T_diveq  reduce 97
-	T_modeq  reduce 97
-	T_semicol  reduce 97
-	T_rparen  reduce 97
-	T_rbracket  reduce 97
+	T_eq  reduce 99
+	T_and  reduce 99
+	T_or  reduce 99
+	T_q  reduce 99
+	T_colon  reduce 99
+	T_comma  reduce 99
+	T_pluseq  reduce 99
+	T_minuseq  reduce 99
+	T_timeseq  reduce 99
+	T_diveq  reduce 99
+	T_modeq  reduce 99
+	T_semicol  reduce 99
+	T_rparen  reduce 99
+	T_rbracket  reduce 99
 
 
 state 117
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression T_eq expression .  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression T_eq expression .  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -2579,40 +2588,46 @@ state 117
 	T_diveq  shift 100
 	T_modeq  shift 101
 	T_lbracket  shift 102
-	T_colon  reduce 88
-	T_comma  reduce 88
-	T_semicol  reduce 88
-	T_rparen  reduce 88
-	T_rbracket  reduce 88
+	T_colon  reduce 90
+	T_comma  reduce 90
+	T_semicol  reduce 90
+	T_rparen  reduce 90
+	T_rbracket  reduce 90
 
 
 state 118
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression T_neq expression .  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression T_neq expression .  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
+	T_assign  shift 79
+	T_neq  shift 81
+	T_gt  shift 82
+	T_lt  shift 83
+	T_ge  shift 84
+	T_le  shift 85
 	T_plus  shift 86
 	T_minus  shift 87
 	T_times  shift 88
@@ -2621,151 +2636,55 @@ state 118
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_eq  reduce 89
-	T_and  reduce 89
-	T_or  reduce 89
-	T_q  reduce 89
-	T_colon  reduce 89
-	T_comma  reduce 89
-	T_pluseq  reduce 89
-	T_minuseq  reduce 89
-	T_timeseq  reduce 89
-	T_diveq  reduce 89
-	T_modeq  reduce 89
-	T_semicol  reduce 89
-	T_rparen  reduce 89
-	T_rbracket  reduce 89
+	T_eq  reduce 91
+	T_and  reduce 91
+	T_or  reduce 91
+	T_q  reduce 91
+	T_colon  reduce 91
+	T_comma  reduce 91
+	T_pluseq  reduce 91
+	T_minuseq  reduce 91
+	T_timeseq  reduce 91
+	T_diveq  reduce 91
+	T_modeq  reduce 91
+	T_semicol  reduce 91
+	T_rparen  reduce 91
+	T_rbracket  reduce 91
 
 
 state 119
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression T_gt expression .  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression T_gt expression .  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
-	T_plus  shift 86
-	T_minus  shift 87
-	T_times  shift 88
-	T_div  shift 89
-	T_mod  shift 90
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_lbracket  shift 102
-	T_eq  reduce 85
-	T_and  reduce 85
-	T_or  reduce 85
-	T_q  reduce 85
-	T_colon  reduce 85
-	T_comma  reduce 85
-	T_pluseq  reduce 85
-	T_minuseq  reduce 85
-	T_timeseq  reduce 85
-	T_diveq  reduce 85
-	T_modeq  reduce 85
-	T_semicol  reduce 85
-	T_rparen  reduce 85
-	T_rbracket  reduce 85
-
-
-state 120
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression T_lt expression .  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
-	T_plus  shift 86
-	T_minus  shift 87
-	T_times  shift 88
-	T_div  shift 89
-	T_mod  shift 90
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_lbracket  shift 102
-	T_eq  reduce 84
-	T_and  reduce 84
-	T_or  reduce 84
-	T_q  reduce 84
-	T_colon  reduce 84
-	T_comma  reduce 84
-	T_pluseq  reduce 84
-	T_minuseq  reduce 84
-	T_timeseq  reduce 84
-	T_diveq  reduce 84
-	T_modeq  reduce 84
-	T_semicol  reduce 84
-	T_rparen  reduce 84
-	T_rbracket  reduce 84
-
-
-state 121
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression T_ge expression .  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
+	T_assign  shift 79
+	T_neq  shift 81
+	T_gt  shift 82
+	T_lt  shift 83
+	T_ge  shift 84
+	T_le  shift 85
 	T_plus  shift 86
 	T_minus  shift 87
 	T_times  shift 88
@@ -2790,33 +2709,39 @@ state 121
 	T_rbracket  reduce 87
 
 
-state 122
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression T_le expression .  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+state 120
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression T_lt expression .  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
+	T_assign  shift 79
+	T_neq  shift 81
+	T_gt  shift 82
+	T_lt  shift 83
+	T_ge  shift 84
+	T_le  shift 85
 	T_plus  shift 86
 	T_minus  shift 87
 	T_times  shift 88
@@ -2841,32 +2766,146 @@ state 122
 	T_rbracket  reduce 86
 
 
+state 121
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression T_ge expression .  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_assign  shift 79
+	T_neq  shift 81
+	T_gt  shift 82
+	T_lt  shift 83
+	T_ge  shift 84
+	T_le  shift 85
+	T_plus  shift 86
+	T_minus  shift 87
+	T_times  shift 88
+	T_div  shift 89
+	T_mod  shift 90
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_lbracket  shift 102
+	T_eq  reduce 89
+	T_and  reduce 89
+	T_or  reduce 89
+	T_q  reduce 89
+	T_colon  reduce 89
+	T_comma  reduce 89
+	T_pluseq  reduce 89
+	T_minuseq  reduce 89
+	T_timeseq  reduce 89
+	T_diveq  reduce 89
+	T_modeq  reduce 89
+	T_semicol  reduce 89
+	T_rparen  reduce 89
+	T_rbracket  reduce 89
+
+
+state 122
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression T_le expression .  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_assign  shift 79
+	T_neq  shift 81
+	T_gt  shift 82
+	T_lt  shift 83
+	T_ge  shift 84
+	T_le  shift 85
+	T_plus  shift 86
+	T_minus  shift 87
+	T_times  shift 88
+	T_div  shift 89
+	T_mod  shift 90
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_lbracket  shift 102
+	T_eq  reduce 88
+	T_and  reduce 88
+	T_or  reduce 88
+	T_q  reduce 88
+	T_colon  reduce 88
+	T_comma  reduce 88
+	T_pluseq  reduce 88
+	T_minuseq  reduce 88
+	T_timeseq  reduce 88
+	T_diveq  reduce 88
+	T_modeq  reduce 88
+	T_semicol  reduce 88
+	T_rparen  reduce 88
+	T_rbracket  reduce 88
+
+
 state 123
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression T_plus expression .  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression T_plus expression .  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_times  shift 88
 	T_div  shift 89
@@ -2874,56 +2913,56 @@ state 123
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_assign  reduce 82
-	T_eq  reduce 82
-	T_neq  reduce 82
-	T_gt  reduce 82
-	T_lt  reduce 82
-	T_ge  reduce 82
-	T_le  reduce 82
-	T_plus  reduce 82
-	T_minus  reduce 82
-	T_and  reduce 82
-	T_or  reduce 82
-	T_q  reduce 82
-	T_colon  reduce 82
-	T_comma  reduce 82
-	T_pluseq  reduce 82
-	T_minuseq  reduce 82
-	T_timeseq  reduce 82
-	T_diveq  reduce 82
-	T_modeq  reduce 82
-	T_semicol  reduce 82
-	T_rparen  reduce 82
-	T_rbracket  reduce 82
+	T_assign  reduce 84
+	T_eq  reduce 84
+	T_neq  reduce 84
+	T_gt  reduce 84
+	T_lt  reduce 84
+	T_ge  reduce 84
+	T_le  reduce 84
+	T_plus  reduce 84
+	T_minus  reduce 84
+	T_and  reduce 84
+	T_or  reduce 84
+	T_q  reduce 84
+	T_colon  reduce 84
+	T_comma  reduce 84
+	T_pluseq  reduce 84
+	T_minuseq  reduce 84
+	T_timeseq  reduce 84
+	T_diveq  reduce 84
+	T_modeq  reduce 84
+	T_semicol  reduce 84
+	T_rparen  reduce 84
+	T_rbracket  reduce 84
 
 
 state 124
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression T_minus expression .  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression T_minus expression .  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_times  shift 88
 	T_div  shift 89
@@ -2931,170 +2970,56 @@ state 124
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_assign  reduce 83
-	T_eq  reduce 83
-	T_neq  reduce 83
-	T_gt  reduce 83
-	T_lt  reduce 83
-	T_ge  reduce 83
-	T_le  reduce 83
-	T_plus  reduce 83
-	T_minus  reduce 83
-	T_and  reduce 83
-	T_or  reduce 83
-	T_q  reduce 83
-	T_colon  reduce 83
-	T_comma  reduce 83
-	T_pluseq  reduce 83
-	T_minuseq  reduce 83
-	T_timeseq  reduce 83
-	T_diveq  reduce 83
-	T_modeq  reduce 83
-	T_semicol  reduce 83
-	T_rparen  reduce 83
-	T_rbracket  reduce 83
+	T_assign  reduce 85
+	T_eq  reduce 85
+	T_neq  reduce 85
+	T_gt  reduce 85
+	T_lt  reduce 85
+	T_ge  reduce 85
+	T_le  reduce 85
+	T_plus  reduce 85
+	T_minus  reduce 85
+	T_and  reduce 85
+	T_or  reduce 85
+	T_q  reduce 85
+	T_colon  reduce 85
+	T_comma  reduce 85
+	T_pluseq  reduce 85
+	T_minuseq  reduce 85
+	T_timeseq  reduce 85
+	T_diveq  reduce 85
+	T_modeq  reduce 85
+	T_semicol  reduce 85
+	T_rparen  reduce 85
+	T_rbracket  reduce 85
 
 
 state 125
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression T_times expression .  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_lbracket  shift 102
-	T_assign  reduce 79
-	T_eq  reduce 79
-	T_neq  reduce 79
-	T_gt  reduce 79
-	T_lt  reduce 79
-	T_ge  reduce 79
-	T_le  reduce 79
-	T_plus  reduce 79
-	T_minus  reduce 79
-	T_times  reduce 79
-	T_div  reduce 79
-	T_mod  reduce 79
-	T_and  reduce 79
-	T_or  reduce 79
-	T_q  reduce 79
-	T_colon  reduce 79
-	T_comma  reduce 79
-	T_pluseq  reduce 79
-	T_minuseq  reduce 79
-	T_timeseq  reduce 79
-	T_diveq  reduce 79
-	T_modeq  reduce 79
-	T_semicol  reduce 79
-	T_rparen  reduce 79
-	T_rbracket  reduce 79
-
-
-state 126
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression T_div expression .  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_lbracket  shift 102
-	T_assign  reduce 80
-	T_eq  reduce 80
-	T_neq  reduce 80
-	T_gt  reduce 80
-	T_lt  reduce 80
-	T_ge  reduce 80
-	T_le  reduce 80
-	T_plus  reduce 80
-	T_minus  reduce 80
-	T_times  reduce 80
-	T_div  reduce 80
-	T_mod  reduce 80
-	T_and  reduce 80
-	T_or  reduce 80
-	T_q  reduce 80
-	T_colon  reduce 80
-	T_comma  reduce 80
-	T_pluseq  reduce 80
-	T_minuseq  reduce 80
-	T_timeseq  reduce 80
-	T_diveq  reduce 80
-	T_modeq  reduce 80
-	T_semicol  reduce 80
-	T_rparen  reduce 80
-	T_rbracket  reduce 80
-
-
-state 127
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression T_mod expression .  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression T_times expression .  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_plusplus  shift 95
 	T_minusminus  shift 96
@@ -3126,32 +3051,146 @@ state 127
 	T_rbracket  reduce 81
 
 
+state 126
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression T_div expression .  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_lbracket  shift 102
+	T_assign  reduce 82
+	T_eq  reduce 82
+	T_neq  reduce 82
+	T_gt  reduce 82
+	T_lt  reduce 82
+	T_ge  reduce 82
+	T_le  reduce 82
+	T_plus  reduce 82
+	T_minus  reduce 82
+	T_times  reduce 82
+	T_div  reduce 82
+	T_mod  reduce 82
+	T_and  reduce 82
+	T_or  reduce 82
+	T_q  reduce 82
+	T_colon  reduce 82
+	T_comma  reduce 82
+	T_pluseq  reduce 82
+	T_minuseq  reduce 82
+	T_timeseq  reduce 82
+	T_diveq  reduce 82
+	T_modeq  reduce 82
+	T_semicol  reduce 82
+	T_rparen  reduce 82
+	T_rbracket  reduce 82
+
+
+state 127
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression T_mod expression .  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_lbracket  shift 102
+	T_assign  reduce 83
+	T_eq  reduce 83
+	T_neq  reduce 83
+	T_gt  reduce 83
+	T_lt  reduce 83
+	T_ge  reduce 83
+	T_le  reduce 83
+	T_plus  reduce 83
+	T_minus  reduce 83
+	T_times  reduce 83
+	T_div  reduce 83
+	T_mod  reduce 83
+	T_and  reduce 83
+	T_or  reduce 83
+	T_q  reduce 83
+	T_colon  reduce 83
+	T_comma  reduce 83
+	T_pluseq  reduce 83
+	T_minuseq  reduce 83
+	T_timeseq  reduce 83
+	T_diveq  reduce 83
+	T_modeq  reduce 83
+	T_semicol  reduce 83
+	T_rparen  reduce 83
+	T_rbracket  reduce 83
+
+
 state 128
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression T_and expression .  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression T_and expression .  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_neq  shift 81
@@ -3167,48 +3206,48 @@ state 128
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_eq  reduce 90
-	T_and  reduce 90
-	T_or  reduce 90
-	T_q  reduce 90
-	T_colon  reduce 90
-	T_comma  reduce 90
-	T_pluseq  reduce 90
-	T_minuseq  reduce 90
-	T_timeseq  reduce 90
-	T_diveq  reduce 90
-	T_modeq  reduce 90
-	T_semicol  reduce 90
-	T_rparen  reduce 90
-	T_rbracket  reduce 90
+	T_eq  reduce 92
+	T_and  reduce 92
+	T_or  reduce 92
+	T_q  reduce 92
+	T_colon  reduce 92
+	T_comma  reduce 92
+	T_pluseq  reduce 92
+	T_minuseq  reduce 92
+	T_timeseq  reduce 92
+	T_diveq  reduce 92
+	T_modeq  reduce 92
+	T_semicol  reduce 92
+	T_rparen  reduce 92
+	T_rbracket  reduce 92
 
 
 state 129
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression T_or expression .  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression T_or expression .  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_neq  shift 81
@@ -3225,47 +3264,47 @@ state 129
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_eq  reduce 91
-	T_or  reduce 91
-	T_q  reduce 91
-	T_colon  reduce 91
-	T_comma  reduce 91
-	T_pluseq  reduce 91
-	T_minuseq  reduce 91
-	T_timeseq  reduce 91
-	T_diveq  reduce 91
-	T_modeq  reduce 91
-	T_semicol  reduce 91
-	T_rparen  reduce 91
-	T_rbracket  reduce 91
+	T_eq  reduce 93
+	T_or  reduce 93
+	T_q  reduce 93
+	T_colon  reduce 93
+	T_comma  reduce 93
+	T_pluseq  reduce 93
+	T_minuseq  reduce 93
+	T_timeseq  reduce 93
+	T_diveq  reduce 93
+	T_modeq  reduce 93
+	T_semicol  reduce 93
+	T_rparen  reduce 93
+	T_rbracket  reduce 93
 
 
 state 130
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	expression : expression T_q expression . T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	expression : expression T_q expression . T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -3296,31 +3335,31 @@ state 130
 
 
 state 131
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	binary_expression : expression T_comma expression .  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	binary_expression : expression T_comma expression .  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -3345,39 +3384,39 @@ state 131
 	T_diveq  shift 100
 	T_modeq  shift 101
 	T_lbracket  shift 102
-	T_colon  reduce 92
-	T_comma  reduce 92
-	T_semicol  reduce 92
-	T_rparen  reduce 92
-	T_rbracket  reduce 92
+	T_colon  reduce 94
+	T_comma  reduce 94
+	T_semicol  reduce 94
+	T_rparen  reduce 94
+	T_rbracket  reduce 94
 
 
 state 132
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression T_pluseq expression .  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression T_pluseq expression .  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -3402,39 +3441,39 @@ state 132
 	T_diveq  shift 100
 	T_modeq  shift 101
 	T_lbracket  shift 102
-	T_colon  reduce 101
-	T_comma  reduce 101
-	T_semicol  reduce 101
-	T_rparen  reduce 101
-	T_rbracket  reduce 101
+	T_colon  reduce 103
+	T_comma  reduce 103
+	T_semicol  reduce 103
+	T_rparen  reduce 103
+	T_rbracket  reduce 103
 
 
 state 133
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-	binary_assignment : expression T_minuseq expression .  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+	binary_assignment : expression T_minuseq expression .  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -3459,153 +3498,39 @@ state 133
 	T_diveq  shift 100
 	T_modeq  shift 101
 	T_lbracket  shift 102
-	T_colon  reduce 102
-	T_comma  reduce 102
-	T_semicol  reduce 102
-	T_rparen  reduce 102
-	T_rbracket  reduce 102
+	T_colon  reduce 104
+	T_comma  reduce 104
+	T_semicol  reduce 104
+	T_rparen  reduce 104
+	T_rbracket  reduce 104
 
 
 state 134
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression T_timeseq expression .  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
-	T_assign  shift 79
-	T_eq  shift 80
-	T_neq  shift 81
-	T_gt  shift 82
-	T_lt  shift 83
-	T_ge  shift 84
-	T_le  shift 85
-	T_plus  shift 86
-	T_minus  shift 87
-	T_times  shift 88
-	T_div  shift 89
-	T_mod  shift 90
-	T_and  shift 91
-	T_or  shift 92
-	T_q  shift 93
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_pluseq  shift 97
-	T_minuseq  shift 98
-	T_timeseq  shift 99
-	T_diveq  shift 100
-	T_modeq  shift 101
-	T_lbracket  shift 102
-	T_colon  reduce 98
-	T_comma  reduce 98
-	T_semicol  reduce 98
-	T_rparen  reduce 98
-	T_rbracket  reduce 98
-
-
-state 135
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression T_diveq expression .  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-
-	T_assign  shift 79
-	T_eq  shift 80
-	T_neq  shift 81
-	T_gt  shift 82
-	T_lt  shift 83
-	T_ge  shift 84
-	T_le  shift 85
-	T_plus  shift 86
-	T_minus  shift 87
-	T_times  shift 88
-	T_div  shift 89
-	T_mod  shift 90
-	T_and  shift 91
-	T_or  shift 92
-	T_q  shift 93
-	T_plusplus  shift 95
-	T_minusminus  shift 96
-	T_pluseq  shift 97
-	T_minuseq  shift 98
-	T_timeseq  shift 99
-	T_diveq  shift 100
-	T_modeq  shift 101
-	T_lbracket  shift 102
-	T_colon  reduce 99
-	T_comma  reduce 99
-	T_semicol  reduce 99
-	T_rparen  reduce 99
-	T_rbracket  reduce 99
-
-
-state 136
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression T_modeq expression .  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression T_timeseq expression .  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -3637,32 +3562,146 @@ state 136
 	T_rbracket  reduce 100
 
 
+state 135
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression T_diveq expression .  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_assign  shift 79
+	T_eq  shift 80
+	T_neq  shift 81
+	T_gt  shift 82
+	T_lt  shift 83
+	T_ge  shift 84
+	T_le  shift 85
+	T_plus  shift 86
+	T_minus  shift 87
+	T_times  shift 88
+	T_div  shift 89
+	T_mod  shift 90
+	T_and  shift 91
+	T_or  shift 92
+	T_q  shift 93
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_pluseq  shift 97
+	T_minuseq  shift 98
+	T_timeseq  shift 99
+	T_diveq  shift 100
+	T_modeq  shift 101
+	T_lbracket  shift 102
+	T_colon  reduce 101
+	T_comma  reduce 101
+	T_semicol  reduce 101
+	T_rparen  reduce 101
+	T_rbracket  reduce 101
+
+
+state 136
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression T_modeq expression .  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+
+	T_assign  shift 79
+	T_eq  shift 80
+	T_neq  shift 81
+	T_gt  shift 82
+	T_lt  shift 83
+	T_ge  shift 84
+	T_le  shift 85
+	T_plus  shift 86
+	T_minus  shift 87
+	T_times  shift 88
+	T_div  shift 89
+	T_mod  shift 90
+	T_and  shift 91
+	T_or  shift 92
+	T_q  shift 93
+	T_plusplus  shift 95
+	T_minusminus  shift 96
+	T_pluseq  shift 97
+	T_minuseq  shift 98
+	T_timeseq  shift 99
+	T_diveq  shift 100
+	T_modeq  shift 101
+	T_lbracket  shift 102
+	T_colon  reduce 102
+	T_comma  reduce 102
+	T_semicol  reduce 102
+	T_rparen  reduce 102
+	T_rbracket  reduce 102
+
+
 state 137
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression T_lbracket expression . T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression T_lbracket expression . T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -3696,7 +3735,7 @@ state 138
 	optional_declaration_list : optional_declaration_list . declaration  (3)
 	inside_brackets : optional_declaration_list . optional_statement_list  (7)
 	optional_statement_list : .  (36)
-	optional_T_id : .  (38)
+	optional_for_label : .  (38)
 
 	T_bool  shift 5
 	T_break  shift 147
@@ -3740,7 +3779,7 @@ state 138
 	expression  goto 155
 	statement_list  goto 156
 	statement  goto 157
-	optional_T_id  goto 158
+	optional_for_label  goto 158
 	matched_if  goto 159
 	unmatched_if  goto 160
 	unary_expression  goto 54
@@ -3764,31 +3803,31 @@ state 140
 
 
 state 141
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
-	optional_new : T_lbracket expression . T_rbracket  (104)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
+	optional_new : T_lbracket expression . T_rbracket  (106)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -3849,111 +3888,163 @@ state 142
 
 
 state 143
-	expression : T_id T_lparen expression_list T_rparen .  (62)
+	expression : T_id T_lparen expression_list T_rparen .  (64)
 
-	.  reduce 62
+	.  reduce 64
 
 
 state 144
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : T_lparen ttype T_rparen expression .  (68)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : T_lparen ttype T_rparen expression .  (70)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_plusplus  shift 95
 	T_minusminus  shift 96
 	T_lbracket  shift 102
-	T_assign  reduce 68
-	T_eq  reduce 68
-	T_neq  reduce 68
-	T_gt  reduce 68
-	T_lt  reduce 68
-	T_ge  reduce 68
-	T_le  reduce 68
-	T_plus  reduce 68
-	T_minus  reduce 68
-	T_times  reduce 68
-	T_div  reduce 68
-	T_mod  reduce 68
-	T_and  reduce 68
-	T_or  reduce 68
-	T_q  reduce 68
-	T_colon  reduce 68
-	T_comma  reduce 68
-	T_pluseq  reduce 68
-	T_minuseq  reduce 68
-	T_timeseq  reduce 68
-	T_diveq  reduce 68
-	T_modeq  reduce 68
-	T_semicol  reduce 68
-	T_rparen  reduce 68
-	T_rbracket  reduce 68
+	T_assign  reduce 70
+	T_eq  reduce 70
+	T_neq  reduce 70
+	T_gt  reduce 70
+	T_lt  reduce 70
+	T_ge  reduce 70
+	T_le  reduce 70
+	T_plus  reduce 70
+	T_minus  reduce 70
+	T_times  reduce 70
+	T_div  reduce 70
+	T_mod  reduce 70
+	T_and  reduce 70
+	T_or  reduce 70
+	T_q  reduce 70
+	T_colon  reduce 70
+	T_comma  reduce 70
+	T_pluseq  reduce 70
+	T_minuseq  reduce 70
+	T_timeseq  reduce 70
+	T_diveq  reduce 70
+	T_modeq  reduce 70
+	T_semicol  reduce 70
+	T_rparen  reduce 70
+	T_rbracket  reduce 70
 
 
 state 145
-	expression : expression T_q expression T_colon .  (69)
+	expression : expression T_q expression T_colon .  (71)
 
-	.  reduce 69
+	.  reduce 71
 
 
 state 146
-	expression : expression T_lbracket expression T_rbracket .  (63)
+	expression : expression T_lbracket expression T_rbracket .  (65)
 
-	.  reduce 63
+	.  reduce 65
 
 
+147: shift/reduce conflict (shift 165, reduce 40) on T_id
 state 147
-	matched_if : T_break . optional_T_id T_semicol  (48)
-	optional_T_id : .  (38)
+	matched_if : T_break . optional_label_semi  (50)
+	optional_label_semi : .  (40)
 
 	T_id  shift 165
-	T_semicol  reduce 38
+	T_break  reduce 40
+	T_continue  reduce 40
+	T_delete  reduce 40
+	T_else  reduce 40
+	T_for  reduce 40
+	T_false  reduce 40
+	T_if  reduce 40
+	T_new  reduce 40
+	T_NULL  reduce 40
+	T_return  reduce 40
+	T_true  reduce 40
+	T_intconst  reduce 40
+	T_doubleconst  reduce 40
+	T_charconst  reduce 40
+	T_stringliteral  reduce 40
+	T_plus  reduce 40
+	T_minus  reduce 40
+	T_times  reduce 40
+	T_bitand  reduce 40
+	T_bitnot  reduce 40
+	T_plusplus  reduce 40
+	T_minusminus  reduce 40
+	T_semicol  reduce 40
+	T_lparen  reduce 40
+	T_lcurl  reduce 40
+	T_rcurl  reduce 40
 
-	optional_T_id  goto 166
+	optional_label_semi  goto 166
 
 
+148: shift/reduce conflict (shift 165, reduce 40) on T_id
 state 148
-	matched_if : T_continue . optional_T_id T_semicol  (47)
-	optional_T_id : .  (38)
+	matched_if : T_continue . optional_label_semi  (49)
+	optional_label_semi : .  (40)
 
 	T_id  shift 165
-	T_semicol  reduce 38
+	T_break  reduce 40
+	T_continue  reduce 40
+	T_delete  reduce 40
+	T_else  reduce 40
+	T_for  reduce 40
+	T_false  reduce 40
+	T_if  reduce 40
+	T_new  reduce 40
+	T_NULL  reduce 40
+	T_return  reduce 40
+	T_true  reduce 40
+	T_intconst  reduce 40
+	T_doubleconst  reduce 40
+	T_charconst  reduce 40
+	T_stringliteral  reduce 40
+	T_plus  reduce 40
+	T_minus  reduce 40
+	T_times  reduce 40
+	T_bitand  reduce 40
+	T_bitnot  reduce 40
+	T_plusplus  reduce 40
+	T_minusminus  reduce 40
+	T_semicol  reduce 40
+	T_lparen  reduce 40
+	T_lcurl  reduce 40
+	T_rcurl  reduce 40
 
-	optional_T_id  goto 167
+	optional_label_semi  goto 167
 
 
 state 149
-	matched_if : T_if . T_lparen expression T_rparen matched_if T_else matched_if  (42)
-	unmatched_if : T_if . T_lparen expression T_rparen statement  (50)
-	unmatched_if : T_if . T_lparen expression T_rparen matched_if T_else unmatched_if  (51)
+	matched_if : T_if . T_lparen expression T_rparen matched_if T_else matched_if  (44)
+	unmatched_if : T_if . T_lparen expression T_rparen statement  (52)
+	unmatched_if : T_if . T_lparen expression T_rparen matched_if T_else unmatched_if  (53)
 
 	T_lparen  shift 168
 	.  error
 
 
 state 150
-	matched_if : T_return . optional_expression T_semicol  (49)
+	matched_if : T_return . optional_expression T_semicol  (51)
 	optional_expression : .  (30)
 
 	T_delete  shift 34
@@ -3985,50 +4076,50 @@ state 150
 
 
 state 151
-	optional_T_id : T_id . T_colon  (39)
-	expression : T_id .  (52)
-	expression : T_id . T_lparen T_rparen  (61)
-	expression : T_id . T_lparen expression_list T_rparen  (62)
+	optional_for_label : T_id . T_colon  (39)
+	expression : T_id .  (54)
+	expression : T_id . T_lparen T_rparen  (63)
+	expression : T_id . T_lparen expression_list T_rparen  (64)
 
 	T_colon  shift 171
 	T_lparen  shift 67
-	T_assign  reduce 52
-	T_eq  reduce 52
-	T_neq  reduce 52
-	T_gt  reduce 52
-	T_lt  reduce 52
-	T_ge  reduce 52
-	T_le  reduce 52
-	T_plus  reduce 52
-	T_minus  reduce 52
-	T_times  reduce 52
-	T_div  reduce 52
-	T_mod  reduce 52
-	T_and  reduce 52
-	T_or  reduce 52
-	T_q  reduce 52
-	T_comma  reduce 52
-	T_plusplus  reduce 52
-	T_minusminus  reduce 52
-	T_pluseq  reduce 52
-	T_minuseq  reduce 52
-	T_timeseq  reduce 52
-	T_diveq  reduce 52
-	T_modeq  reduce 52
-	T_semicol  reduce 52
-	T_lbracket  reduce 52
+	T_assign  reduce 54
+	T_eq  reduce 54
+	T_neq  reduce 54
+	T_gt  reduce 54
+	T_lt  reduce 54
+	T_ge  reduce 54
+	T_le  reduce 54
+	T_plus  reduce 54
+	T_minus  reduce 54
+	T_times  reduce 54
+	T_div  reduce 54
+	T_mod  reduce 54
+	T_and  reduce 54
+	T_or  reduce 54
+	T_q  reduce 54
+	T_comma  reduce 54
+	T_plusplus  reduce 54
+	T_minusminus  reduce 54
+	T_pluseq  reduce 54
+	T_minuseq  reduce 54
+	T_timeseq  reduce 54
+	T_diveq  reduce 54
+	T_modeq  reduce 54
+	T_semicol  reduce 54
+	T_lbracket  reduce 54
 
 
 state 152
-	matched_if : T_semicol .  (43)
+	matched_if : T_semicol .  (45)
 
-	.  reduce 43
+	.  reduce 45
 
 
 state 153
-	matched_if : T_lcurl . optional_statement_list T_rcurl  (45)
+	matched_if : T_lcurl . optional_statement_list T_rcurl  (47)
 	optional_statement_list : .  (36)
-	optional_T_id : .  (38)
+	optional_for_label : .  (38)
 
 	T_break  shift 147
 	T_continue  shift 148
@@ -4061,7 +4152,7 @@ state 153
 	expression  goto 155
 	statement_list  goto 156
 	statement  goto 157
-	optional_T_id  goto 158
+	optional_for_label  goto 158
 	matched_if  goto 159
 	unmatched_if  goto 160
 	unary_expression  goto 54
@@ -4077,31 +4168,31 @@ state 154
 
 
 state 155
-	matched_if : expression . T_semicol  (44)
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	matched_if : expression . T_semicol  (46)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -4134,7 +4225,7 @@ state 155
 state 156
 	statement_list : statement_list . statement  (35)
 	optional_statement_list : statement_list .  (37)
-	optional_T_id : .  (38)
+	optional_for_label : .  (38)
 
 	T_break  shift 147
 	T_continue  shift 148
@@ -4165,7 +4256,7 @@ state 156
 
 	expression  goto 155
 	statement  goto 174
-	optional_T_id  goto 158
+	optional_for_label  goto 158
 	matched_if  goto 159
 	unmatched_if  goto 160
 	unary_expression  goto 54
@@ -4181,22 +4272,22 @@ state 157
 
 
 state 158
-	matched_if : optional_T_id . T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (46)
+	matched_if : optional_for_label . T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (48)
 
 	T_for  shift 175
 	.  error
 
 
 state 159
-	statement : matched_if .  (40)
+	statement : matched_if .  (42)
 
-	.  reduce 40
+	.  reduce 42
 
 
 state 160
-	statement : unmatched_if .  (41)
+	statement : unmatched_if .  (43)
 
-	.  reduce 41
+	.  reduce 43
 
 
 state 161
@@ -4212,37 +4303,37 @@ state 162
 
 
 state 163
-	optional_new : T_lbracket expression T_rbracket .  (104)
+	optional_new : T_lbracket expression T_rbracket .  (106)
 
-	.  reduce 104
+	.  reduce 106
 
 
 state 164
 	expression_list : expression_list T_comma expression .  (33)
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -4272,30 +4363,28 @@ state 164
 
 
 state 165
-	optional_T_id : T_id . T_colon  (39)
-
-	T_colon  shift 171
-	.  error
-
-
-state 166
-	matched_if : T_break optional_T_id . T_semicol  (48)
+	optional_label_semi : T_id . T_semicol  (41)
 
 	T_semicol  shift 176
 	.  error
 
 
-state 167
-	matched_if : T_continue optional_T_id . T_semicol  (47)
+state 166
+	matched_if : T_break optional_label_semi .  (50)
 
-	T_semicol  shift 177
-	.  error
+	.  reduce 50
+
+
+state 167
+	matched_if : T_continue optional_label_semi .  (49)
+
+	.  reduce 49
 
 
 state 168
-	matched_if : T_if T_lparen . expression T_rparen matched_if T_else matched_if  (42)
-	unmatched_if : T_if T_lparen . expression T_rparen statement  (50)
-	unmatched_if : T_if T_lparen . expression T_rparen matched_if T_else unmatched_if  (51)
+	matched_if : T_if T_lparen . expression T_rparen matched_if T_else matched_if  (44)
+	unmatched_if : T_if T_lparen . expression T_rparen statement  (52)
+	unmatched_if : T_if T_lparen . expression T_rparen matched_if T_else unmatched_if  (53)
 
 	T_delete  shift 34
 	T_false  shift 35
@@ -4317,7 +4406,7 @@ state 168
 	T_lparen  shift 51
 	.  error
 
-	expression  goto 178
+	expression  goto 177
 	unary_expression  goto 54
 	binary_expression  goto 55
 	unary_assignment  goto 56
@@ -4325,38 +4414,38 @@ state 168
 
 
 state 169
-	matched_if : T_return optional_expression . T_semicol  (49)
+	matched_if : T_return optional_expression . T_semicol  (51)
 
-	T_semicol  shift 179
+	T_semicol  shift 178
 	.  error
 
 
 state 170
 	optional_expression : expression .  (31)
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -4387,22 +4476,22 @@ state 170
 
 
 state 171
-	optional_T_id : T_id T_colon .  (39)
+	optional_for_label : T_id T_colon .  (39)
 
 	.  reduce 39
 
 
 state 172
-	matched_if : T_lcurl optional_statement_list . T_rcurl  (45)
+	matched_if : T_lcurl optional_statement_list . T_rcurl  (47)
 
-	T_rcurl  shift 180
+	T_rcurl  shift 179
 	.  error
 
 
 state 173
-	matched_if : expression T_semicol .  (44)
+	matched_if : expression T_semicol .  (46)
 
-	.  reduce 44
+	.  reduce 46
 
 
 state 174
@@ -4412,52 +4501,46 @@ state 174
 
 
 state 175
-	matched_if : optional_T_id T_for . T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (46)
+	matched_if : optional_for_label T_for . T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (48)
 
-	T_lparen  shift 181
+	T_lparen  shift 180
 	.  error
 
 
 state 176
-	matched_if : T_break optional_T_id T_semicol .  (48)
+	optional_label_semi : T_id T_semicol .  (41)
 
-	.  reduce 48
+	.  reduce 41
 
 
 state 177
-	matched_if : T_continue optional_T_id T_semicol .  (47)
-
-	.  reduce 47
-
-
-state 178
-	matched_if : T_if T_lparen expression . T_rparen matched_if T_else matched_if  (42)
-	unmatched_if : T_if T_lparen expression . T_rparen statement  (50)
-	unmatched_if : T_if T_lparen expression . T_rparen matched_if T_else unmatched_if  (51)
-	expression : expression . T_lbracket expression T_rbracket  (63)
-	expression : expression . T_q expression T_colon  (69)
-	binary_expression : expression . T_times expression  (79)
-	binary_expression : expression . T_div expression  (80)
-	binary_expression : expression . T_mod expression  (81)
-	binary_expression : expression . T_plus expression  (82)
-	binary_expression : expression . T_minus expression  (83)
-	binary_expression : expression . T_lt expression  (84)
-	binary_expression : expression . T_gt expression  (85)
-	binary_expression : expression . T_le expression  (86)
-	binary_expression : expression . T_ge expression  (87)
-	binary_expression : expression . T_eq expression  (88)
-	binary_expression : expression . T_neq expression  (89)
-	binary_expression : expression . T_and expression  (90)
-	binary_expression : expression . T_or expression  (91)
-	binary_expression : expression . T_comma expression  (92)
-	unary_assignment : expression . T_plusplus  (95)
-	unary_assignment : expression . T_minusminus  (96)
-	binary_assignment : expression . T_assign expression  (97)
-	binary_assignment : expression . T_timeseq expression  (98)
-	binary_assignment : expression . T_diveq expression  (99)
-	binary_assignment : expression . T_modeq expression  (100)
-	binary_assignment : expression . T_pluseq expression  (101)
-	binary_assignment : expression . T_minuseq expression  (102)
+	matched_if : T_if T_lparen expression . T_rparen matched_if T_else matched_if  (44)
+	unmatched_if : T_if T_lparen expression . T_rparen statement  (52)
+	unmatched_if : T_if T_lparen expression . T_rparen matched_if T_else unmatched_if  (53)
+	expression : expression . T_lbracket expression T_rbracket  (65)
+	expression : expression . T_q expression T_colon  (71)
+	binary_expression : expression . T_times expression  (81)
+	binary_expression : expression . T_div expression  (82)
+	binary_expression : expression . T_mod expression  (83)
+	binary_expression : expression . T_plus expression  (84)
+	binary_expression : expression . T_minus expression  (85)
+	binary_expression : expression . T_lt expression  (86)
+	binary_expression : expression . T_gt expression  (87)
+	binary_expression : expression . T_le expression  (88)
+	binary_expression : expression . T_ge expression  (89)
+	binary_expression : expression . T_eq expression  (90)
+	binary_expression : expression . T_neq expression  (91)
+	binary_expression : expression . T_and expression  (92)
+	binary_expression : expression . T_or expression  (93)
+	binary_expression : expression . T_comma expression  (94)
+	unary_assignment : expression . T_plusplus  (97)
+	unary_assignment : expression . T_minusminus  (98)
+	binary_assignment : expression . T_assign expression  (99)
+	binary_assignment : expression . T_timeseq expression  (100)
+	binary_assignment : expression . T_diveq expression  (101)
+	binary_assignment : expression . T_modeq expression  (102)
+	binary_assignment : expression . T_pluseq expression  (103)
+	binary_assignment : expression . T_minuseq expression  (104)
 
 	T_assign  shift 79
 	T_eq  shift 80
@@ -4482,25 +4565,25 @@ state 178
 	T_timeseq  shift 99
 	T_diveq  shift 100
 	T_modeq  shift 101
-	T_rparen  shift 182
+	T_rparen  shift 181
 	T_lbracket  shift 102
 	.  error
 
 
-state 179
-	matched_if : T_return optional_expression T_semicol .  (49)
+state 178
+	matched_if : T_return optional_expression T_semicol .  (51)
 
-	.  reduce 49
+	.  reduce 51
+
+
+state 179
+	matched_if : T_lcurl optional_statement_list T_rcurl .  (47)
+
+	.  reduce 47
 
 
 state 180
-	matched_if : T_lcurl optional_statement_list T_rcurl .  (45)
-
-	.  reduce 45
-
-
-state 181
-	matched_if : optional_T_id T_for T_lparen . optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (46)
+	matched_if : optional_for_label T_for T_lparen . optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (48)
 	optional_expression : .  (30)
 
 	T_delete  shift 34
@@ -4523,7 +4606,7 @@ state 181
 	T_lparen  shift 51
 	T_semicol  reduce 30
 
-	optional_expression  goto 183
+	optional_expression  goto 182
 	expression  goto 170
 	unary_expression  goto 54
 	binary_expression  goto 55
@@ -4531,11 +4614,11 @@ state 181
 	binary_assignment  goto 57
 
 
-state 182
-	matched_if : T_if T_lparen expression T_rparen . matched_if T_else matched_if  (42)
-	unmatched_if : T_if T_lparen expression T_rparen . statement  (50)
-	unmatched_if : T_if T_lparen expression T_rparen . matched_if T_else unmatched_if  (51)
-	optional_T_id : .  (38)
+state 181
+	matched_if : T_if T_lparen expression T_rparen . matched_if T_else matched_if  (44)
+	unmatched_if : T_if T_lparen expression T_rparen . statement  (52)
+	unmatched_if : T_if T_lparen expression T_rparen . matched_if T_else unmatched_if  (53)
+	optional_for_label : .  (38)
 
 	T_break  shift 147
 	T_continue  shift 148
@@ -4564,9 +4647,9 @@ state 182
 	T_for  reduce 38
 
 	expression  goto 155
-	statement  goto 184
-	optional_T_id  goto 158
-	matched_if  goto 185
+	statement  goto 183
+	optional_for_label  goto 158
+	matched_if  goto 184
 	unmatched_if  goto 160
 	unary_expression  goto 54
 	binary_expression  goto 55
@@ -4574,56 +4657,56 @@ state 182
 	binary_assignment  goto 57
 
 
-state 183
-	matched_if : optional_T_id T_for T_lparen optional_expression . T_semicol optional_expression T_semicol optional_expression T_rparen statement  (46)
+state 182
+	matched_if : optional_for_label T_for T_lparen optional_expression . T_semicol optional_expression T_semicol optional_expression T_rparen statement  (48)
 
-	T_semicol  shift 186
+	T_semicol  shift 185
 	.  error
 
 
+state 183
+	unmatched_if : T_if T_lparen expression T_rparen statement .  (52)
+
+	.  reduce 52
+
+
+184: shift/reduce conflict (shift 186, reduce 42) on T_else
 state 184
-	unmatched_if : T_if T_lparen expression T_rparen statement .  (50)
+	statement : matched_if .  (42)
+	matched_if : T_if T_lparen expression T_rparen matched_if . T_else matched_if  (44)
+	unmatched_if : T_if T_lparen expression T_rparen matched_if . T_else unmatched_if  (53)
 
-	.  reduce 50
+	T_else  shift 186
+	T_break  reduce 42
+	T_continue  reduce 42
+	T_delete  reduce 42
+	T_for  reduce 42
+	T_false  reduce 42
+	T_if  reduce 42
+	T_new  reduce 42
+	T_NULL  reduce 42
+	T_return  reduce 42
+	T_true  reduce 42
+	T_intconst  reduce 42
+	T_doubleconst  reduce 42
+	T_id  reduce 42
+	T_charconst  reduce 42
+	T_stringliteral  reduce 42
+	T_plus  reduce 42
+	T_minus  reduce 42
+	T_times  reduce 42
+	T_bitand  reduce 42
+	T_bitnot  reduce 42
+	T_plusplus  reduce 42
+	T_minusminus  reduce 42
+	T_semicol  reduce 42
+	T_lparen  reduce 42
+	T_lcurl  reduce 42
+	T_rcurl  reduce 42
 
 
-185: shift/reduce conflict (shift 187, reduce 40) on T_else
 state 185
-	statement : matched_if .  (40)
-	matched_if : T_if T_lparen expression T_rparen matched_if . T_else matched_if  (42)
-	unmatched_if : T_if T_lparen expression T_rparen matched_if . T_else unmatched_if  (51)
-
-	T_else  shift 187
-	T_break  reduce 40
-	T_continue  reduce 40
-	T_delete  reduce 40
-	T_for  reduce 40
-	T_false  reduce 40
-	T_if  reduce 40
-	T_new  reduce 40
-	T_NULL  reduce 40
-	T_return  reduce 40
-	T_true  reduce 40
-	T_intconst  reduce 40
-	T_doubleconst  reduce 40
-	T_id  reduce 40
-	T_charconst  reduce 40
-	T_stringliteral  reduce 40
-	T_plus  reduce 40
-	T_minus  reduce 40
-	T_times  reduce 40
-	T_bitand  reduce 40
-	T_bitnot  reduce 40
-	T_plusplus  reduce 40
-	T_minusminus  reduce 40
-	T_semicol  reduce 40
-	T_lparen  reduce 40
-	T_lcurl  reduce 40
-	T_rcurl  reduce 40
-
-
-state 186
-	matched_if : optional_T_id T_for T_lparen optional_expression T_semicol . optional_expression T_semicol optional_expression T_rparen statement  (46)
+	matched_if : optional_for_label T_for T_lparen optional_expression T_semicol . optional_expression T_semicol optional_expression T_rparen statement  (48)
 	optional_expression : .  (30)
 
 	T_delete  shift 34
@@ -4646,7 +4729,7 @@ state 186
 	T_lparen  shift 51
 	T_semicol  reduce 30
 
-	optional_expression  goto 188
+	optional_expression  goto 187
 	expression  goto 170
 	unary_expression  goto 54
 	binary_expression  goto 55
@@ -4654,10 +4737,10 @@ state 186
 	binary_assignment  goto 57
 
 
-state 187
-	matched_if : T_if T_lparen expression T_rparen matched_if T_else . matched_if  (42)
-	unmatched_if : T_if T_lparen expression T_rparen matched_if T_else . unmatched_if  (51)
-	optional_T_id : .  (38)
+state 186
+	matched_if : T_if T_lparen expression T_rparen matched_if T_else . matched_if  (44)
+	unmatched_if : T_if T_lparen expression T_rparen matched_if T_else . unmatched_if  (53)
+	optional_for_label : .  (38)
 
 	T_break  shift 147
 	T_continue  shift 148
@@ -4686,36 +4769,36 @@ state 187
 	T_for  reduce 38
 
 	expression  goto 155
-	optional_T_id  goto 158
-	matched_if  goto 189
-	unmatched_if  goto 190
+	optional_for_label  goto 158
+	matched_if  goto 188
+	unmatched_if  goto 189
 	unary_expression  goto 54
 	binary_expression  goto 55
 	unary_assignment  goto 56
 	binary_assignment  goto 57
 
 
-state 188
-	matched_if : optional_T_id T_for T_lparen optional_expression T_semicol optional_expression . T_semicol optional_expression T_rparen statement  (46)
+state 187
+	matched_if : optional_for_label T_for T_lparen optional_expression T_semicol optional_expression . T_semicol optional_expression T_rparen statement  (48)
 
-	T_semicol  shift 191
+	T_semicol  shift 190
 	.  error
 
 
-state 189
-	matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if .  (42)
+state 188
+	matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if .  (44)
 
-	.  reduce 42
+	.  reduce 44
+
+
+state 189
+	unmatched_if : T_if T_lparen expression T_rparen matched_if T_else unmatched_if .  (53)
+
+	.  reduce 53
 
 
 state 190
-	unmatched_if : T_if T_lparen expression T_rparen matched_if T_else unmatched_if .  (51)
-
-	.  reduce 51
-
-
-state 191
-	matched_if : optional_T_id T_for T_lparen optional_expression T_semicol optional_expression T_semicol . optional_expression T_rparen statement  (46)
+	matched_if : optional_for_label T_for T_lparen optional_expression T_semicol optional_expression T_semicol . optional_expression T_rparen statement  (48)
 	optional_expression : .  (30)
 
 	T_delete  shift 34
@@ -4738,7 +4821,7 @@ state 191
 	T_lparen  shift 51
 	T_rparen  reduce 30
 
-	optional_expression  goto 192
+	optional_expression  goto 191
 	expression  goto 170
 	unary_expression  goto 54
 	binary_expression  goto 55
@@ -4746,16 +4829,16 @@ state 191
 	binary_assignment  goto 57
 
 
-state 192
-	matched_if : optional_T_id T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression . T_rparen statement  (46)
+state 191
+	matched_if : optional_for_label T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression . T_rparen statement  (48)
 
-	T_rparen  shift 193
+	T_rparen  shift 192
 	.  error
 
 
-state 193
-	matched_if : optional_T_id T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen . statement  (46)
-	optional_T_id : .  (38)
+state 192
+	matched_if : optional_for_label T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen . statement  (48)
+	optional_for_label : .  (38)
 
 	T_break  shift 147
 	T_continue  shift 148
@@ -4784,8 +4867,8 @@ state 193
 	T_for  reduce 38
 
 	expression  goto 155
-	statement  goto 194
-	optional_T_id  goto 158
+	statement  goto 193
+	optional_for_label  goto 158
 	matched_if  goto 159
 	unmatched_if  goto 160
 	unary_expression  goto 54
@@ -4794,14 +4877,16 @@ state 193
 	binary_assignment  goto 57
 
 
-state 194
-	matched_if : optional_T_id T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement .  (46)
+state 193
+	matched_if : optional_for_label T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement .  (48)
 
-	.  reduce 46
-
-
-State 185 contains 1 shift/reduce conflict.
+	.  reduce 48
 
 
-65 terminals, 33 nonterminals
-107 grammar rules, 195 states
+State 147 contains 1 shift/reduce conflict.
+State 148 contains 1 shift/reduce conflict.
+State 184 contains 1 shift/reduce conflict.
+
+
+65 terminals, 34 nonterminals
+109 grammar rules, 194 states

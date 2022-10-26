@@ -232,8 +232,12 @@ optional_statement_list : /* nothing */ { () }
                         | statement_list { () }
 ;
 
-optional_T_id : /* nothing */ { () }
-              | T_id T_colon { () }
+optional_for_label : /* nothing */ { () }
+                   | T_id T_colon { () }
+;
+
+optional_label_semi : /* nothing */ { () }
+              | T_id T_semicol { () }
 ;
 
 /* About dangling-if: To avoid declaring a precedence for T_else (and having to decide 
@@ -251,9 +255,9 @@ matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if { ()
            | T_semicol { () }
            | expression T_semicol { () }
            | T_lcurl optional_statement_list T_rcurl { () }
-           | optional_T_id T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement { () } 
-           | T_continue optional_T_id T_semicol { () }
-           | T_break optional_T_id T_semicol { () }
+           | optional_for_label T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement { () } 
+           | T_continue optional_label_semi { () }
+           | T_break optional_label_semi { () }
            | T_return optional_expression T_semicol { () }        
 ;
 
