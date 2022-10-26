@@ -72,7 +72,7 @@ rule lexer = parse
   | '+'  { T_plus       }     
   | '-'  { T_minus      }      
   | '*'  { T_times      }      
-  | '%'  { T_div        }    
+  | '/'  { T_div        }    
   | '%'  { T_mod        }       
   | '&'  { T_bitand     }          
   | '!'  { T_bitnot     }          
@@ -95,15 +95,14 @@ rule lexer = parse
   | ']'  { T_rbracket   }            
   | '{'  { T_lcurl      }         
   | '}'  { T_rcurl      }         
-  
-  | whitespace+ {lexer lexbuf} (* consume whitespaces *)  
-  | newline {increase_lnum lexbuf; lexer lexbuf} (*consume newlines *)
   | '-'? digit+ { T_intconst (int_of_string (lexeme lexbuf))} 
   | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? { T_doubleconst (float_of_string (lexeme lexbuf))}
   | (letter)(letter|digit|'_')* {T_id}
   
   | '\'' const_char '\'' { T_charconst (lexeme lexbuf).[0]}
   | '\"' const_char* '\"' { T_stringliteral (lexeme lexbuf)} (* ??????????? is stringconst the parser's strinliteral*)
+  | whitespace+ {lexer lexbuf} (* consume whitespaces *)  
+  | newline {increase_lnum lexbuf; lexer lexbuf} (*consume newlines *)
   | eof {T_eof}
 
 
