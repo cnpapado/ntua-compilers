@@ -90,7 +90,7 @@
 %nonassoc T_q T_colon
 %left T_or 
 %left T_and
-%nonassoc T_assign T_neq T_gt T_lt T_le T_ge
+%right T_assign T_neq T_gt T_lt T_le T_ge //????
 %left T_plus T_minus
 %nonassoc SHIFT_ON_TIMESLIST
 %left T_times T_div T_mod
