@@ -149,12 +149,8 @@ optional_declaration_list : /* nothing */ { () }
 ; 
 
 declaration : variable_declaration { () }
-            | function_declaration function_body { () }
-
-            
-;
-function_body: /*nothing*/ { () } 
-             | T_lbracket inside_brackets T_rbracket { () }
+            | function_declaration { () } 
+            | function_definition { () }           
 ;
 
 inside_brackets: optional_declaration_list optional_statement_list { () } /* check this ??????? */ 
@@ -189,13 +185,19 @@ basic_type : T_int  { () }
            | T_double { () }
 ;
 
-function_declaration : ttype T_id T_lparen optional_parameter_list T_rparen { () }
-                     | T_void T_id T_lparen optional_parameter_list T_rparen { () }
+
+function_definition : ttype T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl { () }
+                    | T_void T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl { () }
+
+function_declaration : ttype T_id T_lparen optional_parameter_list T_rparen T_semicol { () }
+                     | T_void T_id T_lparen optional_parameter_list T_rparen T_semicol { () }
 ;
 
-
-optional_parameter_list :  /*nothing*/ { () }
-                        | parameter optional_parameter_list { () }
+parameter_list : parameter { () }
+               | parameter_list T_comma parameter { () }
+;
+optional_parameter_list : /*nothing*/ { () }
+                        | parameter_list { () }
 ;
 
 parameter : ttype T_id { () } 
@@ -231,7 +233,7 @@ optional_statement_list : /* nothing */ { () }
 ;
 
 optional_T_id : /* nothing */ { () }
-              | T_id { () }
+              | T_id T_colon { () }
 ;
 
 /* About dangling-if: To avoid declaring a precedence for T_else (and having to decide 
@@ -249,7 +251,7 @@ matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if { ()
            | T_semicol { () }
            | expression T_semicol { () }
            | T_lcurl optional_statement_list T_rcurl { () }
-           | optional_T_id T_colon T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement { () } 
+           | optional_T_id T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement { () } 
            | T_continue optional_T_id T_semicol { () }
            | T_break optional_T_id T_semicol { () }
            | T_return optional_expression T_semicol { () }        
