@@ -153,8 +153,8 @@ declaration : variable_declaration { () }
 
             
 ;
-function_body: /*nothing*/ { () } 
-             | T_lbracket inside_brackets T_rbracket { () }
+function_body: T_semicol { () } 
+             | T_lcurl inside_brackets T_rcurl { () }
 ;
 
 inside_brackets: optional_declaration_list optional_statement_list { () } /* check this ??????? */ 
