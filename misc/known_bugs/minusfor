@@ -1,0 +1,35 @@
+void bsort ()
+{
+   for (i = 0; i < n- 1; i++){}
+}
+
+
+
+
+
+
+
+State 170: shift to state 83
+n -1;
+State 83: read token T_id
+State 83: shift to state 41
+State 41: read token T_intconst(-1)
+
+
+
+
+
+
+State 170: shift to state 83
+n- 1
+State 83: read token T_id
+State 83: shift to state 41
+State 41: read token T_minus
+State 41: reduce by rule 52
+State 120: shift to state 87
+State 87: read token T_intconst(1)
+State 87: shift to state 39
+State 39: reduce by rule 57
+
+
+

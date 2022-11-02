@@ -1,0 +1,7 @@
+//fixed
+int m() {
+    a+=b*=c;
+}
+
+
+//me basi to inside_brackets, prepei ypoxrewtika na exw prwta ola ta decl kai meta ola ta defs swsta?
