@@ -1,0 +1,21 @@
+double* b(byref double** m, int baz) {
+
+}
+void a(byref double** z, byref int b, byref double*** c, byref int l) {
+int* h[h], m, h, j, n;
+double*** baz(double m, byref char main, byref char* b, bool* main) {
+int e(byref char foo, int* i, byref bool** y, byref int e) {
+
+continue;
+;
+;
+{
+ g: for (; ; false) if (3.14) ;
+
+}
+}
+
+if (true) for (; ; true) (42 += "bar");
+}
+
+}

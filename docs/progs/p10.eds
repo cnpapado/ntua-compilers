@@ -1,0 +1,6 @@
+double n(int c, byref double i) {
+bool** boo(char* e, bool* x, byref int z);
+
+((delete new double["Name:\t\"DouglasAdams\"\nValue:\t42\n"]) ? (delete 24++) : (((new bool**[NULL]) -= ((int**)false))));
+}
+char h(char c, byref int* g, bool* b, byref bool* c);
