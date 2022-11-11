@@ -1,6 +1,7 @@
 /* yyparse: called once, includes semantics, basically feeds the whole frontend process */
 %{
     open Printf
+    open Ast
 %}
 
 %token T_bool 
@@ -128,11 +129,12 @@
 */
 
 
+   
 
 %start program
 %type<unit> program
 %type<unit> declaration
-
+// %type<expr> binary_assignment
 
 %%
 
@@ -236,7 +238,7 @@ optional_for_label : /* nothing */ { () }
                    | T_id T_colon { () }
 ;
 
-optional_label_semi : /* nothing */ { () }
+optional_label_semi : T_semicol { () }
               | T_id T_semicol { () }
 ;
 
@@ -282,7 +284,7 @@ expression : T_id { () }
            | unary_assignment { () }
            | binary_assignment { () }
            | T_lparen ttype T_rparen expression %prec TYPE_CAST { () }
-           | expression T_q expression T_colon { () }
+           | expression T_q expression T_colon expression{ () }
            | T_new ttype optional_new { () }
            | T_delete expression { () }
 ;
@@ -321,12 +323,12 @@ unary_assignment : T_plusplus expression %prec PREFIX { () }
                  | expression T_minusminus /* %prec POSTFIX*/  { () }
 ;
 
-binary_assignment : expression T_assign expression{ () }
-                  | expression T_timeseq expression{ () }
-                  | expression T_diveq expression{ () }
-                  | expression T_modeq expression{ () }
-                  | expression T_pluseq expression{ () }
-                  | expression T_minuseq expression{ () }
+binary_assignment : expression T_assign expression{ (*BinAssign(Assign, $1, $3)*) }
+                  | expression T_timeseq expression{ (*BinAssign(TimesEq, $1, $3)*) }
+                  | expression T_diveq expression{ (*BinAssign(DivEq, $1, $3)*) }
+                  | expression T_modeq expression{ (*BinAssign(ModEq, $1, $3)*) }
+                  | expression T_pluseq expression{ (*BinAssign(PlusEq, $1, $3)*) }
+                  | expression T_minuseq expression{ (*BinAssign(MinusEq, $1, $3)*) }
 
 /* When an [ T_new ttype . '[' ] is encountered, there is a shift/reduce conflict 
    between reducing epsilon as optional_new or shifting an T_lbrace, 
