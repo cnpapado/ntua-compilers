@@ -24,7 +24,7 @@
 %token T_eof 
 %token<int> T_intconst 
 %token<float> T_doubleconst
-%token T_id
+%token<string> T_id
 %token<char> T_charconst
 %token<string> T_stringliteral
 
@@ -239,7 +239,7 @@ optional_for_label : /* nothing */ { () }
 ;
 
 optional_label_semi : T_semicol { () }
-              | T_id T_semicol { () }
+                  | T_id T_semicol { () }
 ;
 
 /* About dangling-if: To avoid declaring a precedence for T_else (and having to decide 
@@ -272,11 +272,11 @@ expression : T_id { () }
            | T_true { () }
            | T_false { () }
            | T_NULL { () }
-           | T_intconst { () }
-           | T_charconst { () }
-           | T_doubleconst { () }
-           | T_stringliteral { () }
-           | T_id T_lparen T_rparen { () }
+           | T_intconst { Int $1 }
+           | T_charconst { Var $1 }
+           | T_doubleconst { Float $1 }
+           | T_stringliteral { String $1 }
+           | T_id T_lparen T_rparen { String $1 }
            | T_id T_lparen expression_list T_rparen { () }
            | expression T_lbracket expression T_rbracket { () } 
            | unary_expression { () }

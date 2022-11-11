@@ -95,8 +95,8 @@ rule lexer = parse
   | ']'  { T_rbracket   }            
   | '{'  { T_lcurl      }         
   | '}'  { T_rcurl      }         
-  | '-'? digit+ { T_intconst (int_of_string (lexeme lexbuf))} 
-  | '-'? digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? { T_doubleconst (float_of_string (lexeme lexbuf))}
+  |  digit+ { T_intconst (int_of_string (lexeme lexbuf))} 
+  |  digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? { T_doubleconst (float_of_string (lexeme lexbuf))}
   | (letter)(letter|digit|'_')* {T_id}
   
   | '\'' const_char '\'' { T_charconst (lexeme lexbuf).[0]}
