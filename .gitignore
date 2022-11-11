@@ -6,3 +6,4 @@ parser.mli
 # parser.output
 minibasic
 edsger
+lexer
