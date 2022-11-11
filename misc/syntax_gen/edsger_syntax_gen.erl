@@ -17,7 +17,7 @@
 
 -export([program/0]).
 
--include_lib("proper/include/proper.hrl").
+-include_lib("/home/euaggriz/proper/include/proper.hrl").
 
 prop_gen() ->
   ?FORALL(P, program(), erlang:display(P)).

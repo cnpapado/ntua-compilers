@@ -1,0 +1,8 @@
+void f(byref int** d, byref char g, int k);
+int** h(byref bool baz, byref int*** baz, double** d) {
+bool foo(byref double m, byref char* c, char l, bool h);
+
+for (; 42.0; NULL) g: for (; 22; '\'') return;
+for (; ; false) for (; e; ) for (n; ; ) ;
+return 2.56;
+}

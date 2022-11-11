@@ -1,0 +1,31 @@
+int j;
+int** l(byref double* a, byref bool* e, byref char* b);
+int h(char h, char baz, byref bool** baz) {
+bool*** foo(char i, byref char baz) {
+int boo(int* j, byref double** g, byref double** e);
+bool j(byref int* i, char* main) {
+bool** m(char** z);
+
+{
+ return;
+
+}
+;
+}
+
+return "bar";
+;
+return NULL;
+;
+}
+bool b(byref bool*** z, byref char* y);
+
+if (true) break;
+(char)(((* (& ((double)36))) * (22["Route66"])));
+for (12; "Name:\t\"DouglasAdams\"\nValue:\t42\n"; "bar") ;
+{
+ ;
+break;
+
+}
+}

@@ -1,1 +1,0 @@
-bool boo(byref int* a, byref char* bar);

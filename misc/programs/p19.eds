@@ -1,0 +1,11 @@
+char a, z, y;
+int l(byref double*** boo, byref char** i, byref bool foo);
+double* k(byref int bar, byref double* main) {
+char d, foo, bar, main, z;
+char* m, b, x[false];
+
+continue;
+;
+if (false) ;
+continue z;
+}

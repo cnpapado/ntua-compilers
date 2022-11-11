@@ -1,0 +1,7 @@
+double foo(byref bool baz, byref bool* baz, char baz, byref int* h) {
+bool** j;
+
+break;
+(b ? NULL : 3.14[true ? a : '\n']);
+if (true) break; else return;
+}
