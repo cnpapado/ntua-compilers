@@ -97,7 +97,7 @@ rule lexer = parse
   | '}'  { T_rcurl      }         
   |  digit+ { T_intconst (int_of_string (lexeme lexbuf))} 
   |  digit+ '.' digit+ ( ['e' 'E'] ['+' '-']? digit+ )? { T_doubleconst (float_of_string (lexeme lexbuf))}
-  | (letter)(letter|digit|'_')* {T_id}
+  | (letter)(letter|digit|'_')* {T_id (lexeme lexbuf)}
   
   | '\'' const_char '\'' { T_charconst (lexeme lexbuf).[0]}
   | '\"' const_char* '\"' { T_stringliteral (lexeme lexbuf)} (* ??????????? is stringconst the parser's strinliteral*)

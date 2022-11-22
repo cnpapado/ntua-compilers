@@ -134,7 +134,9 @@
 %start program
 %type<unit> program
 %type<unit> declaration
-// %type<expr> binary_assignment
+%type<expr> optional_expression
+%type<expr list> expression_list
+%type<statement list> optional_statement_list
 
 %%
 
@@ -150,12 +152,12 @@ optional_declaration_list : /* nothing */ { () }
                           | optional_declaration_list declaration { () }
 ; 
 
-declaration : variable_declaration { () }
-            | function_declaration { () } 
-            | function_definition { () }           
+declaration : variable_declaration { $1 }
+            | function_declaration { $1 } 
+            | function_definition  { $1 }           
 ;
 
-inside_brackets: optional_declaration_list optional_statement_list { () } /* check this ??????? */ 
+inside_brackets: optional_declaration_list optional_statement_list { ($1*$2) } /* check this ??????? */ 
 ;
 
 declarator : T_id  { () } 
@@ -188,11 +190,15 @@ basic_type : T_int  { () }
 ;
 
 
-function_definition : ttype T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl { () }
-                    | T_void T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl { () }
+function_definition : ttype T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl 
+                    { FuncDef(name=$2; parameters=$4; body=$7) }
+                    | T_void T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl 
+                    { FuncDef(name=$2; parameters=$4; body=$7) }
 
-function_declaration : ttype T_id T_lparen optional_parameter_list T_rparen T_semicol { () }
-                     | T_void T_id T_lparen optional_parameter_list T_rparen T_semicol { () }
+function_declaration : ttype T_id T_lparen optional_parameter_list T_rparen T_semicol 
+                     { FuncDecl(name=$2; parameters=$4) } 
+                     | T_void T_id T_lparen optional_parameter_list T_rparen T_semicol
+                     { FuncDecl(name=$2; parameters=$4) } 
 ;
 
 parameter_list : parameter { () }
@@ -208,7 +214,7 @@ parameter : ttype T_id { () }
 
 
 optional_expression : /* nothing */ { () }
-                    | expression { () }
+                    | expression { $1 }
 ;
 
 /* In [ exp ',' exp ',' exp ] ambiguity (reduce exp as an exp_list or shift ',') 
@@ -217,29 +223,29 @@ optional_expression : /* nothing */ { () }
    the reduce production's one (specified by the %prec). That's why we declare REDUCE_ON_COMMA
    right above the T_comma. 
 */
-expression_list : expression %prec SHIFT_ON_COMMA { () }
-                | expression_list T_comma expression { () }
+expression_list : expression %prec SHIFT_ON_COMMA { $1::[] }
+                | expression_list T_comma expression { $3::$1 } /*remember to reverse list!!!!!!!!!!!!!!!!*/
 ;
 
 // optional_expression_list : /* nothing */ { () }
 //                          | expression_list T_comma expression { () }
 // ;
 
-statement_list : statement { () }
-               | statement_list statement { () }
+statement_list : statement { $1::[] }
+               | statement_list statement { $2::$1 } /*remember to reverse when used*/
 ;
 
 
-optional_statement_list : /* nothing */ { () }
-                        | statement_list { () }
+optional_statement_list : /* nothing */ { [] }
+                        | statement_list { $1 }
 ;
 
-optional_for_label : /* nothing */ { () }
-                   | T_id T_colon { () }
+optional_for_label : /* nothing--empty string */ { "" }
+                   | T_id T_colon { $1 }
 ;
 
-optional_label_semi : T_semicol { () }
-                  | T_id T_semicol { () }
+optional_label_semi : T_semicol { "" }
+                    | T_id T_semicol { $1 }
 ;
 
 /* About dangling-if: To avoid declaring a precedence for T_else (and having to decide 
@@ -249,86 +255,93 @@ optional_label_semi : T_semicol { () }
    For some reason s/r conflicts remained so we ended up giving the reduce rule lower 
    precedence than the T_else.++++++++
 */
-statement : matched_if { () } 
-          | unmatched_if { () }
+statement : matched_if { $1 } 
+          | unmatched_if { $1 }
 ;
           
-matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if { () }
-           | T_semicol { () }
-           | expression T_semicol { () }
-           | T_lcurl optional_statement_list T_rcurl { () }
-           | optional_for_label T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement { () } 
-           | T_continue optional_label_semi { () }
-           | T_break optional_label_semi { () }
-           | T_return optional_expression T_semicol { () }        
+matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if { If({cond=$3; ifstmt=$5; elsestmt=$7}) }
+           | T_semicol { () (*unit*) }
+           | expression T_semicol { Expr $1 }
+           | T_lcurl optional_statement_list T_rcurl { StmtList $2 }
+
+           | optional_for_label T_for T_lparen optional_expression T_semicol
+             optional_expression T_semicol optional_expression 
+             T_rparen statement { For({label=$1; initial=$4; cond=$6; update=$8; stmt=$10}) } 
+
+           | T_continue optional_label_semi { JumpStmt({name=Continue; label=$2}) }
+           | T_break optional_label_semi { JumpStmt({name=Break; label=$2}) }
+           | T_return optional_expression T_semicol { Return $2 }        
 ;
 
-unmatched_if : T_if T_lparen expression T_rparen statement { () }
-             | T_if T_lparen expression T_rparen matched_if T_else unmatched_if { () }
+
+
+unmatched_if : T_if T_lparen expression T_rparen statement { If({cond=$3; ifstmt=$5; elsestmt=()}) }
+             | T_if T_lparen expression T_rparen matched_if T_else unmatched_if { If({cond=$3; ifstmt=$5; elsestmt=$7}) }
 ;
 
-expression : T_id { () }
-           | T_lparen after_lparen { () } 
-           | T_true { () }
-           | T_false { () }
+expression : T_id { String $1 }
+           | T_lparen expression T_rparen { $2 }
+           | T_lparen ttype T_rparen { () } /*???????????????????????????????*/
+           | T_true { Bool true }
+           | T_false { Bool false }
            | T_NULL { () }
            | T_intconst { Int $1 }
            | T_charconst { Var $1 }
            | T_doubleconst { Float $1 }
            | T_stringliteral { String $1 }
-           | T_id T_lparen T_rparen { String $1 }
-           | T_id T_lparen expression_list T_rparen { () }
-           | expression T_lbracket expression T_rbracket { () } 
-           | unary_expression { () }
-           | binary_expression { () }
-           | unary_assignment { () }
-           | binary_assignment { () }
-           | T_lparen ttype T_rparen expression %prec TYPE_CAST { () }
-           | expression T_q expression T_colon expression{ () }
-           | T_new ttype optional_new { () }
-           | T_delete expression { () }
+           | T_id T_lparen T_rparen { FuncCall ($1,[]) }
+           | T_id T_lparen expression_list T_rparen { FuncCall ($1,$3) }
+           | expression T_lbracket expression T_rbracket { Array ($1,$3) } 
+           | unary_expression { $1 }
+           | binary_expression { $1 }
+           | unary_assignment { $1 }
+           | binary_assignment { $1 }
+           | T_lparen ttype T_rparen expression %prec TYPE_CAST { () } /*check symbol table first :( */
+           | expression T_q expression T_colon expression{ InlineIf ($1,$3,$5) }
+           | T_new ttype optional_new { () } /*??????????????????/*/
+           | T_delete expression { () }      /*??????????????????/*/
 ;
 
 
-after_lparen :  expression T_rparen { () }
+/* after_lparen :  
              | ttype T_rparen { () }
+; */
+
+unary_expression : T_bitand expression %prec POINTER_REF_DEREF      { UnaryExpr(BitAnd,$2) }
+                 | T_times expression /* %prec POINTER_REF_DEREF */ { UnaryExpr(UTimes,$2) }
+                 | T_plus expression /* %prec UPLUS_UMINUS */       { UnaryExpr(UPlus,$2)  } 
+                 | T_minus expression /* %prec UPLUS_UMINUS */      { UnaryExpr(UMinus,$2) }
+                 | T_bitnot expression /* %prec LOG_NOT */          { UnaryExpr(BitNot,$2) }
 ;
 
-unary_expression : T_bitand expression %prec POINTER_REF_DEREF { () }
-                 | T_times expression /* %prec POINTER_REF_DEREF */ { () }
-                 | T_plus expression /* %prec UPLUS_UMINUS */ { () }
-                 | T_minus expression /* %prec UPLUS_UMINUS */ { () }
-                 | T_bitnot expression /* %prec LOG_NOT */ { () }
+binary_expression : expression T_times expression { BinExpr(Times,$1,$3) }
+                  | expression T_div expression   { BinExpr(Div,$1,$3)   }
+                  | expression T_mod expression   { BinExpr(Mod,$1,$3)   }
+                  | expression T_plus expression  { BinExpr(Plus,$1,$3)  }
+                  | expression T_minus expression { BinExpr(Minus,$1,$3) }
+                  | expression T_lt expression    { BinExpr(Lt,$1,$3)    }
+                  | expression T_gt expression    { BinExpr(Gt,$1,$3)    }
+                  | expression T_le expression    { BinExpr(Le,$1,$3)    }
+                  | expression T_ge expression    { BinExpr(Ge,$1,$3)    }
+                  | expression T_eq expression    { BinExpr(Eq,$1,$3)    }
+                  | expression T_neq expression   { BinExpr(Neq,$1,$3)   }
+                  | expression T_and expression   { BinExpr(And,$1,$3)   }
+                  | expression T_or expression    { BinExpr(Or,$1,$3)    }
+                  | expression T_comma expression { BinExpr(Comma,$1,$3) }
 ;
 
-binary_expression : expression T_times expression { () }
-                  | expression T_div expression { () }
-                  | expression T_mod expression { () }
-                  | expression T_plus expression { () }
-                  | expression T_minus expression { () }
-                  | expression T_lt expression { () }
-                  | expression T_gt expression { () }
-                  | expression T_le expression { () }
-                  | expression T_ge expression { () }
-                  | expression T_eq expression { () }
-                  | expression T_neq expression { () }
-                  | expression T_and expression { () }
-                  | expression T_or expression { () }
-                  | expression T_comma expression { () }
+unary_assignment : T_plusplus expression %prec PREFIX   { UnaryAssign(PrePlusPlus,$2)    }
+                 | T_minusminus expression %prec PREFIX { UnaryAssign(PreMinusMinus,$2)  }
+                 | expression T_plusplus                { UnaryAssign(PostPlusPlus,$1)   }
+                 | expression T_minusminus              { UnaryAssign(PostMinusMinus,$1) }
 ;
 
-unary_assignment : T_plusplus expression %prec PREFIX { () }
-                 | T_minusminus expression %prec PREFIX { () }
-                 | expression T_plusplus /* %prec POSTFIX */ { () }
-                 | expression T_minusminus /* %prec POSTFIX*/  { () }
-;
-
-binary_assignment : expression T_assign expression{ (*BinAssign(Assign, $1, $3)*) }
-                  | expression T_timeseq expression{ (*BinAssign(TimesEq, $1, $3)*) }
-                  | expression T_diveq expression{ (*BinAssign(DivEq, $1, $3)*) }
-                  | expression T_modeq expression{ (*BinAssign(ModEq, $1, $3)*) }
-                  | expression T_pluseq expression{ (*BinAssign(PlusEq, $1, $3)*) }
-                  | expression T_minuseq expression{ (*BinAssign(MinusEq, $1, $3)*) }
+binary_assignment : expression T_assign expression  { BinAssign(Assign, $1, $3)  }
+                  | expression T_timeseq expression { BinAssign(TimesEq, $1, $3) }
+                  | expression T_diveq expression   { BinAssign(DivEq, $1, $3)   }
+                  | expression T_modeq expression   { BinAssign(ModEq, $1, $3)   }
+                  | expression T_pluseq expression  { BinAssign(PlusEq, $1, $3)  }
+                  | expression T_minuseq expression { BinAssign(MinusEq, $1, $3) }
 
 /* When an [ T_new ttype . '[' ] is encountered, there is a shift/reduce conflict 
    between reducing epsilon as optional_new or shifting an T_lbrace, 
@@ -341,5 +354,5 @@ optional_new : /*nothing*/ %prec SHIFT_ON_NEW { () }
              | T_lbracket expression T_rbracket { () }
 ;
 
-constant_expression : expression { () } 
+constant_expression : expression { $1 } /*symbol table*/
 ;
