@@ -60,6 +60,6 @@ and jumpname    =   | Break
 
 
 type declaration =  | DeclList of declaration list
-                    | FuncDef of {name:string; parameters:string list ; body: DecList StmtList} (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
-                    | FuncDecl of {name:string; parameters:string list}
+                    | FuncDef of {name:string; parameters:(int*(string list)*string) list; body: (statement list)*(declaration list)} (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
+                    | FuncDecl of {name:string; parameters:(int*(string list)*string) list}
                     | VarDeclaration of {name:string; size:int}
