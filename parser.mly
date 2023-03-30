@@ -133,11 +133,10 @@
 
 %start program
 %type<unit> program
-%type<declaration> declaration
+%type<unit> declaration
 %type<expr> optional_expression
 %type<expr list> expression_list
 %type<statement list> optional_statement_list
-%type<declaration list> optional_declaration_list
 
 %%
 
@@ -149,8 +148,8 @@
 program : optional_declaration_list T_eof { () }
 ;
 
-optional_declaration_list : /* nothing */ { [] }
-                          | optional_declaration_list declaration { $2::$1 }
+optional_declaration_list : /* nothing */ { () }
+                          | optional_declaration_list declaration { () }
 ; 
 
 declaration : variable_declaration { $1 }
@@ -158,18 +157,18 @@ declaration : variable_declaration { $1 }
             | function_definition  { $1 }           
 ;
 
-inside_brackets: optional_declaration_list optional_statement_list { ($2,$1) } /* check this ??????? */ 
+inside_brackets: optional_declaration_list optional_statement_list { ($1*$2) } /* check this ??????? */ 
 ;
 
-declarator : T_id  { VarDeclaration({name=$1; size=1})}
-           | T_id T_lbracket constant_expression T_rbracket { VarDeclaration({name=$1; size=$3}) }
+declarator : T_id  { () } 
+           | T_id T_lbracket constant_expression T_rbracket { () }
 ;
 
-declarator_list : declarator { $1::[] }
-                | declarator T_comma declarator_list { $1::$3 } 
+declarator_list : declarator { () }
+                | declarator T_comma declarator_list { () }
 ;
 
-variable_declaration : ttype declarator_list T_semicol { DeclList($2) }
+variable_declaration : ttype declarator_list T_semicol { () }
 ;
 
 /* In ttype we want to enforce shifting (even if this is the default action for yacc).
@@ -177,40 +176,40 @@ variable_declaration : ttype declarator_list T_semicol { DeclList($2) }
    the reduce production's one (specified by the %prec). That's why we declare SHIFT_ON_TIMESLIST
    right above the T_times. 
 */
-ttype : basic_type optional_T_times_list %prec SHIFT_ON_TIMESLIST { $1::$2 }
+ttype : basic_type optional_T_times_list %prec SHIFT_ON_TIMESLIST { () }
 ;
 
-optional_T_times_list : /*nothing*/ { [] }
-                      | optional_T_times_list T_times { "*"::$1 }
+optional_T_times_list : /*nothing*/ { () }
+                      | optional_T_times_list T_times { () }
 ;
 
-basic_type : T_int    { "int" }
-           | T_char   { "char" }
-           | T_bool   { "bool" }
-           | T_double { "double" }
+basic_type : T_int  { () }
+           | T_char { () }
+           | T_bool { () }
+           | T_double { () }
 ;
 
 
 function_definition : ttype T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl 
-                    { FuncDef({name=$2; parameters=$4; body=$7}) }
+                    { FuncDef(name=$2; parameters=$4; body=$7) }
                     | T_void T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl 
-                    { FuncDef({name=$2; parameters=$4; body=$7}) }
+                    { FuncDef(name=$2; parameters=$4; body=$7) }
 
 function_declaration : ttype T_id T_lparen optional_parameter_list T_rparen T_semicol 
-                     { FuncDecl({name=$2; parameters=$4}) } 
+                     { FuncDecl(name=$2; parameters=$4) } 
                      | T_void T_id T_lparen optional_parameter_list T_rparen T_semicol
-                     { FuncDecl({name=$2; parameters=$4}) } 
+                     { FuncDecl(name=$2; parameters=$4) } 
 ;
 
-parameter_list : parameter { $1::[] }
-               | parameter_list T_comma parameter { $3::$1 }
+parameter_list : parameter { () }
+               | parameter_list T_comma parameter { () }
 ;
-optional_parameter_list : /*nothing*/ { [] }
-                        | parameter_list { $1 }
+optional_parameter_list : /*nothing*/ { () }
+                        | parameter_list { () }
 ;
 
-parameter : ttype T_id { (0, $1, $2) } 
-          | T_byref ttype T_id { (1, $2, $3) }
+parameter : ttype T_id { () } 
+          | T_byref ttype T_id { () }
 ;
 
 
@@ -355,5 +354,5 @@ optional_new : /*nothing*/ %prec SHIFT_ON_NEW { () }
              | T_lbracket expression T_rbracket { () }
 ;
 
-constant_expression : expression { -1 } /*symbol table*/
+constant_expression : expression { $1 } /*symbol table*/
 ;
