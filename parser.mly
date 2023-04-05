@@ -2,6 +2,8 @@
 %{
     open Printf
     open Ast
+    let get_loc = Parsing.symbol_start_pos 
+
 %}
 
 %token T_bool 
@@ -133,10 +135,12 @@
 
 %start program
 %type<unit> program
-%type<unit> declaration
 %type<expr> optional_expression
 %type<expr list> expression_list
 %type<statement list> optional_statement_list
+%type<declaration list> optional_declaration_list
+%type<declaration> declaration
+%type<typ> ttype
 
 %%
 
@@ -148,27 +152,34 @@
 program : optional_declaration_list T_eof { () }
 ;
 
-optional_declaration_list : /* nothing */ { () }
-                          | optional_declaration_list declaration { () }
+optional_declaration_list : /* nothing */ { [] }
+                          | optional_declaration_list declaration { List.rev $2::$1 }
 ; 
 
-declaration : variable_declaration { $1 }
-            | function_declaration { $1 } 
-            | function_definition  { $1 }           
+declaration : variable_declaration { [] }
+            | function_declaration { [] } 
+            | function_definition  { [] }           
 ;
 
 inside_brackets: optional_declaration_list optional_statement_list { ($1*$2) } /* check this ??????? */ 
 ;
 
-declarator : T_id  { () } 
+declarator : T_id  {ident $1} 
            | T_id T_lbracket constant_expression T_rbracket { () }
 ;
 
-declarator_list : declarator { () }
-                | declarator T_comma declarator_list { () }
+declarator_list : declarator { [$1] }
+                | declarator T_comma declarator_list { List.rev $1::$3 }
 ;
 
-variable_declaration : ttype declarator_list T_semicol { () }
+variable_declaration : ttype declarator_list T_semicol {
+   (*we need to traverse the declarator list to declare new vars*)
+   let add_var elem =
+    VarDeclaration {typ:$1; name:elem ;size:sizeOfType $1}
+    Printf.printf "I'm looking at element %d now\n" elem
+  in
+    List.iter f my_list;;
+    }
 ;
 
 /* In ttype we want to enforce shifting (even if this is the default action for yacc).
@@ -176,17 +187,17 @@ variable_declaration : ttype declarator_list T_semicol { () }
    the reduce production's one (specified by the %prec). That's why we declare SHIFT_ON_TIMESLIST
    right above the T_times. 
 */
-ttype : basic_type optional_T_times_list %prec SHIFT_ON_TIMESLIST { () }
+ttype : basic_type optional_T_times_list %prec SHIFT_ON_TIMESLIST { $1*$2 }
 ;
 
-optional_T_times_list : /*nothing*/ { () }
-                      | optional_T_times_list T_times { () }
+optional_T_times_list : /*nothing--returns empty string*/ { ""  }
+                      | optional_T_times_list T_times {$1^"*"}
 ;
 
-basic_type : T_int  { () }
-           | T_char { () }
-           | T_bool { () }
-           | T_double { () }
+basic_type : T_int  { TYPE_int }
+           | T_char { TYPE_char }
+           | T_bool { TYPE_bool }
+           | T_double { TYPE_double}
 ;
 
 
@@ -279,7 +290,7 @@ unmatched_if : T_if T_lparen expression T_rparen statement { If({cond=$3; ifstmt
              | T_if T_lparen expression T_rparen matched_if T_else unmatched_if { If({cond=$3; ifstmt=$5; elsestmt=$7}) }
 ;
 
-expression : T_id { String $1 }
+expression : T_id { $1 }
            | T_lparen expression T_rparen { $2 }
            | T_lparen ttype T_rparen { () } /*???????????????????????????????*/
            | T_true { Bool true }

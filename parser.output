@@ -183,10 +183,10 @@ state 4
 	.  error
 
 	declaration  goto 11
-	variable_declaration  goto 12
-	function_declaration  goto 13
-	function_definition  goto 14
-	ttype  goto 15
+	ttype  goto 12
+	variable_declaration  goto 13
+	function_declaration  goto 14
+	function_definition  goto 15
 	basic_type  goto 16
 
 
@@ -235,24 +235,6 @@ state 11
 
 
 state 12
-	declaration : variable_declaration .  (4)
-
-	.  reduce 4
-
-
-state 13
-	declaration : function_declaration .  (5)
-
-	.  reduce 5
-
-
-state 14
-	declaration : function_definition .  (6)
-
-	.  reduce 6
-
-
-state 15
 	variable_declaration : ttype . declarator_list T_semicol  (12)
 	function_definition : ttype . T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl  (20)
 	function_declaration : ttype . T_id T_lparen optional_parameter_list T_rparen T_semicol  (22)
@@ -262,6 +244,24 @@ state 15
 
 	declarator  goto 19
 	declarator_list  goto 20
+
+
+state 13
+	declaration : variable_declaration .  (4)
+
+	.  reduce 4
+
+
+state 14
+	declaration : function_declaration .  (5)
+
+	.  reduce 5
+
+
+state 15
+	declaration : function_definition .  (6)
+
+	.  reduce 6
 
 
 state 16
@@ -3761,12 +3761,12 @@ state 137
 	T_for  reduce 38
 	T_rcurl  reduce 36
 
-	declaration  goto 11
 	optional_statement_list  goto 153
-	variable_declaration  goto 12
-	function_declaration  goto 13
-	function_definition  goto 14
-	ttype  goto 15
+	declaration  goto 11
+	ttype  goto 12
+	variable_declaration  goto 13
+	function_declaration  goto 14
+	function_definition  goto 15
 	basic_type  goto 16
 	expression  goto 154
 	statement_list  goto 155
