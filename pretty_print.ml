@@ -64,9 +64,27 @@ let rec string_of_expr = function
     | BinAssign   (_,op,e1,e2)                -> make_con "BinAssign" [string_of_expr e1 pp_bop op string_of_expr e2]
     | UnaryExpr   (_,op,e)                    -> make_con "UnaryExpr" [pp_bop op string_of_expr e]
     | UnaryAssign (_,op,e)                    -> make_con "UnaryAssign" [pp_bop op string_of_expr e]
-    | FuncCall    (_,{name:n;parameters: p})  -> make_con "FuncCallname" [mk_con "name" [n] ; 
-                                                                               mk_con "parameters" p
-                                                                              ]
+    | FuncCall    (_,{name:n;parameters: p})  -> make_con "FuncCallname" [n ; 
+                                                                          mk_con "" p
+                                                                          ]
     | Array (_,e1,e2)                         -> make_con "Array" [e1; mk_con "" [e2]]
     | InlineIf (_,e1,e2,e3)                   -> make_con "InlineIf" [string_of_expr e1; string_of_expr e2;
                                                                       string_of_expr e3]
+
+let string_of_jumpname = function
+    | Break    -> "Break"
+    | Continue -> "Continue"
+
+let rec string_of_stmt = function
+        | Expr (_,e)                                       -> make_con "Expr" [e]
+        | If   (_,{cond:e; ifstmt:stmt1 ; elsestmt:stmt2}) -> make_con "If" [e;stmt1;stmt2]
+        | For  (_, {label:l; initial:e1; cond:e2; update:e3; stmt: stmt})
+                                                           -> make_con "For" [l;
+                                                                              string_of_expr e1;
+                                                                              string_of_expr e2;
+                                                                              string_of_expr e3;
+                                                                              string_of_stmt stmt;
+                                                                              ]
+  | JumpStmt of loc*jump
+             and jump = {name:jumpname; label: string}
+  | Return of loc * expr
