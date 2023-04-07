@@ -44,22 +44,29 @@ let pp_bop = function
     | T_pluseq  -> "+="
     | T_minuseq -> "-="
 
-let fstring ppf s = fprintf ppf "%s" s
-let pp_type ppf t = fstring ppf (pp_type t) 
-let pp_unary ppf op = fstring ppf (pp_uop op) 
-let pp_binary ppf op = fstring ppf (pp_bop op)
 
-let rec pp_expr ppf = function 
-    | Unit _                    -> fstring ppf "()"
-    | Ident       (_, s)        -> fstring ppf s
-    | Bool        (_, b)        -> fstring ppf (string_of_bool b)
-    | Int         (_, x)        -> fstring ppf (string_of_int x)
-    | Char        (_, x)        -> fstring ppf x
-    | Float       (_, x)        -> fstring ppf (string_of_float x)
-    | BinExpr     (_,op,e1,e2)  -> fprintf ppf "(%a %a %a)" pp_binary op pp_expr e1 pp_expr e2 
-    | BinAssign   (_,op,e1,e2)  -> fprintf ppf "(%a %a %a)" pp_binary op pp_expr e1 pp_expr e2
-    | UnaryExpr   (_,op,e)      -> fprintf ppf "%a(%a)" pp_unary op pp_expr e
-    | UnaryAssign (_,op,e)      -> fprintf ppf "%a(%a)" pp_unary op pp_expr e
-    | FuncCall () (*Check again to see if it matches symbol table actions*)
-    | Array of loc*expr*expr
-    | InlineIf of loc*expr*expr*expr
+
+let mk_con con l = 
+    let rec aux carry = function 
+      | [] -> carry ^ ")"
+      | [s] -> carry ^ s ^ ")"
+      | s::rest -> aux (carry ^ s ^ ", ") rest 
+    in aux (con ^ "(") l 
+
+let rec string_of_expr = function 
+    | Unit _                                  -> "Unit"
+    | Ident       (_, s)                      -> make_con "Ident" s
+    | Bool        (_, b)                      -> make_con "Bool" (string_of_bool b)
+    | Int         (_, x)                      -> make_con "Int" (string_of_int x)
+    | Char        (_, x)                      -> make_con "Char" x
+    | Float       (_, x)                      -> make_con "Float" (string_of_float x)
+    | BinExpr     (_,op,e1,e2)                -> make_con "BinExpr" [string_of_expr e1 pp_bop op string_of_expr e2]
+    | BinAssign   (_,op,e1,e2)                -> make_con "BinAssign" [string_of_expr e1 pp_bop op string_of_expr e2]
+    | UnaryExpr   (_,op,e)                    -> make_con "UnaryExpr" [pp_bop op string_of_expr e]
+    | UnaryAssign (_,op,e)                    -> make_con "UnaryAssign" [pp_bop op string_of_expr e]
+    | FuncCall    (_,{name:n;parameters: p})  -> make_con "FuncCallname" [mk_con "name" [n] ; 
+                                                                               mk_con "parameters" p
+                                                                              ]
+    | Array (_,e1,e2)                         -> make_con "Array" [e1; mk_con "" [e2]]
+    | InlineIf (_,e1,e2,e3)                   -> make_con "InlineIf" [string_of_expr e1; string_of_expr e2;
+                                                                      string_of_expr e3]
