@@ -165,7 +165,7 @@ inside_brackets: optional_declaration_list optional_statement_list { ($1*$2) } /
 ;
 
 declarator : T_id  {ident $1} 
-           | T_id T_lbracket constant_expression T_rbracket { () }
+           | T_id T_lbracket constant_expression T_rbracket { Array (ident $1,$3) }
 ;
 
 declarator_list : declarator { [$1] }
@@ -212,15 +212,15 @@ function_declaration : ttype T_id T_lparen optional_parameter_list T_rparen T_se
                      { FuncDecl(name=$2; parameters=$4) } 
 ;
 
-parameter_list : parameter { () }
-               | parameter_list T_comma parameter { () }
+parameter_list : parameter { $1 }
+               | parameter_list T_comma parameter { List.rev $3::$1 }
 ;
-optional_parameter_list : /*nothing*/ { () }
-                        | parameter_list { () }
+optional_parameter_list : /*nothing*/ { [] }
+                        | parameter_list { $1 }
 ;
 
-parameter : ttype T_id { () } 
-          | T_byref ttype T_id { () }
+parameter : ttype T_id { (PASS_BY_VALUE*$1*ident $2) } 
+          | T_byref ttype T_id { ((PASS_BY_REF*$2*ident $2)) }
 ;
 
 
@@ -292,7 +292,7 @@ unmatched_if : T_if T_lparen expression T_rparen statement { If({cond=$3; ifstmt
 
 expression : T_id { ident $1 }
            | T_lparen expression T_rparen { $2 }
-           | T_lparen ttype T_rparen { () } /*???????????????????????????????*/
+           | T_lparen ttype T_rparen { () } /*symbol table?*/
            | T_true { Bool true }
            | T_false { Bool false }
            | T_NULL { () }

@@ -1,3 +1,4 @@
+open Types
 type loc = Lexing.position 
 
 (* An identifer for a type, proc or variable *)
@@ -20,10 +21,10 @@ type expr  =    | Unit of loc
                 | BinAssign of loc*assignop*expr*expr
                 | UnaryExpr of loc*unaryop*expr
                 | UnaryAssign of loc*unaryassignop*expr
-                | FuncCall of loc * func_call
-                           and func_call = {name:string; parameters:string list}
                 | Array of loc*expr*expr
                 | InlineIf of loc*expr*expr*expr
+                | FuncCall of loc * func_call
+                           and func_call = {name:string; parameters:string list}
 
 and binop =    
                | Times
@@ -64,21 +65,57 @@ type statement =    | ()
                     | StmtList of loc * statement list (*maybe declare statement as stmt list ???? problem with traversing the list each time*)
                     | Expr of loc * expr
                     | If of loc * if_expr 
-                         and if_expr = {cond:expr; ifstmt:statement ; elsestmt:statement}
                     | For of loc * for_loop 
-                          and for_loop = {label:string; initial: expr; cond: expr; update: expr; stmt: statement}
                     | JumpStmt of loc*jump
-                               and jump = {name:jumpname; label: string}
                     | Return of loc * expr
+                    
 
-and jumpname    =   | Break 
-                    | Continue
 
+and jumpname = 
+             |Break
+             |Continue
+
+and jump =  {
+             name:jumpname; 
+             label_jump: string
+             }
+            
+and if_expr = {
+               cond:expr;
+               ifstmt:statement; 
+               elsestmt:statement
+               }
+
+and for_loop = {
+                  label : string;
+                  initial : expr;
+                  cond : expr;
+                  update : expr;
+                  stmt : statement list;
+                }              
+
+
+type func_def = {
+                 typ: Types.typ; 
+                 name:string; 
+                 parameters:pass_mode*Types.typ*ident list;
+                 body: (declaration list * statement list)
+                } (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
+
+type func_decl = {
+                  typ: Types.typ; 
+                  name:string; 
+                  parameters:pass_mode*Types.typ*ident list
+                 }
+                 
+type var_decl = {
+                  typ:Types.typ ;
+                  name: ident ; 
+                  size:int
+            }
 
 type declaration =  | DeclList of loc * declaration list
                     | FuncDef of loc * func_def
-                              and func_def = {typ: Types.typ; name:string; parameters:pass_mode*Types.typ*ident list ; body: (declaration list * statement list)} (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
                     | FuncDecl of loc * func_decl
-                               and func_decl = {typ: Types.typ; name:string; parameters:pass_mode*Types.typ*ident list} 
                     | VarDeclaration of loc * var_decl 
-                                     and var_decl = {typ:Types.typ ;name: ident ; size:int}
+                                     
