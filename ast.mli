@@ -4,6 +4,9 @@ type loc = Lexing.position
 
 type ident = string
 
+type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
+
+
 (*typ is of type string e.g TBool/TInt followed by a string list that implies something like int ** (asterisks) *)
 
 
@@ -74,8 +77,8 @@ and jumpname    =   | Break
 
 type declaration =  | DeclList of loc * declaration list
                     | FuncDef of loc * func_def
-                              and func_def = {typ: Types.typ; name:string; parameters:Types.typ*ident list ; body: (declaration list * statement list)} (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
+                              and func_def = {typ: Types.typ; name:string; parameters:pass_mode*Types.typ*ident list ; body: (declaration list * statement list)} (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
                     | FuncDecl of loc * func_decl
-                               and func_decl = {typ: Types.typ; name:string; parameters:Types.typ*ident list} 
+                               and func_decl = {typ: Types.typ; name:string; parameters:pass_mode*Types.typ*ident list} 
                     | VarDeclaration of loc * var_decl 
                                      and var_decl = {typ:Types.typ ;name: ident ; size:int}

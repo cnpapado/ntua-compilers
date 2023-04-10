@@ -290,7 +290,7 @@ unmatched_if : T_if T_lparen expression T_rparen statement { If({cond=$3; ifstmt
              | T_if T_lparen expression T_rparen matched_if T_else unmatched_if { If({cond=$3; ifstmt=$5; elsestmt=$7}) }
 ;
 
-expression : T_id { $1 }
+expression : T_id { ident $1 }
            | T_lparen expression T_rparen { $2 }
            | T_lparen ttype T_rparen { () } /*???????????????????????????????*/
            | T_true { Bool true }
