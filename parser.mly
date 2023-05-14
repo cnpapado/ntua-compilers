@@ -175,10 +175,10 @@ declarator_list : declarator { [$1] }
 variable_declaration : ttype declarator_list T_semicol {
    (*we need to traverse the declarator list to declare new vars*)
    let add_var elem =
-    VarDeclaration {typ:$1; name:elem ;size:sizeOfType $1}
+    VarDeclaration {typ:$1; name:elem ;size:sizeOfType $1} ;
     Printf.printf "I'm looking at element %d now\n" elem
   in
-    List.iter f my_list;;
+    List.iter f my_list
     }
 ;
 

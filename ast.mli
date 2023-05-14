@@ -11,7 +11,7 @@ type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
 (*typ is of type string e.g TBool/TInt followed by a string list that implies something like int ** (asterisks) *)
 
 
-type expr  =    | Unit of loc
+type expr  =    | Unit
                 | Ident of loc * ident
                 | Bool of loc * bool
                 | Int of loc * int
@@ -24,7 +24,7 @@ type expr  =    | Unit of loc
                 | Array of loc*expr*expr
                 | InlineIf of loc*expr*expr*expr
                 | FuncCall of loc * func_call
-                           and func_call = {name:string; parameters:string list}
+and func_call = {name:string; parameters:string list}
 
 and binop =    
                | Times
@@ -42,7 +42,7 @@ and binop =
                | Or
                | Comma
 
-and assignop =      | Assign
+and assignop =     | Assign
                     | TimesEq
                     | DivEq
                     | ModEq 
@@ -94,14 +94,6 @@ and for_loop = {
                   stmt : statement list;
                 }              
 
-
-type func_def = {
-                 typ: Types.typ; 
-                 name:string; 
-                 parameters:pass_mode*Types.typ*ident list;
-                 body: (declaration list * statement list)
-                } (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
-
 type func_decl = {
                   typ: Types.typ; 
                   name:string; 
@@ -112,10 +104,20 @@ type var_decl = {
                   typ:Types.typ ;
                   name: ident ; 
                   size:int
-            }
+                }
+            
+type func_def = {
+                 typ: Types.typ; 
+                 name:string; 
+                 parameters:pass_mode*Types.typ*ident list;
+                 body: (declaration list * statement list)
+                } (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
 
-type declaration =  | DeclList of loc * declaration list
-                    | FuncDef of loc * func_def
-                    | FuncDecl of loc * func_decl
-                    | VarDeclaration of loc * var_decl 
+and declaration = | DeclList of declaration list
+                  | FuncDef of func_def
+                  | FuncDecl of func_decl
+                  | VarDeclaration of var_decl 
+
+
+
                                      
