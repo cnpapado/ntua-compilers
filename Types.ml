@@ -1,10 +1,4 @@
-type typ = TYPE_none
-         | TYPE_int
-         | TYPE_byte
-         | TYPE_array of
-             typ *
-             int
-         | TYPE_proc
+
 
 let rec sizeOfType t =
    match t with

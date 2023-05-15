@@ -1,4 +1,4 @@
-(* open Types *)
+open Types
 type loc = Lexing.position 
 
 (* An identifer for a type, proc or variable *)
@@ -17,25 +17,15 @@ type expr  =    | ()
                 | Int of int
                 | Char of char
                 | Float of float
-                | String of string
                 | BinExpr of binop*expr*expr 
                 | BinAssign of assignop*expr*expr
                 | UnaryExpr of unaryop*expr
                 | UnaryAssign of unaryassignop*expr
-                | Array of {name:expr; size:expr}
-                | InlineIf of {cond: expr; true_expr: expr; false_expr: expr}
+                | Array of expr*expr
+                | InlineIf of expr*expr*expr
                 | FuncCall of func_call
-                | Delete of expr
-                | New of {ttype: typ; size: expr}
-                | TypeCast of {new_type: typ; casted_expr: expr}
-and func_call = {name:string; parameters:expr list}
-and typ = TYPE_none
-| TYPE_int
-| TYPE_bool
-| TYPE_char
-| TYPE_double
-| TYPE_array of {ttype: typ; size: int}
-| TYPE_ptr of {ttype: typ; level: int}
+and func_call = {name:string; parameters:string list}
+
 and binop =    
                | Times
                | Div
@@ -72,12 +62,12 @@ and unaryassignop = | PrePlusPlus
 
 
 type statement =    | ()
-                    | StmtList of statement list (*maybe declare statement as stmt list ???? problem with traversing the list each time*)
-                    | Expr of expr
-                    | If of if_expr 
-                    | For of for_loop 
-                    | JumpStmt of jump
-                    | Return of expr
+                    | StmtList of loc * statement list (*maybe declare statement as stmt list ???? problem with traversing the list each time*)
+                    | Expr of loc * expr
+                    | If of loc * if_expr 
+                    | For of loc * for_loop 
+                    | JumpStmt of loc*jump
+                    | Return of loc * expr
                     
 
 
@@ -86,14 +76,14 @@ and jumpname =
              |Continue
 
 and jump =  {
-             name: jumpname; 
+             name:jumpname; 
              label_jump: string
              }
             
 and if_expr = {
-               cond: expr;
-               ifstmt: statement; 
-               elsestmt: statement
+               cond:expr;
+               ifstmt:statement; 
+               elsestmt:statement
                }
 
 and for_loop = {
@@ -107,8 +97,8 @@ and for_loop = {
 
 type func_def = {
                  typ: Types.typ; 
-                 name: string; 
-                 parameters: pass_mode*Types.typ*ident list;
+                 name:string; 
+                 parameters:pass_mode*Types.typ*ident list;
                  body: (declaration list * statement list)
                 } (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
 
@@ -124,8 +114,8 @@ and var_decl = {
                   size:int
             }
 
-and declaration =  | DeclList of declaration list
-                    | FuncDef of func_def
-                    | FuncDecl of func_decl
-                    | VarDeclaration of var_decl 
-
+and declaration =  | DeclList of loc * declaration list
+                    | FuncDef of loc * func_def
+                    | FuncDecl of loc * func_decl
+                    | VarDeclaration of loc * var_decl 
+                                     
