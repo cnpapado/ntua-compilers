@@ -9,7 +9,11 @@ let print_position outx lexbuf =
 let main =
   let lexbuf = Lexing.from_channel stdin in
   try
-    Parser.program Lexer.lexer lexbuf;
+    let
+      ast = Parser.program Lexer.lexer lexbuf
+    in
+    string_of_jumpname ast;
+  
     exit 0
   with Parsing.Parse_error ->
     (* Printf.eprintf "syntax error\n"; *)
