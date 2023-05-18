@@ -2,6 +2,7 @@
 %{
     open Printf
     open Ast
+    open Types
     let get_loc = Parsing.symbol_start_pos 
 
 %}
@@ -138,7 +139,7 @@
 %type<unit> declaration
 %type<expr> expression
 %type<expr list> expression_list
-%type<typ> ttype
+%type<Types.typ> ttype
 // %type<expr> binary_assignment
 
 %%

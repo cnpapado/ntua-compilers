@@ -1,4 +1,4 @@
-(* open Types *)
+open Types
 type loc = Lexing.position 
 
 (* An identifer for a type, proc or variable *)
@@ -26,16 +26,10 @@ type expr  =    | ()
                 | InlineIf of {cond: expr; true_expr: expr; false_expr: expr}
                 | FuncCall of func_call
                 | Delete of expr
-                | New of {ttype: typ; size: expr}
-                | TypeCast of {new_type: typ; casted_expr: expr}
+                | New of {ttype: Types.typ; size: expr}
+                | TypeCast of {new_type: Types.typ; casted_expr: expr}
 and func_call = {name:string; parameters:expr list}
-and typ = TYPE_none
-| TYPE_int
-| TYPE_bool
-| TYPE_char
-| TYPE_double
-| TYPE_array of {ttype: typ; size: int}
-| TYPE_ptr of {ttype: typ; level: int}
+
 and binop =    
                | Times
                | Div
@@ -119,7 +113,7 @@ and func_decl = {
                  }
                  
 and var_decl = {
-                  typ:Types.typ ;
+                  typ: Types.typ;
                   name: ident ; 
                   size:int
             }
