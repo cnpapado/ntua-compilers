@@ -137,7 +137,6 @@
 %type<Ast.expr list> program
 %type<unit> declaration
 %type<expr> expression
-%type<Ast.expr list> expression_list
 %type<Types.typ> ttype
 // %type<expr> binary_assignment
 
@@ -148,6 +147,7 @@
  *                    (thus optional_list_E = E repeated 0 or more times)
  */
 
+%%
 
 program : expression_list T_eof { $1 }
 ;
@@ -156,7 +156,7 @@ optional_declaration_list : /* nothing */ { () }
                           | optional_declaration_list declaration { () }
 ; 
 
-declaration : variable_declaration {  }
+declaration : variable_declaration { }
             | function_declaration {  } 
             | function_definition  {  }           
 ;

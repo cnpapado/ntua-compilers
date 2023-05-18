@@ -40,8 +40,8 @@ edsger: lexer.cmo parser.cmo main.cmo
 main.cmo: main.ml pretty_print.cmo
 	ocamlc -c main.ml
 
-pretty_print.cmo: pretty_print.ml Types.cmo
-	ocamlc -c pretty_print.ml
+#pretty_print.cmo: pretty_print.ml Types.cmo
+#	ocamlc -c pretty_print.ml
 
 lexer.cmo: lexer.ml lexer.cmi parser.cmo parser.cmi
 	ocamlc -c lexer.ml
@@ -49,8 +49,8 @@ lexer.cmo: lexer.ml lexer.cmi parser.cmo parser.cmi
 lexer.cmi: lexer.mli parser.cmo parser.cmi
 	ocamlc -c lexer.mli
 
-ast.cmi: ast.mli Types.cmo
-	ocamlc -c ast.mli
+ast.cmi: ast.ml Types.cmo
+	ocamlc -c ast.ml
 
 Types.cmo: Types.ml
 	ocamlc -c Types.ml

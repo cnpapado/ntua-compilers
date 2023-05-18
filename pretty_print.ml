@@ -2,7 +2,38 @@ let string_of_loc loc =
   "line " ^ (string_of_int (loc.Lexing.pos_lnum)) ^ ", " ^ 
   "position " ^ (string_of_int ((loc.Lexing.pos_cnum - loc.Lexing.pos_bol) + 1))
 open Types
+open Ast
 open Format
+
+type unary_op = 
+              | T_bitand    
+              | T_times     
+              | T_plus      
+              | T_minus     
+              | T_bitnot    
+              | T_plusplus  
+              | T_minusminus
+
+type binary_op = | T_times  
+                 | T_div    
+                 | T_mod    
+                 | T_plus   
+                 | T_minus  
+                 | T_lt     
+                 | T_gt     
+                 | T_le     
+                 | T_ge     
+                 | T_eq     
+                 | T_neq    
+                 | T_and    
+                 | T_or     
+                 | T_comma  
+                 | T_assign 
+                 | T_timeseq
+                 | T_diveq  
+                 | T_modeq  
+                 | T_pluseq 
+                 | T_minuseq
 
 (*function to print type in string format*)
 let rec pp_type = function 
@@ -10,7 +41,7 @@ let rec pp_type = function
     | TYPE_char -> "char" 
     | TYPE_bool -> "bool"
     | TYPE_double -> "double" 
-    | TYPE_array {ttype: t; size: sz} -> "Array"
+    | TYPE_array {ttype = t; size = sz} -> "Array"
 
 (*function to print unary operators in string format*)
 let pp_uop = function 
@@ -54,7 +85,7 @@ let mk_con con l =
       | s::rest -> aux (carry ^ s ^ ", ") rest 
     in aux (con ^ "(") l 
 
-let rec string_of_expr e= match e with 
+let rec string_of_expr e:expr = match e with 
     | Unit                                  -> "Unit"
     | Ident       s                         -> make_con "Ident" s
     | Bool        b                         -> make_con "Bool" (string_of_bool b)

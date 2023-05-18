@@ -12,8 +12,8 @@ let main =
     let
       ast = Parser.program Lexer.lexer lexbuf
     in
-    string_of_jumpname ast;
-  
+      string_of_stmt_list ast;
+
     exit 0
   with Parsing.Parse_error ->
     (* Printf.eprintf "syntax error\n"; *)
