@@ -17,3 +17,5 @@ let rec equalType t1 t2 =
    match t1, t2 with
    | TYPE_array {ttype=et1; size=sz1}, TYPE_array {ttype=et2; size=sz2} -> equalType et1 et2
    | _                                            -> t1 = t2
+
+let id2str x = "ji";

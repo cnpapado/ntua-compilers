@@ -403,10 +403,10 @@ state 24
 
 	expression  goto 51
 	constant_expression  goto 52
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 25
@@ -595,10 +595,10 @@ state 43
 	.  error
 
 	expression  goto 66
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 44
@@ -624,10 +624,10 @@ state 44
 	.  error
 
 	expression  goto 67
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 45
@@ -653,10 +653,10 @@ state 45
 	.  error
 
 	expression  goto 68
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 46
@@ -682,10 +682,10 @@ state 46
 	.  error
 
 	expression  goto 69
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 47
@@ -711,10 +711,10 @@ state 47
 	.  error
 
 	expression  goto 70
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 48
@@ -740,10 +740,10 @@ state 48
 	.  error
 
 	expression  goto 71
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 49
@@ -769,10 +769,10 @@ state 49
 	.  error
 
 	expression  goto 72
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 50
@@ -804,11 +804,11 @@ state 50
 
 	expression  goto 73
 	ttype  goto 74
+	binary_assignment  goto 53
 	basic_type  goto 16
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 51
@@ -873,27 +873,27 @@ state 52
 
 
 state 53
+	expression : binary_assignment .  (69)
+
+	.  reduce 69
+
+
+state 54
 	expression : unary_expression .  (66)
 
 	.  reduce 66
 
 
-state 54
+state 55
 	expression : binary_expression .  (67)
 
 	.  reduce 67
 
 
-state 55
+state 56
 	expression : unary_assignment .  (68)
 
 	.  reduce 68
-
-
-state 56
-	expression : binary_assignment .  (69)
-
-	.  reduce 69
 
 
 state 57
@@ -1019,10 +1019,10 @@ state 65
 
 	expression  goto 109
 	expression_list  goto 110
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 66
@@ -1509,10 +1509,10 @@ state 75
 	.  error
 
 	expression  goto 113
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 76
@@ -1538,10 +1538,10 @@ state 76
 	.  error
 
 	expression  goto 114
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 77
@@ -1567,10 +1567,10 @@ state 77
 	.  error
 
 	expression  goto 115
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 78
@@ -1596,10 +1596,10 @@ state 78
 	.  error
 
 	expression  goto 116
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 79
@@ -1625,10 +1625,10 @@ state 79
 	.  error
 
 	expression  goto 117
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 80
@@ -1654,10 +1654,10 @@ state 80
 	.  error
 
 	expression  goto 118
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 81
@@ -1683,10 +1683,10 @@ state 81
 	.  error
 
 	expression  goto 119
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 82
@@ -1712,10 +1712,10 @@ state 82
 	.  error
 
 	expression  goto 120
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 83
@@ -1741,10 +1741,10 @@ state 83
 	.  error
 
 	expression  goto 121
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 84
@@ -1770,10 +1770,10 @@ state 84
 	.  error
 
 	expression  goto 122
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 85
@@ -1799,10 +1799,10 @@ state 85
 	.  error
 
 	expression  goto 123
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 86
@@ -1828,10 +1828,10 @@ state 86
 	.  error
 
 	expression  goto 124
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 87
@@ -1857,10 +1857,10 @@ state 87
 	.  error
 
 	expression  goto 125
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 88
@@ -1886,10 +1886,10 @@ state 88
 	.  error
 
 	expression  goto 126
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 89
@@ -1915,10 +1915,10 @@ state 89
 	.  error
 
 	expression  goto 127
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 90
@@ -1944,10 +1944,10 @@ state 90
 	.  error
 
 	expression  goto 128
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 91
@@ -1985,10 +1985,10 @@ state 93
 	.  error
 
 	expression  goto 129
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 94
@@ -2014,10 +2014,10 @@ state 94
 	.  error
 
 	expression  goto 130
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 95
@@ -2043,10 +2043,10 @@ state 95
 	.  error
 
 	expression  goto 131
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 96
@@ -2072,10 +2072,10 @@ state 96
 	.  error
 
 	expression  goto 132
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 97
@@ -2101,10 +2101,10 @@ state 97
 	.  error
 
 	expression  goto 133
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 98
@@ -2130,10 +2130,10 @@ state 98
 	.  error
 
 	expression  goto 134
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 99
@@ -2209,10 +2209,10 @@ state 106
 	.  error
 
 	expression  goto 138
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 107
@@ -2319,10 +2319,10 @@ state 112
 	.  error
 
 	expression  goto 141
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 113
@@ -3614,21 +3614,21 @@ state 135
 
 	declaration  goto 11
 	expression  goto 151
+	statement  goto 152
+	optional_for_label  goto 153
 	ttype  goto 12
+	binary_assignment  goto 53
 	variable_declaration  goto 13
 	function_declaration  goto 14
 	function_definition  goto 15
-	optional_statement_list  goto 152
+	optional_statement_list  goto 154
 	basic_type  goto 16
-	statement_list  goto 153
-	statement  goto 154
-	optional_for_label  goto 155
+	statement_list  goto 155
 	matched_if  goto 156
 	unmatched_if  goto 157
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 136
@@ -3723,10 +3723,10 @@ state 139
 	.  error
 
 	expression  goto 161
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 140
@@ -3815,10 +3815,10 @@ state 142
 	.  error
 
 	expression  goto 162
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 143
@@ -3881,10 +3881,10 @@ state 147
 
 	expression  goto 168
 	optional_expression  goto 169
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 148
@@ -3960,16 +3960,16 @@ state 150
 	T_rcurl  reduce 36
 
 	expression  goto 151
+	statement  goto 152
+	optional_for_label  goto 153
+	binary_assignment  goto 53
 	optional_statement_list  goto 171
-	statement_list  goto 153
-	statement  goto 154
-	optional_for_label  goto 155
+	statement_list  goto 155
 	matched_if  goto 156
 	unmatched_if  goto 157
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 151
@@ -4028,12 +4028,25 @@ state 151
 
 
 state 152
+	statement_list : statement .  (34)
+
+	.  reduce 34
+
+
+state 153
+	matched_if : optional_for_label . T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (48)
+
+	T_for  shift 173
+	.  error
+
+
+state 154
 	inside_brackets : optional_declaration_list optional_statement_list .  (7)
 
 	.  reduce 7
 
 
-state 153
+state 155
 	statement_list : statement_list . statement  (35)
 	optional_statement_list : statement_list .  (37)
 	optional_for_label : .  (38)
@@ -4065,27 +4078,14 @@ state 153
 	T_rcurl  reduce 37
 
 	expression  goto 151
-	statement  goto 173
-	optional_for_label  goto 155
+	statement  goto 174
+	optional_for_label  goto 153
+	binary_assignment  goto 53
 	matched_if  goto 156
 	unmatched_if  goto 157
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
-
-
-state 154
-	statement_list : statement .  (34)
-
-	.  reduce 34
-
-
-state 155
-	matched_if : optional_for_label . T_for T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (48)
-
-	T_for  shift 174
-	.  error
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 156
@@ -4278,10 +4278,10 @@ state 167
 	.  error
 
 	expression  goto 176
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 168
@@ -4366,16 +4366,16 @@ state 172
 
 
 state 173
-	statement_list : statement_list statement .  (35)
-
-	.  reduce 35
-
-
-state 174
 	matched_if : optional_for_label T_for . T_lparen optional_expression T_semicol optional_expression T_semicol optional_expression T_rparen statement  (48)
 
 	T_lparen  shift 179
 	.  error
+
+
+state 174
+	statement_list : statement_list statement .  (35)
+
+	.  reduce 35
 
 
 state 175
@@ -4478,10 +4478,10 @@ state 179
 
 	expression  goto 168
 	optional_expression  goto 181
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 180
@@ -4517,13 +4517,13 @@ state 180
 
 	expression  goto 151
 	statement  goto 182
-	optional_for_label  goto 155
+	optional_for_label  goto 153
+	binary_assignment  goto 53
 	matched_if  goto 183
 	unmatched_if  goto 157
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 181
@@ -4598,10 +4598,10 @@ state 184
 
 	expression  goto 168
 	optional_expression  goto 186
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 185
@@ -4635,13 +4635,13 @@ state 185
 	T_for  reduce 38
 
 	expression  goto 151
-	optional_for_label  goto 155
+	optional_for_label  goto 153
+	binary_assignment  goto 53
 	matched_if  goto 187
 	unmatched_if  goto 188
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 186
@@ -4688,10 +4688,10 @@ state 189
 
 	expression  goto 168
 	optional_expression  goto 190
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	binary_assignment  goto 53
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 190
@@ -4732,13 +4732,13 @@ state 191
 
 	expression  goto 151
 	statement  goto 192
-	optional_for_label  goto 155
+	optional_for_label  goto 153
+	binary_assignment  goto 53
 	matched_if  goto 156
 	unmatched_if  goto 157
-	unary_expression  goto 53
-	binary_expression  goto 54
-	unary_assignment  goto 55
-	binary_assignment  goto 56
+	unary_expression  goto 54
+	binary_expression  goto 55
+	unary_assignment  goto 56
 
 
 state 192

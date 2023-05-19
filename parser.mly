@@ -135,12 +135,17 @@
    
 
 %start program
-%type<unit> program
-%type<unit> declaration
+%type<Ast.declaration list> program
+%type<declaration list> declaration
 %type<expr> expression
 %type<expr list> expression_list
+%type<statement> statement
+%type<label> optional_label_semi
+%type<label> optional_for_label
+%type<expr> optional_expression
+%type<const_expr> constant_expression
 %type<Types.typ> ttype
-// %type<expr> binary_assignment
+%type<expr> binary_assignment
 
 %%
 
@@ -149,30 +154,34 @@
  *                    (thus optional_list_E = E repeated 0 or more times)
  */
 
-program : optional_declaration_list T_eof { () }
+program : optional_declaration_list T_eof { List.rev $1 } //
 ;
 
-optional_declaration_list : /* nothing */ { () }
-                          | optional_declaration_list declaration { () }
+optional_declaration_list : /* nothing */ { [] }
+                          | optional_declaration_list declaration { $2 @ $1 }
 ; 
 
-declaration : variable_declaration {  }
-            | function_declaration {  } 
-            | function_definition  {  }           
+// decl actually returns a list because of variable declarations but we don't care 
+// since it's gonna end up in optional list decl anyway
+declaration : variable_declaration { $1 } 
+            | function_declaration { [$1] } 
+            | function_definition  { [$1] }           
 ;
 
-inside_brackets: optional_declaration_list optional_statement_list { } /* check this ??????? */ 
+inside_brackets: optional_declaration_list optional_statement_list { (List.rev $1, $2) } /* check this ??????? */ 
 ;
 
-declarator : T_id  {} 
-           | T_id T_lbracket constant_expression T_rbracket {  }
+declarator : T_id  { ($1,()) } 
+           | T_id T_lbracket constant_expression T_rbracket { ($1, $3) }
 ;
 
-declarator_list : declarator {}
-                | declarator T_comma declarator_list {  } //List.rev ??
+declarator_list : declarator { $1::[] }
+                | declarator T_comma declarator_list { $1::$3 } 
 ;
 
-variable_declaration : ttype declarator_list T_semicol {  }
+variable_declaration : ttype declarator_list T_semicol 
+                        { let f (id,sz) = VarDeclaration ({typ=$1; name=id; size=sz}); in 
+                        List.map f (List.rev $2) } 
 ;
 
 /* In ttype we want to enforce shifting (even if this is the default action for yacc).
@@ -184,7 +193,7 @@ ttype : basic_type optional_T_times_list %prec SHIFT_ON_TIMESLIST {
    if $2==0 then $1 else TYPE_ptr ({ttype=$1; level=$2})
 };
 
-optional_T_times_list : /*nothing--returns empty string*/ { 0 }
+optional_T_times_list : /* nothing */ { 0 }
                       | optional_T_times_list T_times { $1 + 1 }
 ;
 
@@ -195,31 +204,33 @@ basic_type : T_int  { TYPE_int }
 ;
 
 
-function_definition : ttype T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl 
-                    {  }
-                    | T_void T_id T_lparen optional_parameter_list T_rparen T_lcurl inside_brackets T_rcurl 
-                    {  }
+function_definition : ttype T_id T_lparen optional_parameter_list T_rparen 
+                        T_lcurl inside_brackets T_rcurl 
+                        { FuncDef ({ return_type=$1; name=$2; parameters=$4; body=$7 } ) }
+                    | T_void T_id T_lparen optional_parameter_list T_rparen 
+                        T_lcurl inside_brackets T_rcurl 
+                        { FuncDef ({ return_type=TYPE_none; name=$2; parameters=$4; body=$7 } ) }
 
 function_declaration : ttype T_id T_lparen optional_parameter_list T_rparen T_semicol 
-                     {  } 
+                     { FuncDecl ({ return_type=$1; name=$2; parameters=$4 }) } 
                      | T_void T_id T_lparen optional_parameter_list T_rparen T_semicol
-                     {  } 
+                     { FuncDecl ({ return_type=TYPE_none; name=$2; parameters=$4 }) } 
 ;
 
-parameter_list : parameter { }
-               | parameter_list T_comma parameter { }
+parameter_list : parameter { $1::[] }
+               | parameter_list T_comma parameter { $3::$1 }
 ;
-optional_parameter_list : /*nothing*/ {  }
-                        | parameter_list { }
-;
-
-parameter : ttype T_id { } 
-          | T_byref ttype T_id {  }
+optional_parameter_list : /*nothing*/ { [] }
+                        | parameter_list { List.rev $1 } 
 ;
 
+parameter : ttype T_id { (PASS_BY_VALUE,$1,$2) } 
+          | T_byref ttype T_id { (PASS_BY_REFERENCE,$2,$3) }
+;
 
-optional_expression : /* nothing */ {  }
-                    | expression { }
+
+optional_expression : /* nothing */ { () }
+                    | expression { $1 }
 ;
 
 /* In [ exp ',' exp ',' exp ] ambiguity (reduce exp as an exp_list or shift ',') 
@@ -232,25 +243,22 @@ expression_list : expression %prec SHIFT_ON_COMMA { $1::[] }
                 | expression_list T_comma expression { $3::$1 } /*remember to reverse list!!!!!!!!!!!!!!!!*/
 ;
 
-// optional_expression_list : /* nothing */ { () }
-//                          | expression_list T_comma expression { () }
-// ;
 
-statement_list : statement {  }
-               | statement_list statement { } /*remember to reverse when used*/
+statement_list : statement { $1::[] }
+               | statement_list statement { $2::$1 } /*remember to reverse when used*/
 ;
 
 
-optional_statement_list : /* nothing */ { }
-                        | statement_list {  }
+optional_statement_list : /* nothing */ { [] }
+                        | statement_list { $1 }
 ;
 
-optional_for_label : /* nothing--empty string */ {  }
-                   | T_id T_colon {  }
+optional_for_label : /* nothing */ { "" } // TODO handle empty labels not as strings
+                   | T_id T_colon { $1 }
 ;
 
-optional_label_semi : T_semicol { }
-                    | T_id T_semicol { }
+optional_label_semi : T_semicol { "" }
+                    | T_id T_semicol { $1 }
 ;
 
 /* About dangling-if: To avoid declaring a precedence for T_else (and having to decide 
@@ -260,31 +268,34 @@ optional_label_semi : T_semicol { }
    For some reason s/r conflicts remained so we ended up giving the reduce rule lower 
    precedence than the T_else.++++++++
 */
-statement : matched_if { } 
-          | unmatched_if { }
+statement : matched_if { $1 } 
+          | unmatched_if { $1 }
 ;
           
-matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if {  }
-           | T_semicol { }
-           | expression T_semicol {  }
-           | T_lcurl optional_statement_list T_rcurl {  }
+matched_if : T_if T_lparen expression T_rparen matched_if T_else matched_if 
+               { If ({cond=$3; ifstmt=$5; elsestmt=$7}) }
+           | T_semicol { () }
+           | expression T_semicol { Expr $1 }
+           | T_lcurl optional_statement_list T_rcurl { StmtList (List.rev $2) }
 
            | optional_for_label T_for T_lparen optional_expression T_semicol
              optional_expression T_semicol optional_expression 
-             T_rparen statement {  } 
+             T_rparen statement { For ({label=$1; initial=$4; cond=$6; update=$8; stmt=$10;}) } 
 
-           | T_continue optional_label_semi {  }
-           | T_break optional_label_semi {  }
-           | T_return optional_expression T_semicol {  }        
+           | T_continue optional_label_semi { Jump ({name=Continue; label_jump=$2}) }
+           | T_break optional_label_semi { Jump ({name=Break; label_jump=$2}) }
+           | T_return optional_expression T_semicol { Return $2 }        
 ;
 
 
 
-unmatched_if : T_if T_lparen expression T_rparen statement {  }
-             | T_if T_lparen expression T_rparen matched_if T_else unmatched_if {  }
+unmatched_if : T_if T_lparen expression T_rparen statement 
+                  { If ({cond=$3; ifstmt=$5; elsestmt=()}) }
+             | T_if T_lparen expression T_rparen matched_if T_else unmatched_if 
+                  { If ({cond=$3; ifstmt=$5; elsestmt=$7}) }
 ;
 
-expression : T_id { Ident $1 }
+expression : T_id { Id $1 }
            | T_lparen expression T_rparen { $2 }
          //   | T_lparen ttype T_rparen { () }
            | T_true { Bool true }
@@ -353,5 +364,5 @@ optional_new : /*nothing*/ %prec SHIFT_ON_NEW { () }
              | T_lbracket expression T_rbracket { $2 }
 ;
 
-constant_expression : expression { } /*symbol table*/
+constant_expression : expression { ConstExpr $1 } /*symbol table*/
 ;

@@ -1,9 +1,10 @@
 open Types
 type loc = Lexing.position 
 
-(* An identifer for a type, proc or variable *)
+(* An identifierifer for a type, proc or variable *)
 
-type ident = string
+type identifier = string
+type label = string
 
 type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
 
@@ -12,7 +13,7 @@ type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
 
 
 type expr  =    | ()
-                | Ident of ident
+                | Id of identifier
                 | Bool of bool
                 | Int of int
                 | Char of char
@@ -24,11 +25,10 @@ type expr  =    | ()
                 | UnaryAssign of unaryassignop*expr
                 | Array of {name:expr; size:expr}
                 | InlineIf of {cond: expr; true_expr: expr; false_expr: expr}
-                | FuncCall of func_call
+                | FuncCall of {name:string; parameters:expr list}
                 | Delete of expr
                 | New of {ttype: Types.typ; size: expr}
                 | TypeCast of {new_type: Types.typ; casted_expr: expr}
-and func_call = {name:string; parameters:expr list}
 
 and binop =    
                | Times
@@ -70,19 +70,11 @@ type statement =    | ()
                     | Expr of expr
                     | If of if_expr 
                     | For of for_loop 
-                    | JumpStmt of jump
+                    | Jump of {name: jumptype; label_jump: label}
                     | Return of expr
                     
+and jumptype = Break | Continue
 
-
-and jumpname = 
-             |Break
-             |Continue
-
-and jump =  {
-             name: jumpname; 
-             label_jump: string
-             }
             
 and if_expr = {
                cond: expr;
@@ -91,35 +83,36 @@ and if_expr = {
                }
 
 and for_loop = {
-                  label : string;
+                  label : identifier;
                   initial : expr;
                   cond : expr;
                   update : expr;
-                  stmt : statement list;
+                  stmt : statement;
                 }              
 
 
 type func_def = {
-                 typ: Types.typ; 
-                 name: string; 
-                 parameters: pass_mode*Types.typ*ident list;
+                 return_type: Types.typ; 
+                 name: identifier; 
+                 parameters: (pass_mode*Types.typ*identifier) list;
                  body: (declaration list * statement list)
-                } (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
+                } 
 
 and func_decl = {
-                  typ: Types.typ; 
-                  name:string; 
-                  parameters:pass_mode*Types.typ*ident list
+                  return_type: Types.typ; 
+                  name: identifier; 
+                  parameters: (pass_mode*Types.typ*identifier) list
                  }
                  
 and var_decl = {
                   typ: Types.typ;
-                  name: ident ; 
-                  size:int
+                  name: identifier ; 
+                  size: const_expr
             }
 
 and declaration =  | DeclList of declaration list
-                    | FuncDef of func_def
-                    | FuncDecl of func_decl
-                    | VarDeclaration of var_decl 
+                   | FuncDef of func_def
+                   | FuncDecl of func_decl
+                   | VarDeclaration of var_decl 
 
+and const_expr = ConstExpr of expr | () (* ?? *)

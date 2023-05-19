@@ -55,8 +55,8 @@ Types.cmo: Types.ml
 parser.cmo: parser.ml parser.cmi ast.cmi
 	ocamlc -c parser.ml
 
-parser.cmi: parser.mli
-	ocamlc -c parser.mli
+parser.cmi: parser.mli ast.cmi
+	ocamlc -c parser.mli 
 
 parser.ml parser.mli: parser.mly
 	ocamlyacc -v parser.mly
