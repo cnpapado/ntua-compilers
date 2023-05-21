@@ -1,0 +1,6 @@
+# dune build
+# OCAMLPARAM: unset
+# Workspace root: /home/euaggriz/ntua-compilers/edsger
+$ /usr/bin/nproc > /tmp/dune491438.output 2> /dev/null
+# Auto-detected concurrency: 4
+# disable binary cache
