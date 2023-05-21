@@ -12,7 +12,7 @@ let main =
     let
       ast = Parser.program Lexer.lexer lexbuf
     in
-      string_of_stmt_list ast;
+      string_of_expr_list ast;
 
     exit 0
   with Parsing.Parse_error ->

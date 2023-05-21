@@ -72,7 +72,7 @@ and unaryassignop = | PrePlusPlus
                     | PostMinusMinus
 
 
-type statement =    | ()
+type statement =    
                     | StmtList of statement list (*maybe declare statement as stmt list ???? problem with traversing the list each time*)
                     | Expr of expr
                     | If of if_expr 
@@ -120,8 +120,8 @@ and func_decl = {
                 }
                  
 and var_decl = {
-                  typ:Types.typ ;
-                  name: ident ; 
+                  typ:Types.typ;
+                  name: ident; 
                   size:int
                }
 
@@ -191,29 +191,32 @@ let mk_con con l =
       | s::rest -> aux (carry ^ s ^ ", ") rest 
     in aux (con ^ "(") l 
 
-let rec string_of_expr e = match e with 
+let rec string_of_expr_list = function 
+    | [] -> "" 
+    | [e] -> string_of_expr e 
+    |  e:: rest -> (string_of_expr e ) ^ "; " ^ (string_of_expr_list rest)
+
+and string_of_expr e = match e with 
     | ()                                    -> "Unit"
-    | Ident       s                         -> make_con "Ident" s
-    | Bool        b                         -> make_con "Bool" (string_of_bool b)
-    | Int         x                         -> make_con "Int" (string_of_int x)
-    | Char        x                         -> make_con "Char" x
-    | Float       x                         -> make_con "Float" (string_of_float x)
-    | BinExpr     (op,e1,e2)                -> make_con "BinExpr" [string_of_expr e1 pp_bop op string_of_expr e2]
-    | BinAssign   (op,e1,e2)                -> make_con "BinAssign" [string_of_expr e1 pp_assop op string_of_expr e2]
-    | UnaryExpr   (op,e)                    -> make_con "UnaryExpr" [pp_bop pp_assop string_of_expr e]
-    | UnaryAssign (op,e)                    -> make_con "UnaryAssign" [pp_bop pp_unassop string_of_expr e]
-    | FuncCall    {name:n;parameters: p}    -> make_con "FuncCallname" [n ; 
-                                                                          mk_con "" p
-                                                                          ]
-    | Array (e1,e2)                         -> make_con "Array" [e1; mk_con "" [e2]]
-    | InlineIf (e1,e2,e3)                   -> make_con "InlineIf" [string_of_expr e1; string_of_expr e2;
+    | Ident       s                         -> mk_con "Ident" [s]
+    | Bool        b                         -> mk_con "Bool" [(string_of_bool b)]
+    | Int         x                         -> mk_con "Int" [(string_of_int x)]
+    | Char        x                         -> mk_con "Char" [String.make 1 x]
+    | Float       x                         -> mk_con "Float" [(string_of_float x)]
+    | BinExpr     (op,e1,e2)                -> mk_con "BinExpr" [string_of_expr e1 ;pp_bop op; string_of_expr e2]
+    | BinAssign   (op,e1,e2)                -> mk_con "BinAssign" [string_of_expr e1 ;pp_assop op ;string_of_expr e2]
+    | UnaryExpr   (op,e)                    -> mk_con "UnaryExpr" [pp_uop op; string_of_expr e]
+    | UnaryAssign (op,e)                    -> mk_con "UnaryAssign" [pp_unassop op ; string_of_expr e]
+    | FuncCall    {name = n;parameters = p} -> mk_con "FuncCallname" [n ; string_of_expr_list p]
+    | Array {name = e1 ; size = e2}                         -> mk_con "Array" [string_of_expr e1; string_of_expr e2]
+    | InlineIf {cond = e1; true_expr = e2; false_expr = e3} -> mk_con "InlineIf" [string_of_expr e1; string_of_expr e2;
                                                                       string_of_expr e3]
 
 let string_of_jumpname = function
     | Break    -> "Break"
     | Continue -> "Continue"
 
-let rec string_of_stmt = function
+(*let rec string_of_stmt = function
         | StmtList (_, Stlist)                             -> make_con "Stmnt" [string_of_stmt_list StList]
         | Expr (_,e)                                       -> make_con "Expr" [e]
         | If   (_,{cond:e; ifstmt:stmt1 ; elsestmt:stmt2}) -> make_con "If" [e;stmt1;stmt2]
@@ -226,9 +229,6 @@ let rec string_of_stmt = function
                                                                               ]
         | JumpStmt (_,{name:jmp; label:l})                 -> make_con "JumpStmt" [string_of_jumpname jmp;
                                                                                l]
-        | Return (_,e)                                     -> make_con "Return" [string_of_expr e]
+        | Return (_,e)                                     -> make_con "Return" [string_of_expr e] *)
 
-    and string_of_stmt_list = function 
-    | [] -> "" 
-    | [e] -> string_of_expr e 
-    |  e:: rest -> (string_of_expr e ) ^ "; " ^ (string_of_expr_list rest)
+
