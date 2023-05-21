@@ -1,4 +1,0 @@
-int m() {
-    if (a) break;
-    else a=3;
-}
