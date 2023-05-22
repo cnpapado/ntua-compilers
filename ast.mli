@@ -110,7 +110,7 @@ and var_decl = {
                   size: const_expr
             }
 
-and declaration =  | DeclList of declaration list
+and declaration =  | DeclList of declaration list (* not needed? *)
                    | FuncDef of func_def
                    | FuncDecl of func_decl
                    | VarDeclaration of var_decl 

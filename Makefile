@@ -35,10 +35,13 @@
 # 	$(OCAMLDEP) $^ > .depend
 
 edsger: lexer.cmo parser.cmo main.cmo
-	ocamlc -o edsger lexer.cmo parser.cmo main.cmo
+	ocamlc -o edsger lexer.cmo parser.cmo main.cmo 
 
-main.cmo: main.ml
-	ocamlc -c main.ml
+main.cmo: main.ml PrettyPrint.cmo
+	ocamlc -c main.ml PrettyPrint.cmo
+
+PrettyPrint.cmo: PrettyPrint.ml
+	ocamlc -c PrettyPrint.ml
 
 lexer.cmo: lexer.ml lexer.cmi parser.cmo parser.cmi
 	ocamlc -c lexer.ml
