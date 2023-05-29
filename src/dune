@@ -6,7 +6,6 @@
 (modules parser)
 )
 
-
 (executable
  (public_name edsger)
  (name main)
