@@ -1,9 +1,1 @@
-*.cmi
-*.cmo
-lexer.ml
-parser.ml
-parser.mli
-# parser.output
-minibasic
-edsger
-lexer
+_build

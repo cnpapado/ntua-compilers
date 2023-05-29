@@ -1,0 +1,13 @@
+(ocamllex
+  (modules lexer)
+)
+
+(ocamlyacc
+(modules parser)
+)
+
+
+(executable
+ (public_name edsger)
+ (name main)
+)
