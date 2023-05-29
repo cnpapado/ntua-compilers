@@ -209,7 +209,6 @@ and string_of_expr e = match e with
     | BinAssign   (op,e1,e2)                -> mk_con "BinAssign" [string_of_expr e1 ;pp_assop op ;string_of_expr e2]
     | UnaryExpr   (op,e)                    -> mk_con "UnaryExpr" [pp_uop op; string_of_expr e]
     | UnaryAssign (op,e)                    -> mk_con "UnaryAssign" [pp_unassop op ; string_of_expr e]
-    | FuncCall    {name = n;parameters = p} -> mk_con "FuncCallname" [n ; string_of_expr_list p]
     | Array       {name = e1 ; size = e2}                   -> mk_con "Array" [string_of_expr e1; string_of_expr e2]
     | InlineIf {cond = e1; true_expr = e2; 
                 false_expr = e3}            -> mk_con "InlineIf" [string_of_expr e1; string_of_expr e2;

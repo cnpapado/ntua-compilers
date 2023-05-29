@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/edsger/META"
+  "_build/install/default/lib/edsger/dune-package"
+  "_build/install/default/lib/edsger/opam"
+]
+bin: [
+  "_build/install/default/bin/edsger"
+]

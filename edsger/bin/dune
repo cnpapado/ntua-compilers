@@ -6,8 +6,9 @@
 (modules parser)
 )
 
-
 (executable
  (public_name edsger)
- (name main)
+ (name main )
+ (modules main parser lexer ast types)
+  (flags (-linkall))
  (libraries edsger))

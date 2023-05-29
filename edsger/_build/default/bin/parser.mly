@@ -1,12 +1,12 @@
 /* yyparse: called once, includes semantics, basically feeds the whole frontend process */
 %{
-    open Printf
+    
     open Ast
     open Types
-    let get_loc = Parsing.symbol_start_pos 
 
 %}
-
+//open Printf
+//let get_loc = Parsing.symbol_start_pos
 %token T_bool 
 %token T_break
 %token T_byref
