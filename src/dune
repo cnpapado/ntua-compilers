@@ -9,4 +9,11 @@
 (executable
  (public_name edsger)
  (name main)
+ (libraries core core_unix.command_unix)
+)
+
+(rule
+ (alias runtest)
+;  (deps ../misc/test-progs/fib.eds)
+ (action (run edsger ../misc/test-progs/fib.eds))
 )
