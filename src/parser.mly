@@ -207,12 +207,12 @@ function_definition : ttype T_id T_lparen optional_parameter_list T_rparen
                         { FuncDef ({ func_def_return_type=$1; func_def_name=$2; func_def_parameters=$4; func_def_body=$7 } ) }
                     | T_void T_id T_lparen optional_parameter_list T_rparen 
                         T_lcurl inside_brackets T_rcurl 
-                        { FuncDef ({ func_def_return_type=TYPE_none; func_def_name=$2; func_def_parameters=$4; func_def_body=$7 } ) }
+                        { FuncDef ({ func_def_return_type=TYPE_void; func_def_name=$2; func_def_parameters=$4; func_def_body=$7 } ) }
 
 function_declaration : ttype T_id T_lparen optional_parameter_list T_rparen T_semicol 
                      { FuncDecl ({ func_decl_return_type=$1; func_decl_name=$2; func_decl_parameters=$4 }) } 
                      | T_void T_id T_lparen optional_parameter_list T_rparen T_semicol
-                     { FuncDecl ({ func_decl_return_type=TYPE_none; func_decl_name=$2; func_decl_parameters=$4 }) } 
+                     { FuncDecl ({ func_decl_return_type=TYPE_void; func_decl_name=$2; func_decl_parameters=$4 }) } 
 ;
 
 parameter_list : parameter { $1::[] }
