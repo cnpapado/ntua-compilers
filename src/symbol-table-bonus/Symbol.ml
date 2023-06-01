@@ -24,6 +24,12 @@ type scope = {
   mutable sco_negofs : int
 }
 
+and entry_info_typ = ENTRY_TYPE_none
+                    | ENTRY_TYPE_variable
+                    | ENTRY_TYPE_function
+                    | ENTRY_TYPE_parameter
+                    | ENTRY_TYPE_temporary
+
 and variable_info = {
   variable_type   : Types.typ;
   variable_offset : int
@@ -110,6 +116,14 @@ let closeScope () =
 
 exception Failure_NewEntry of entry
 
+let entry_info_type ~info:inf =  
+match inf with 
+| ENTRY_none -> ENTRY_TYPE_none
+| ENTRY_variable(_) -> ENTRY_TYPE_variable
+| ENTRY_function(_) -> ENTRY_TYPE_function
+| ENTRY_parameter(_) -> ENTRY_TYPE_parameter
+| ENTRY_temporary(_) -> ENTRY_TYPE_temporary
+
 let newEntry id inf err =
   try
     if err then begin
@@ -132,23 +146,38 @@ let newEntry id inf err =
     error "duplicate identifier %a" pretty_id id;
     e
 
-let lookupEntry id how err =
+let lookupEntry id expected_entry_typ how err =
   let scc = !currentScope in
   let lookup () =
     match how with
     | LOOKUP_CURRENT_SCOPE ->
         let e = H.find !tab id in
         if e.entry_scope.sco_nesting = scc.sco_nesting then
-          e
+          if (entry_info_type ~info:e.entry_info = expected_entry_typ) then 
+            e
+          else 
+            raise Found_but_different_typ
         else
           raise Not_found
     | LOOKUP_ALL_SCOPES ->
-        H.find !tab id in
+        let e = H.find !tab id in
+        if (entry_info_type ~info:e.entry_info = expected_entry_typ) then 
+          e
+        else 
+          raise Found_but_different_typ
+    in
   if err then
     try
       lookup ()
-    with Not_found ->
+    with 
+    | Not_found ->
       error "unknown identifier %a (first occurrence)"
+        pretty_id id;
+      (* put it in, so we don't see more errors *)
+      H.add !tab id (no_entry id);
+      raise Exit
+    | Found_but_different_typ ->
+      error "unknown identifier %a (first occurrence with that specific type)"
         pretty_id id;
       (* put it in, so we don't see more errors *)
       H.add !tab id (no_entry id);
@@ -164,9 +193,9 @@ let newVariable id typ err =
   } in
   newEntry id (ENTRY_variable inf) err
 
-let newFunction id err =
+let newFunction id result_type err =
   try
-    let e = lookupEntry id LOOKUP_CURRENT_SCOPE false in
+    let e = lookupEntry id ENTRY_TYPE_function LOOKUP_CURRENT_SCOPE false in
     match e.entry_info with
     | ENTRY_function inf when inf.function_isForward ->
         inf.function_isForward <- false;
@@ -182,7 +211,7 @@ let newFunction id err =
       function_isForward = false;
       function_paramlist = [];
       function_redeflist = [];
-      function_result = TYPE_none;
+      function_result = result_type;
       function_pstatus = PARDEF_DEFINE;
       function_initquad = 0
     } in

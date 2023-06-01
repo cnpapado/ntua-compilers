@@ -15,7 +15,10 @@ match l with
     check_decl_list tl
 | Ast.FuncDef(x)::tl -> 
     Printf.printf "defined function \"%s\"\n" x.func_def_name ;
-    ignore (lookupEntry (id_make x.func_def_name) LOOKUP_ALL_SCOPES true); (* LOOKUP_ALL_SCOPES panta ?? *)
+    (* search for the declaration in the current scope only *)
+    let f_entry = (lookupEntry (id_make x.func_def_name) ENTRY_TYPE_function LOOKUP_CURRENT_SCOPE true) in 
+    (* TODO: make sure both argument list and return type match *)
+    
     openScope (); 
     (* check previously defined + args from symbol table... *)
     check_func_body x.func_def_body;

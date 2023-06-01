@@ -3,9 +3,9 @@
 type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
 
 type param_status =
-  | PARDEF_COMPLETE                             (* Πλήρης ορισμός     *)
-  | PARDEF_DEFINE                               (* Εν μέσω ορισμού    *)
-  | PARDEF_CHECK                                (* Εν μέσω ελέγχου    *)
+  | PARDEF_COMPLETE                             (* οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½     *)
+  | PARDEF_DEFINE                               (* οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½    *)
+  | PARDEF_CHECK                                (* οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½    *)
 
 type scope = {
   sco_parent : scope option;
@@ -14,31 +14,37 @@ type scope = {
   mutable sco_negofs : int
 }
 
-and variable_info = {                         (******* Μεταβλητή *******)
-  variable_type   : Types.typ;                (* Τύπος                 *)
-  variable_offset : int                       (* Offset στο Ε.Δ.       *)
+and variable_info = {                         (******* Variable ********)
+  variable_type   : Types.typ;                (* Type                  *)
+  variable_offset : int                       (* Offset in the E.D.    *)
 }
 
-and function_info = {                         (******* Συνάρτηση *******)
-  mutable function_isForward : bool;          (* Δήλωση forward        *)
-  mutable function_paramlist : entry list;    (* Λίστα παραμέτρων      *)
-  mutable function_redeflist : entry list;    (* Λίστα παραμέτρων (2η) *)
-  mutable function_result    : Types.typ;     (* Τύπος αποτελέσματος   *)
-  mutable function_pstatus   : param_status;  (* Κατάσταση παραμέτρων  *)
-  mutable function_initquad  : int            (* Αρχική τετράδα        *)
+and function_info = {                         (******* Function *******)
+  mutable function_isForward : bool;          (* Forward decl          *)
+  mutable function_paramlist : entry list;    (* οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½      *)
+  mutable function_redeflist : entry list;    (* οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ (2οΏ½) *)
+  mutable function_result    : Types.typ;     (* οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½   *)
+  mutable function_pstatus   : param_status;  (* οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½  *)
+  mutable function_initquad  : int            (* οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½        *)
 }
 
-and parameter_info = {                        (****** Παράμετρος *******)
-  parameter_type           : Types.typ;       (* Τύπος                 *)
-  mutable parameter_offset : int;             (* Offset στο Ε.Δ.       *)
-  parameter_mode           : pass_mode        (* Τρόπος περάσματος     *)
+and parameter_info = {                        (****** οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ *******)
+  parameter_type           : Types.typ;       (* οΏ½οΏ½οΏ½οΏ½οΏ½                 *)
+  mutable parameter_offset : int;             (* Offset οΏ½οΏ½οΏ½ οΏ½.οΏ½.       *)
+  parameter_mode           : pass_mode        (* οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½     *)
 }
 
-and temporary_info = {                        (** Προσωρινή μεταβλητή **)
-  temporary_type   : Types.typ;               (* Τύπος                 *)
-  temporary_offset : int                      (* Offset στο Ε.Δ.       *)
+and temporary_info = {                        (** οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ **)
+  temporary_type   : Types.typ;               (* οΏ½οΏ½οΏ½οΏ½οΏ½                 *)
+  temporary_offset : int                      (* Offset οΏ½οΏ½οΏ½ οΏ½.οΏ½.       *)
 }
 
+and entry_info_typ = ENTRY_TYPE_none
+               | ENTRY_TYPE_variable
+               | ENTRY_TYPE_function
+               | ENTRY_TYPE_parameter
+               | ENTRY_TYPE_temporary
+               
 and entry_info = ENTRY_none
                | ENTRY_variable of variable_info
                | ENTRY_function of function_info
@@ -53,22 +59,22 @@ and entry = {
 
 type lookup_type = LOOKUP_CURRENT_SCOPE | LOOKUP_ALL_SCOPES
 
-val currentScope : scope ref              (* Τρέχουσα εμβέλεια         *)
-val quadNext : int ref                    (* Αριθμός επόμενης τετράδας *)
-val tempNumber : int ref                  (* Αρίθμηση των temporaries  *)
+val currentScope : scope ref              (* οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½         *)
+val quadNext : int ref                    (* οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ *)
+val tempNumber : int ref                  (* οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½ temporaries  *)
 
 val initSymbolTable  : int -> unit
 val openScope        : unit -> unit
 val closeScope       : unit -> unit
 val newVariable      : Identifier.id -> Types.typ -> bool -> entry
-val newFunction      : Identifier.id -> bool -> entry
+val newFunction      : Identifier.id -> Types.typ -> bool -> entry
 val newParameter     : Identifier.id -> Types.typ -> pass_mode ->
                                         entry -> bool -> entry
 val newTemporary     : Types.typ -> entry
 
 val forwardFunction   : entry -> unit
 val endFunctionHeader : entry -> Types.typ -> unit
-val lookupEntry       : Identifier.id -> lookup_type -> bool -> entry
+val lookupEntry       : Identifier.id -> entry_info_typ -> lookup_type -> bool -> entry
 
-val start_positive_offset : int   (* Αρχικό θετικό offset στο Ε.Δ.   *)
-val start_negative_offset : int   (* Αρχικό αρνητικό offset στο Ε.Δ. *)
+val start_positive_offset : int   (* οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ offset οΏ½οΏ½οΏ½ οΏ½.οΏ½.   *)
+val start_negative_offset : int   (* οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½οΏ½ offset οΏ½οΏ½οΏ½ οΏ½.οΏ½. *)

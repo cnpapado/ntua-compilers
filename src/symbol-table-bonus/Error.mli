@@ -1,6 +1,7 @@
 (* Error handling *)
 
 exception Terminate
+exception Found_but_different_typ
 
 type verbose = Vquiet | Vnormal | Vverbose
 
