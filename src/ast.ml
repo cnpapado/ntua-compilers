@@ -1,4 +1,8 @@
 (* open Types *)
+open Symbol
+
+exception ConstantEvaluationError
+
 type loc = Lexing.position 
 
 (* An identifierifer for a type, proc or variable *)
@@ -6,7 +10,7 @@ type loc = Lexing.position
 type identifier = string
 type label = string
 
-type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
+(* type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE *)
 
 
 (*typ is of type string e.g TBool/TInt followed by a string list that implies something like int ** (asterisks) *)
@@ -106,13 +110,38 @@ and func_decl = {
                 
 and var_decl = {
                 var_decl_typ: Types.typ;
-                var_decl_name: identifier ; 
-                var_decl_size: const_expr
-                }
+                var_decl_name: identifier 
+               }
 
 and declaration =  | DeclList of declaration list (* not needed? *)
                    | FuncDef of func_def
                    | FuncDecl of func_decl
                    | VarDeclaration of var_decl 
 
-and const_expr = ConstExpr of expr | NotAnArray (* ?? *)
+and const_expr = ConstExpr of expr | ConstOne 
+(* ConstOne is used when no const_expr is present in the variable 
+ * declaration, meaning that a single var has been declared and not an array
+ * (in the declarator to be presice) to signify the higher 
+ * layers of the AST (the variable decl to be precise) that the declared 
+ * variable is not an array *)
+
+
+let eval_const const = 
+  let rec eval_aux e = 
+  match e with 
+  | Int(x) -> x
+  | BinExpr(Times, e1, e2) -> (eval_aux e1) * (eval_aux e2)
+  | BinExpr(Div, e1, e2) -> (eval_aux e1) / (eval_aux e2)
+  | BinExpr(Mod, e1, e2) -> (eval_aux e1) mod (eval_aux e2)
+  | BinExpr(Plus, e1, e2) -> (eval_aux e1) + (eval_aux e2)
+  | BinExpr(Minus, e1, e2) -> (eval_aux e1) - (eval_aux e2)
+  | BinExpr(And, e1, e2) -> (eval_aux e1) land (eval_aux e2)
+  | BinExpr(Or, e1, e2) -> (eval_aux e1) lor (eval_aux e2)
+  | _ -> raise ConstantEvaluationError
+  
+  in 
+  match const with ConstExpr(e) -> eval_aux e
+
+
+(* | InlineIf of {cond: expr; true_expr: expr; false_expr: expr} *)
+(* | TypeCast of {new_type: Types.typ; casted_expr: expr} *)

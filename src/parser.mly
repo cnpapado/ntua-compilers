@@ -169,7 +169,7 @@ declaration : variable_declaration { $1 }
 inside_brackets: optional_declaration_list optional_statement_list { (List.rev $1, $2) } /* check this ??????? */ 
 ;
 
-declarator : T_id  { ($1,NotAnArray) } 
+declarator : T_id  { ($1,ConstOne) } 
            | T_id T_lbracket constant_expression T_rbracket { ($1, $3) }
 ;
 
@@ -178,8 +178,16 @@ declarator_list : declarator { $1::[] }
 ;
 
 variable_declaration : ttype declarator_list T_semicol 
-                        { let f (id,sz) = VarDeclaration ({var_decl_typ=$1; var_decl_name=id; var_decl_size=sz}); in 
-                        List.map f (List.rev $2) } 
+                        { let f (id,sz) = 
+                        match sz with 
+                        | ConstOne -> (* this is not an array, pass the declarator's type as it's type *)
+                           VarDeclaration ({var_decl_typ=$1; var_decl_name=id})
+                        | constant_e -> (* this is an array of size constant_e; set it's type as TYPE_array of it's declarator's type *) 
+                           (* Note that the evaluation of the constant expression as int happens during the AST construction *)
+                           VarDeclaration ({
+                              var_decl_typ=TYPE_array({ttype=$1; size=eval_const constant_e}); 
+                              var_decl_name=id})
+                        in List.map f (List.rev $2) } 
 ;
 
 /* In ttype we want to enforce shifting (even if this is the default action for yacc).
