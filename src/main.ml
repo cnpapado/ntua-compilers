@@ -18,9 +18,11 @@ let compile filename =
   let lexbuf = Lexing.from_channel inx in
   try 
     initSymbolTable 256;
+    openScope ();
     let ast = Parser.program Lexer.lexer lexbuf in
     check_decl_list ast;
     printSymbolTable ();
+    closeScope ();
     exit 0
   with 
   | Parsing.Parse_error ->
