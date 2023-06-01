@@ -12,16 +12,22 @@ let rec pretty_typ ppf typ =
       fprintf ppf "<undefined>"
   | TYPE_int ->
       fprintf ppf "int"
-  | TYPE_byte ->
-      fprintf ppf "byte"
-  | TYPE_array (et, sz) ->
+  | TYPE_double ->
+      fprintf ppf "double"
+  | TYPE_char ->
+      fprintf ppf "char"
+  | TYPE_bool ->
+        fprintf ppf "bool"
+  | TYPE_array {ttype = et; size = sz} ->
       pretty_typ ppf et;
       if sz > 0 then
         fprintf ppf " [%d]" sz
       else
         fprintf ppf " []"
-  | TYPE_proc ->
-      fprintf ppf "proc"
+  | TYPE_ptr(_) ->
+      fprintf ppf "ptr"
+  | TYPE_void ->
+      fprintf ppf "void"
 
 let pretty_mode ppf mode =
   match mode with
@@ -93,10 +99,10 @@ let printSymbolTable () =
   printf "%a----------------------------------------\n"
     scope !currentScope
 
-(* Κύριο πρόγραμμα επίδειξης του πίνακα συμβόλων *)
+(* ÿÿÿÿÿ ÿÿÿÿÿÿÿÿÿ ÿÿÿÿÿÿÿÿÿ ÿÿÿ ÿÿÿÿÿÿ ÿÿÿÿÿÿÿÿ *)
 
-(* Ακολουθεί ο κώδικας ενός προγράμματος Alan που χρησιμοποιείται
-   για τον έλεγχο του πίνακα συμβόλων.
+(* ÿÿÿÿÿÿÿÿÿ ÿ ÿÿÿÿÿÿÿ ÿÿÿÿ ÿÿÿÿÿÿÿÿÿÿÿÿ Alan ÿÿÿ ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ
+   ÿÿÿ ÿÿÿ ÿÿÿÿÿÿ ÿÿÿ ÿÿÿÿÿÿ ÿÿÿÿÿÿÿÿ.
 
    p () : proc -- this is the program header
 
@@ -120,7 +126,7 @@ let printSymbolTable () =
           -- make 2 new temporaries
    } -- of program p
 *)
-
+(* 
 let main =
 
    initSymbolTable 256;
@@ -234,4 +240,4 @@ let main =
 
    closeScope ();
 
-   printSymbolTable ()
+   printSymbolTable () *)

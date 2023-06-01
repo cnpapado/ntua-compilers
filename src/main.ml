@@ -5,6 +5,7 @@ open Lexing
 (* open Pretty_print *)
 open Semantic
 open Symbol
+open Symbtest
 
 let get_position lexbuf =
   let pos = lexbuf.lex_curr_p in
@@ -19,6 +20,7 @@ let compile filename =
     initSymbolTable 256;
     let ast = Parser.program Lexer.lexer lexbuf in
     check_decl_list ast;
+    printSymbolTable ();
     exit 0
   with 
   | Parsing.Parse_error ->

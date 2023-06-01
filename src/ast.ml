@@ -96,7 +96,7 @@ type func_def = {
                     func_def_name: identifier; 
                     func_def_parameters: (pass_mode*Types.typ*identifier) list;
                     func_def_body: (declaration list * statement list)
-                } (*function definition or declaration AND CHECK SYMBOL TABLE TO ORTHODOKSO*)
+                } 
 
 and func_decl = {
                     func_decl_return_type: Types.typ; 

@@ -1,18 +1,22 @@
 (* for type inference we need to dfs the ast? *)
-
+open Identifier
+open Types
+open Symbol
 
 let rec check_decl_list l = 
 match l with
 | Ast.VarDeclaration(x)::tl -> 
     Printf.printf "declared var \"%s\"\n" x.var_decl_name; 
-    (* add to symbol table... *)
+    ignore (newVariable (id_make x.var_decl_name) x.var_decl_typ true);
     check_decl_list tl
 | Ast.FuncDecl(x)::tl -> 
     Printf.printf "declared function \"%s\"\n" x.func_decl_name ; 
-    (* add to symbol table... *)
+    ignore (newFunction (id_make x.func_decl_name) true);
     check_decl_list tl
 | Ast.FuncDef(x)::tl -> 
-    Printf.printf "defined function \"%s\"\n" x.func_def_name ; 
+    Printf.printf "defined function \"%s\"\n" x.func_def_name ;
+    ignore (lookupEntry (id_make x.func_def_name) LOOKUP_ALL_SCOPES true); (* LOOKUP_ALL_SCOPES panta ?? *)
+    openScope (); 
     (* check previously defined + args from symbol table... *)
     check_func_body x.func_def_body;
     check_decl_list tl
