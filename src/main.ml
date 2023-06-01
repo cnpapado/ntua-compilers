@@ -4,6 +4,7 @@ open Lexing
 (* open Ast *)
 (* open Pretty_print *)
 open Semantic
+open Symbol
 
 let get_position lexbuf =
   let pos = lexbuf.lex_curr_p in
@@ -15,6 +16,7 @@ let compile filename =
   let inx = In_channel.create filename in
   let lexbuf = Lexing.from_channel inx in
   try 
+    initSymbolTable 256;
     let ast = Parser.program Lexer.lexer lexbuf in
     check_decl_list ast;
     exit 0

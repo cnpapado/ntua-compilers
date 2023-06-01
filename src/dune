@@ -1,19 +1,21 @@
+(include_subdirs unqualified)
+
 (ocamllex
   (modules lexer)
 )
 
 (ocamlyacc
-(modules parser)
+  (modules parser)
 )
 
 (executable
- (public_name edsger)
- (name main)
- (libraries core core_unix.command_unix)
+  (public_name edsger)
+  (name main)
+  (libraries core core_unix.command_unix)
 )
 
 (rule
- (alias runtest)
+  (alias runtest)
 ;  (deps ../misc/test-progs/fib.eds)
- (action (run edsger ../misc/test-progs/fib.eds))
+  (action (run edsger ../misc/test-progs/fib.eds))
 )

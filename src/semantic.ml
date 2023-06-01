@@ -30,6 +30,7 @@ match stmt_l with
 | EmptyStmt::tl -> 
     Printf.printf "empty stmt\n";
     check_stmt_list tl
+(* flatten the StmtList *)
 | Expr(e)::tl -> 
     Printf.printf "expr\n";
     check_expr e;
