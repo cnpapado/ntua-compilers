@@ -1,9 +1,12 @@
 (* open Types *)
 open Symbol
+open Printf
 
 exception ConstantEvaluationError
 
 type loc = Lexing.position 
+
+
 
 (* An identifierifer for a type, proc or variable *)
 

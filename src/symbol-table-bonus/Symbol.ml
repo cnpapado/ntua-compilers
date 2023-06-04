@@ -116,7 +116,7 @@ let closeScope () =
 
 exception Failure_NewEntry of entry
 
-let entry_info_type ~info:inf =  
+let entry_info_type inf =  
 match inf with 
 | ENTRY_none -> ENTRY_TYPE_none
 | ENTRY_variable(_) -> ENTRY_TYPE_variable
