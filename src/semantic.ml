@@ -182,15 +182,16 @@ match e with
     (* check cond=bool, return types the same *)
 | FuncCall {name=n; parameters = e_lst} -> 
     Printf.printf "funcCall\n";
-    let f_entry = lookupEntry (id_make n) ENTRY_TYPE_function LOOKUP_CURRENT_SCOPE true in
+    (* let f_entry = lookupEntry (id_make n) ENTRY_TYPE_function LOOKUP_CURRENT_SCOPE true in
     let check_params p = 
         p |> List.rev    (* this could have been omitted if we weren't reversing in ast *)
         |> List.map ~f:(fun (mode,typ,id) -> 
             newParameter (id_make id) typ mode f_entry true) in
     
         ignore (add_args_to_scope x.func_def_parameters);
-    TYPE_none;
+     *)
     (* check correct parameters, previously declared *)
+    TYPE_none;
 | Delete e -> 
     Printf.printf "del\n";
     let t = check_expr e in
@@ -198,10 +199,11 @@ match e with
         match t with
         |TYPE_ptr {ttype= tt; level = _} -> TYPE_ptr {ttype = t; level=0}
         |_ -> Printf.printf "delete expr requires t* \n"; TYPE_none
+    in f t
     (* delete something that was declared + is an identifier/array *)
 | New {ttype=t; size=e} -> 
     Printf.printf "new\n";
-    (*let t = check_expr e in
+    let t = check_expr e in
        let f s = 
         match s with 
          |TYPE_int -> 
@@ -210,8 +212,9 @@ match e with
             | TYPE_ptr {ttype=_; level=l} -> l+1
             | _ -> 1
            in
-         TYPE_ptr {ttype=t; level= (g t)}
-        | _ -> Printf.printf "new size not an int\n"; TYPE_none*)
+           TYPE_ptr {ttype=t; level= (g t)}
+        | _ -> Printf.printf "new size not an int\n"; TYPE_none
+        in f t
     (* check size evaluates to int *)
 (* | TypeCast (_) -> 
     Printf.printf "type cast\n";
