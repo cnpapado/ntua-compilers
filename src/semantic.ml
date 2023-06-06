@@ -1,10 +1,14 @@
 open Core
-
+open Error
 open Identifier
 open Types
 open Symbol
 open Symbtest
 open PrettyPrint
+open TypeExpr
+
+exception Found_but_different_typ
+
 
 (* for type inference we need to dfs the ast? *)
 
@@ -65,7 +69,7 @@ and check_stmt_list stmt_l =
         check_stmt_list tl
     | Expr(e)::tl -> 
         Printf.printf "expr\n";
-        ignore (check_expr e);
+        ignore (string_of_type (check_expr e));
         check_stmt_list tl
     | If({ if_cond=cond_expr; ifstmt=if_part; elsestmt=else_part })::tl ->
         Printf.printf "if\n";
@@ -93,49 +97,11 @@ and check_stmt_list stmt_l =
         check_stmt_list tl
     | [] -> print_string "done checking stmt\n"; () 
     
-   (* | Lt
-    | Gt
-    | Le
-    | Ge
-    | Eq
-    | Neq
-    | And
-    | Or*)
-
-and check_bool_operator e1 e2 = 
-    let type_mismatch_error expected_type actual_type =
-            Error.of_string
-              (raise
-                 "%s Type error - %s expected operands of type %s, but they were of type %s@."
-                 (string_of_loc loc) (pp_bop bin_op)
-                 (string_of_type expected_type)
-                 (string_of_type actual_type)) in
-    match (e1, e2) with
-          | (TYPE_int, TYPE_int)      
-          | (TYPE_double, TYPE_double)
-          | (TYPE_bool, TYPE_bool)    
-          | (TYPE_int, TYPE_double)   
-          | (TYPE_double, TYPE_int)   
-          | (TYPE_int, TYPE_double) -> TYPE_bool 
-          | (t1,t2) -> type_mismatch_error t1 "int, double or bool" 
-          
-          
-
 
 (*In the first place, this function will return the 
 the type of each expression recursively *)
 
-and type_expr id expected_entry_typ how = 
-    let e = Symbol.lookupEntry (id_make id) expected_entry_typ how true in
-    match e.entry_info with 
-          | ENTRY_variable { variable_type = t;
-                            variable_offset = _}  -> t
-          | ENTRY_function { function_isForward = _; function_paramlist = _ ;
-                             function_redeflist = _ ;
-                             function_result    = t ; 
-                             function_pstatus   = _ ; 
-                             function_initquad  = _ } -> t
-          | _ -> fatal "this should never be printed\n"; TYPE_none
+
 
 and check_expr e = 
 match e with
@@ -146,7 +112,7 @@ match e with
     Printf.printf "identifier\n";
     (* we need to look up whether this identifier exists
        in the Symb Table and the proceed to return its saved type*)
-    type_expr id ENTRY_TYPE_function LOOKUP_CURRENT_SCOPE
+    type_expr id ENTRY_TYPE_variable LOOKUP_CURRENT_SCOPE
     
 | Bool(_) -> 
     Printf.printf "bool\n";
@@ -158,43 +124,96 @@ match e with
     Printf.printf "char\n";
     TYPE_char;
 | Float(_) -> 
-    Printf.printf "float\n"
+    Printf.printf "float\n";
     TYPE_double;
 | String(_) -> 
     Printf.printf "id\n";
-    TYPE_array {ttype = Types.TYPE_char, size = 1}
-| BinExpr(binop,e1,e2) -> 
-    Printf.printf "binExpr\n"
-    (*let t1 = check_expr e1 in
-    let t2 = check_expr e2 in*)
+    TYPE_array {ttype = TYPE_char; size = 1}
+| BinExpr(op,e1,e2) -> 
+    Printf.printf "binExpr\n";
+    let t1 = check_expr e1 in
+    let t2 = check_expr e2 in
+        check_bin_operator op t1 t2 
     (* check types of both sides are equal *)
     (* push up the resulting type for inference?  *)
-| BinAssign(_) -> 
-    Printf.printf "binAssign\n"
+| BinAssign(_,e1,e2) -> 
+    Printf.printf "binAssign\n";
+    let t1 = check_expr e1 in
+    let t2 = check_expr e2 in
+     Printf.printf "%s\n" (string_of_type t1);
+     Printf.printf "%s\n" (string_of_type t2);
+     if(equalType t1 t2) then t1 else (ignore(Printf.printf "Expected different types arithmetic op\n"); TYPE_none)
     (* check lvalue is declared and rvalue has correct type *)
-| UnaryExpr(_) -> 
-    Printf.printf "unaryExpr\n"
+| UnaryExpr(op,e) -> 
+    Printf.printf "unaryExpr\n";
+    let t = check_expr e in
+        check_unary_operator op t 
     (* check unary op can be performed to this expr *)
     (* push up the resulting type for inference?  *)
-| UnaryAssign(_) -> 
-    Printf.printf "unaryAssign\n"
+| UnaryAssign(op,e) -> 
+    Printf.printf "unaryAssign\n";
+    let t = check_expr e in
+        sign_type t 
     (* check unary op can be performed to this expr *)
     (* push up the resulting type for inference?  *)
-| Array(_) -> 
-    Printf.printf "array\n"
+| Array {name=e1; size=e2} -> 
+    Printf.printf "array\n";
+    let t1 = check_expr e1 in
+    let t2 = check_expr e2 in
+        let f t1 t2 = 
+             match t2 with
+                 |TYPE_int -> t1
+                 |_ -> (ignore(error "size of array not returning an integer"); TYPE_none)
+        in f t1 t2
     (* check name is identifier and size evaluates to int? *)
-| InlineIf(_) -> 
-    Printf.printf "inlineIf\n"
+| InlineIf {cond=e; true_expr=e1; false_expr=e2} -> 
+    Printf.printf "inlineIf\n";
+    let t1 = check_expr e1 in
+    let t2 = check_expr e2 in
+    let t  = check_expr e  in
+      let g t t1 t2 = 
+         match t with
+         |TYPE_bool -> 
+            let f t1 t2 = 
+                if(equalType t1 t2) then t1 else (ignore(error "Types not equal in if expr\n");TYPE_none)
+                in  f t1 t2
+        | _ -> (ignore(error "First condition not a bool in if expr\n");TYPE_none)
+        in g t t1 t2
     (* check cond=bool, return types the same *)
-| FuncCall(_) -> 
-    Printf.printf "funcCall\n"
+| FuncCall {name=n; parameters = e_lst} -> 
+    Printf.printf "funcCall\n";
+    let f_entry = lookupEntry (id_make n) ENTRY_TYPE_function LOOKUP_CURRENT_SCOPE true in
+    let check_params p = 
+        p |> List.rev    (* this could have been omitted if we weren't reversing in ast *)
+        |> List.map ~f:(fun (mode,typ,id) -> 
+            newParameter (id_make id) typ mode f_entry true) in
+    
+        ignore (add_args_to_scope x.func_def_parameters);
+    TYPE_none;
     (* check correct parameters, previously declared *)
-| Delete(_) -> 
-    Printf.printf "del\n"
+| Delete e -> 
+    Printf.printf "del\n";
+    let t = check_expr e in
+    let f t = 
+        match t with
+        |TYPE_ptr {ttype= tt; level = _} -> TYPE_ptr {ttype = t; level=0}
+        |_ -> Printf.printf "delete expr requires t* \n"; TYPE_none
     (* delete something that was declared + is an identifier/array *)
-| New(_) -> 
-    Printf.printf "new\n"
+| New {ttype=t; size=e} -> 
+    Printf.printf "new\n";
+    (*let t = check_expr e in
+       let f s = 
+        match s with 
+         |TYPE_int -> 
+           let g t =
+            match t with
+            | TYPE_ptr {ttype=_; level=l} -> l+1
+            | _ -> 1
+           in
+         TYPE_ptr {ttype=t; level= (g t)}
+        | _ -> Printf.printf "new size not an int\n"; TYPE_none*)
     (* check size evaluates to int *)
-| TypeCast(_) -> 
-    Printf.printf "type cast\n"
-    (* check expr is something that can be type casted + size=int *)
+(* | TypeCast (_) -> 
+    Printf.printf "type cast\n";
+    TYPE_none;
+   *)
