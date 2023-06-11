@@ -1,4 +1,5 @@
-open Lexer
+(* open Lexer
+open Parser
 
 let string_of_token token =
   match token with
@@ -23,7 +24,7 @@ let string_of_token token =
     | T_minus         -> "T_minus"  
     | T_times         -> "T_times"
     | T_eq            -> "T_eq"  
-    | T_hash          -> "T_hash"  
+    | T_neq           -> "T_neq"  
     | T_assign        -> "T_assign"  
     | T_gt            -> "T_gt"      
     | T_lt            -> "T_lt"       
@@ -52,4 +53,62 @@ let main =
     Printf.printf "token=%s, lexeme=\"%s\"\n"
       (string_of_token token) (Lexing.lexeme lexbuf);
     if token <> T_eof then loop () in
-  loop ()
+  loop () *)
+
+
+
+open Parser
+open Lexing
+open Core
+
+let get_position lexbuf filename =
+  let pos = lexbuf.lex_curr_p in
+  Printf.sprintf "%s:%d:%d" filename
+    pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1) 
+
+
+    let compile filename =
+      let inx = In_channel.create filename in
+      let lexbuf = Lexing.from_channel inx in
+      try 
+        let ast = Parser.program Lexer.lexer lexbuf in
+        exit 0
+      with 
+      | _ -> 
+        let err_msg = Printf.sprintf "%s: %s\n" (get_position lexbuf filename) "error" in
+        Printf.fprintf stderr "\n%s\n" err_msg ;
+        exit (-1)
+        
+      In_channel.close inx
+    
+    
+    let () =
+      Command.basic ~summary:"compile grace src file"
+        Command.Param.(
+          anon ("filename" %: string)
+          |> map ~f:(fun filename ->
+            fun () ->
+              compile filename))
+      |> Command_unix.run
+
+
+(* 
+open Parser
+open Lexing
+
+let print_position outx lexbuf =
+  let pos = lexbuf.lex_curr_p in
+  Printf.fprintf outx "%s:%d:%d" pos.pos_fname
+    pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+
+
+
+let main =
+  let lexbuf = Lexing.from_channel stdin in
+  try
+    Parser.program Lexer.lexer lexbuf;
+    exit 0
+  with _ ->
+    (* Printf.eprintf "syntax error\n"; *)
+    Printf.fprintf stderr "syntax error %a\n" print_position lexbuf;
+    exit 1 *)

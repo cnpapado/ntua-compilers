@@ -1,5 +1,5 @@
 {
-(* open Parser *)
+open Parser
 open Lexing
 
 exception LexicalError of string
@@ -19,6 +19,7 @@ let [@warning "-21"] raise_lex_err_exception lexbuf msg = (* line numbering is n
   let col = p.Lexing.pos_cnum - p.Lexing.pos_bol + 1 in
   raise (LexicalError msg)
 
+(*
 type token = 
   | T_and
   | T_char
@@ -62,6 +63,7 @@ type token =
   | T_intconst of int
   | T_eof
 
+*)
 }
 
 
@@ -99,7 +101,7 @@ rule lexer = parse
   | '-'        { T_minus      }  
   | '*'        { T_times      }
   | '='        { T_eq         }  
-  | '#'        { T_hash       }  
+  | '#'        { T_neq        }  
   | "<-"       { T_assign     }  
   | '>'        { T_gt         }      
   | '<'        { T_lt         }       

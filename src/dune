@@ -4,9 +4,9 @@
   (modules lexer)
 )
 
-; (ocamlyacc
-;   (modules parser)
-; )
+(menhir
+  (modules parser)
+)
 
 (executable
   (public_name grace)

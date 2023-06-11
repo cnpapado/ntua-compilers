@@ -1,0 +1,75 @@
+fun main () : nothing 
+
+    fun fib (n : int) : int
+        var f1, f2, tmp, i : int;
+    { 
+        i <- 1;
+        f1 <- 1;
+        f2 <- 1;
+
+        while i < n-1 do {
+            $ writeInteger(f2);
+            $ writeString("\n");
+
+            tmp <- f1 + f2;
+            f1 <- f2;
+            f2 <- tmp;
+            i <- i+1;
+        }
+        return f2;
+    } 
+
+    fun fib_rec (n : int) : int 
+    {
+        if n <= 2 then return 1;
+        else return fib_rec(n-1) + fib_rec(n-2);
+    }
+
+    fun fib_mem (n : int, ref arr : int[]) : int
+        fun aux (n : int) : int 
+        {
+            # showcase nested scoping of arr
+            if arr[n] = -1 then 
+                arr[n] = aux(n-1) + aux(n-2);
+            return arr[n];
+        }
+        
+        
+        var i : int;
+    { $ fib_mem
+        $ Init memo table
+        i <- 0;
+        while i <= n+2 do {
+            arr[i] <- -1;
+            i <- i+1;
+        }
+        arr[1] <- 1;
+        arr[2] <- 1;
+        return aux(n);
+    } $ fib_mem
+
+
+    var n, N, a, b, c : int;
+    var memo : int[100]; $ no pointers in this lang??
+                         $ further init??
+
+{ $ main
+
+    writeString("Give the highest integer up to which you want fibonacci nums to be printed (less than 100): \n");
+    N <- readInteger() mod 100;
+    
+    n <- 1;
+    while n < N do {
+        a <- fib(n);
+        b <- fib_rec(n);
+        c <- fib_mem(n, memo);
+
+        if a # b or b # c or c # a then 
+            writeString("The program author needs to study more...");
+        else 
+            writeInteger(a);
+        n <- n+1;
+    }
+    
+
+} $ main
