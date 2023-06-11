@@ -1,6 +1,6 @@
 (lang dune 3.7)
 
-(name edsger)
+(name grace)
 
 (using menhir 2.0)
 
@@ -18,7 +18,7 @@
 (documentation https://url/to/documentation)
 
 (package
- (name edsger)
+ (name grace)
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends ocaml dune)

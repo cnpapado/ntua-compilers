@@ -4,18 +4,18 @@
   (modules lexer)
 )
 
-(ocamlyacc
-  (modules parser)
-)
+; (ocamlyacc
+;   (modules parser)
+; )
 
 (executable
-  (public_name edsger)
+  (public_name grace)
   (name main)
   (libraries core core_unix.command_unix)
 )
 
-(rule
-  (alias runtest)
-;  (deps ../misc/test-progs/fib.eds)
-  (action (run edsger ../misc/test-progs/fib.eds))
-)
+; (rule
+  ; (alias runtest)
+;;  (deps ../misc/test-progs/fib.eds)
+  ; (action (run grace ../misc/test-progs/fib.eds))
+; )
