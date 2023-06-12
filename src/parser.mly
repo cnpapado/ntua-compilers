@@ -1,6 +1,7 @@
 /* yyparse: called once, includes semantics, basically feeds the whole frontend process */
 %{
 
+open Ast
 
 %}
 
@@ -118,29 +119,30 @@ stmt : T_semicol {}
 
 block : T_lcurl list(stmt) T_rcurl {} ;
 
-func_call : T_id T_lparen separated_list(T_comma, expr) T_rparen {} ;
+func_call : fname=T_id; T_lparen; params=separated_list(T_comma, expr); T_rparen 
+          { FuncCall({name=fname; parameters=params}) } ;
 
-lvalue : T_id {}
-       | T_stringliteral {}
+lvalue : T_id { $1 }
+       | T_stringliteral { $1 }
        | lvalue delimited(T_lbracket, expr, T_rbracket) {}
 ;
 
-expr : T_intconst {}
-     | T_charconst {}
+expr : T_intconst { Int($1) }
+     | T_charconst { Char($1) }
      | lvalue {}
-     | delimited(T_lparen, expr, T_rparen) {} 
-     | func_call {} 
-     | sign expr {} 
-     | expr arithmetic_bop expr {}
+     | delimited(T_lparen, expr, T_rparen) { $1 } 
+     | func_call { $1 } 
+     | sign expr { SignedExpr ($1, $2) } 
+     | expr; arithmetic_bop; expr { BinExpr ($2, $1, $3) }
 ;
 
-cond : delimited(T_lparen, cond, T_rparen) {}
-     | T_not cond {} 
-     | cond logical_bop cond {}
-     | expr comparison_bop expr {}
+cond : delimited(T_lparen, cond, T_rparen) { $1 }
+     | T_not cond { NegatedCond($2) } 
+     | cond logical_bop cond { CompoundCond ($2, $1, $3) }
+     | expr comparison_bop expr { ExprCond ($2, $1, $3) }
 ;
 
-%inline sign : T_plus {} | T_minus {} ;
-%inline arithmetic_bop : T_plus {} | T_minus {} | T_times {} | T_div {} | T_mod {} ;
-%inline logical_bop : T_and | T_or {} ;
-%inline comparison_bop : T_eq | T_neq | T_lt | T_gt | T_ge | T_le {} ;
+%inline sign : T_plus { UPlus } | T_minus { UMinus } ;
+%inline arithmetic_bop : T_plus { Plus } | T_minus { Minus } | T_times { Times } | T_div { Div } | T_mod { Mod } ;
+%inline logical_bop : T_and { And } | T_or { Or } ;
+%inline comparison_bop : T_eq { Eq } | T_neq { Neq } | T_lt { Lt } | T_gt { Gt } | T_ge { Ge } | T_le { Le } ;
