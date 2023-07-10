@@ -1,4 +1,4 @@
-(* open Types *)
+open Types
 (* open Symbol *)
 (* open Printf *)
 
@@ -13,13 +13,14 @@ type expr = | Int of int
             | Char of char  
             | Id of identifier 
             | String of string
-            | Lvalue of {lvalue:lval; brackets:expr}
-            | FuncCall of {name:string; parameters:expr list}
+            | Lvalue of lval
+            | ExprFuncCall of func_call
             | SignedExpr of uop * expr
             | BinExpr of arithmetic_binop * expr * expr 
-and lval = Id of identifier | String of string | Lvalue
+and lval = LvalueId of identifier | LvalueString of string | LvalueArr of lval * expr
 and arithmetic_binop = Times | Div | Mod | Plus | Minus
 and uop = UPlus | UMinus
+and func_call = FuncCall of {name:string; parameters:expr list}
 
 type cond = | ExprCond of comparison_binop * expr * expr
             | CompoundCond of logical_binop * cond * cond
@@ -27,7 +28,48 @@ type cond = | ExprCond of comparison_binop * expr * expr
 
 and comparison_binop = Lt | Gt | Le | Ge | Eq | Neq 
 and logical_binop = And | Or
-           
+        
+type stmt = | EmptyStmt
+            | Assign of {lvalue:lval; rvalue:expr}
+            | Block of stmt list
+            | StmtFuncCall of func_call
+            | If of if_expr
+            | While of while_expr
+            | Return of expr option
+
+and if_expr = {
+  if_cond: cond;
+  ifstmt: stmt; 
+  elsestmt: stmt option
+}
+
+and while_expr = {
+  while_cond: cond;
+  whilestmt: stmt
+}
+
+type func_def = {
+  func_def_header: header; 
+  func_def_local: local_def; 
+  func_def_block: stmt list;
+} 
+
+                
+and var_def = {
+  var_def_id: identifier list;
+  var_def_ret: Types.typ; 
+}
+
+and header =  {
+  header_id: identifier;
+  header_defs: func_def list;
+  header_ret: Types.typ option;
+}
+
+and local_def = | FuncDef of func_def
+                | FuncDecl of header
+                | VarDef of var_def
+
 
 (*** REMINANTS OF EDSGER BELOW: ***)
 

@@ -2,6 +2,8 @@
 %{
 
 open Ast
+open Types
+open List
 
 %}
 
@@ -87,56 +89,63 @@ open Ast
 program : func_def T_eof {()}
 ;
 
-func_def : | header; a = list(local_def); block {()}
-;
+func_def : header list(local_def) block {
+    FuncDef({ func_def_header=$1; func_def_local=$2; func_def_block=$3;}) 
+};
 
-header : T_fun T_id T_lparen separated_list(T_semicol, fpar_def) T_rparen T_colon ret_type {}
-;
+header : T_fun T_id T_lparen separated_list(T_semicol, fpar_def) T_rparen T_colon ret_type {
+     FuncDecl ({ header_id=$2; header_defs=$4; header_ret=$7; })
+};
 
-fpar_def : option(T_ref) separated_nonempty_list(T_comma, T_id) T_colon fpar_type {}
-;
+fpar_def : option(T_ref) separated_nonempty_list(T_comma, T_id) T_colon fpar_type {
 
-%inline data_type : T_int | T_char {} ;
-ttype : data_type list(delimited(T_lbracket, T_intconst, T_rbracket)) {} ;
-%inline ret_type : data_type | T_nothing {} ;
+};
+
+%inline data_type : T_int { TYPE_int }| T_char { TYPE_char } ; 
+ttype : data_type list(delimited(T_lbracket, T_intconst, T_rbracket)) {
+     let f sz subarr = TYPE_array ({ttype=subarr; size=sz}) in fold_right f $2 $1
+     (* A[2][3][4] becomes arr(arr(arr(int,sz=4),sz=3),sz=2) *)
+}; 
+%inline ret_type : data_type { Some($1) } | T_nothing { None } ; 
 fpar_type : data_type option(pair(T_lbracket,T_rbracket)) list(delimited(T_lbracket, T_intconst, T_rbracket)) {} ;
 
-local_def : func_def | func_decl | var_def {} ;
+local_def : func_def { $1 } | func_decl { $1 } | var_def { $1 } ;
 
-func_decl : header T_semicol {} ;
+func_decl : header T_semicol { $1 } ;
 
-var_def : T_var separated_nonempty_list(T_comma, T_id) T_colon ttype T_semicol {} 
+var_def : T_var separated_nonempty_list(T_comma, T_id) T_colon ttype T_semicol 
+          {VarDef {var_def_id=$2; var_def_ret=$4; }} 
 ; 
 
-stmt : T_semicol {} 
-     | lvalue T_assign expr T_semicol {}
-     | block {}
-     | func_call T_semicol {}
-     | T_if cond T_then stmt option(preceded(T_else, stmt)) {}
-     | T_while cond T_do stmt {}
-     | T_return option(expr) T_semicol {}
+stmt : T_semicol { EmptyStmt } (* todo none *)
+     | lvalue T_assign expr T_semicol { Assign({lvalue=$1; rvalue=$3}) }
+     | block { Block($1) }
+     | func_call T_semicol { StmtFuncCall($1) }
+     | T_if cond T_then stmt option(preceded(T_else, stmt)) { If {if_cond = $2; ifstmt = $4; elsestmt = $5} } 
+     | T_while cond T_do stmt { While {while_cond = $2 ; whilestmt = $4} } 
+     | T_return option(expr) T_semicol { Return $2 } 
 ;
 
-block : T_lcurl list(stmt) T_rcurl {} ;
+block : T_lcurl list(stmt) T_rcurl { $2 } ;
 
 func_call : fname=T_id; T_lparen; params=separated_list(T_comma, expr); T_rparen 
           { FuncCall({name=fname; parameters=params}) } ;
 
-lvalue : T_id { $1 }
-       | T_stringliteral { $1 }
-       | lvalue delimited(T_lbracket, expr, T_rbracket) {}
+lvalue : T_id { LvalueId($1) }
+       | T_stringliteral { LvalueString($1) }
+       | lvalue delimited(T_lbracket, expr, T_rbracket) { LvalueArr ($1, $2) }
 ;
 
 expr : T_intconst { Int($1) }
      | T_charconst { Char($1) }
-     | lvalue {}
+     | lvalue { Lvalue($1) }
      | delimited(T_lparen, expr, T_rparen) { $1 } 
-     | func_call { $1 } 
+     | func_call { ExprFuncCall($1) } 
      | sign expr { SignedExpr ($1, $2) } 
      | expr; arithmetic_bop; expr { BinExpr ($2, $1, $3) }
 ;
 
-cond : delimited(T_lparen, cond, T_rparen) { $1 }
+cond : delimited(T_lparen, cond, T_rparen) { $1 } (* ??? *)
      | T_not cond { NegatedCond($2) } 
      | cond logical_bop cond { CompoundCond ($2, $1, $3) }
      | expr comparison_bop expr { ExprCond ($2, $1, $3) }
