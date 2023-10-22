@@ -60,6 +60,7 @@ let main =
 open Parser
 open Lexing
 open Core
+open Semantic
 
 let get_position lexbuf filename =
   let pos = lexbuf.lex_curr_p in
@@ -72,6 +73,7 @@ let get_position lexbuf filename =
       let lexbuf = Lexing.from_channel inx in
       try 
         let ast = Parser.program Lexer.lexer lexbuf in
+        check_root ast ;
         exit 0
       with 
       | _ -> 

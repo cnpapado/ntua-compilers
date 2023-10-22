@@ -103,7 +103,7 @@ header : T_fun T_id T_lparen separated_list(T_semicol, fpar_def) T_rparen T_colo
 };
 
 fpar_def : option(T_ref) separated_nonempty_list(T_comma, T_id) T_colon fpar_type {
-    ((if $1 == None then false else true), $2, $4)  
+    ((if $1 == None then PASS_BY_VALUE else PASS_BY_REFERENCE), $2, $4)  
 };
 
 %inline data_type : T_int { TYPE_int }| T_char { TYPE_char } ; 

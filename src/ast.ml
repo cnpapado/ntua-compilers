@@ -1,5 +1,5 @@
 open Types
-(* open Symbol *)
+open Symbol
 (* open Printf *)
 
 exception ConstantEvaluationError
@@ -62,7 +62,7 @@ and var_def = {
 
 and header = Header of {
   header_id: identifier;
-  header_defs: (bool * (identifier list) * typ) list; (* change bool to pass_mode type from symbol table*)
+  header_defs: (pass_mode * (identifier list) * typ) list; 
   header_ret: Types.typ option;
 }
 
