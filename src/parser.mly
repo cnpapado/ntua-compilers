@@ -4,6 +4,7 @@
 open Ast
 open Types
 open List
+open Symbol
 
 let create_nested_arrays base_type sizes_list = 
      (* A[2][3][4] becomes arr(arr(arr(int,sz=4),sz=3),sz=2) *)
@@ -99,11 +100,13 @@ func_def : header list(local_def) block {
 };
 
 header : T_fun T_id T_lparen separated_list(T_semicol, fpar_def) T_rparen T_colon ret_type {
-     Header ({ header_id=$2; header_defs=$4; header_ret=$7; })
+     { header_id=$2; header_fpar_defs=List.flatten $4; header_ret=$7; }
 };
 
 fpar_def : option(T_ref) separated_nonempty_list(T_comma, T_id) T_colon fpar_type {
-    ((if $1 == None then PASS_BY_VALUE else PASS_BY_REFERENCE), $2, $4)  
+    (* return a list of tuples of the form: (PASS_MODE, ID, TYPE) *)
+    let f id = ((if $1 == None then PASS_BY_VALUE else PASS_BY_REFERENCE), id, $4) in
+    List.map f $2
 };
 
 %inline data_type : T_int { TYPE_int }| T_char { TYPE_char } ; 

@@ -2,6 +2,7 @@ type typ = | TYPE_int
            | TYPE_char        
            | TYPE_array of {ttype: typ; size: int}
            | TYPE_uninitialized (* function return before properly initialized *)
+           | TYPE_nothing       (* artificial function return type for procedures *)
 
 let rec sizeOfType t =  
   match t with

@@ -60,9 +60,9 @@ and var_def = {
   var_def_ret: Types.typ; 
 }
 
-and header = Header of {
+and header = {
   header_id: identifier;
-  header_defs: (pass_mode * (identifier list) * typ) list; 
+  header_fpar_defs: (pass_mode * identifier * typ) list; 
   header_ret: Types.typ option;
 }
 

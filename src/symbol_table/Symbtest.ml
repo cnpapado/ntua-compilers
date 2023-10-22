@@ -10,8 +10,12 @@ let rec pretty_typ ppf typ =
   match typ with
   | TYPE_uninitialized ->
       fprintf ppf "<uninitialized>"
+  | TYPE_nothing ->
+    fprintf ppf "<nothing>"     
   | TYPE_int ->
       fprintf ppf "int"
+  | TYPE_char ->
+      fprintf ppf "char"
   | TYPE_array {ttype=et; size=sz} ->
       pretty_typ ppf et;
       if sz > 0 then

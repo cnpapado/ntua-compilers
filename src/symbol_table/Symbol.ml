@@ -165,6 +165,10 @@ let newVariable id typ err =
   newEntry id (ENTRY_variable inf) err
 
 let newFunction id err =
+  (* if this function id already exists and has been declared as forward 
+     then it marks it for parameter checking (to agree with the prev decl)
+     otherwise, if the same id exists it errors and if it doesn't it 
+     creates a new entry *)
   try
     let e = lookupEntry id LOOKUP_CURRENT_SCOPE false in
     match e.entry_info with
@@ -253,7 +257,8 @@ let forwardFunction e =
   | _ ->
       fatal "Cannot make a non-function forward"
 
-let endFunctionHeader e typ =
+let endFunctionHeader e option_typ =
+  let typ = match option_typ with | None -> TYPE_nothing | Some(t) -> t in
   match e.entry_info with
   | ENTRY_function inf ->
       begin

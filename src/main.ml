@@ -71,15 +71,15 @@ let get_position lexbuf filename =
     let compile filename =
       let inx = In_channel.create filename in
       let lexbuf = Lexing.from_channel inx in
-      try 
+      (* try  *)
         let ast = Parser.program Lexer.lexer lexbuf in
         check_root ast ;
         exit 0
-      with 
+      (* with 
       | _ -> 
         let err_msg = Printf.sprintf "%s: %s\n" (get_position lexbuf filename) "error" in
         Printf.fprintf stderr "\n%s\n" err_msg ;
-        exit (-1)
+        exit (-1) *)
         
       In_channel.close inx
     
