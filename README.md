@@ -1,6 +1,6 @@
 # ntua-compilers
 
-Run with `dune exec edsger <filename>` or `dune test`.
+Run with `dune exec grace <filename>` or `dune test`.
 
 More for cmd line args:
 - https://www.brendanlong.com/how-to-use-corecommandparam.html
@@ -14,3 +14,9 @@ A[2][100] is:
  * * *    ...   * * *
 ```
 hense `[A[100], A[100]]`
+
+
+## Installation
+```
+opam install dune menhir core core_unix
+```

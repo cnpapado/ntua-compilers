@@ -5,6 +5,11 @@ open Ast
 open Types
 open List
 
+let create_nested_arrays base_type sizes_list = 
+     (* A[2][3][4] becomes arr(arr(arr(int,sz=4),sz=3),sz=2) *)
+     let f curr_size subarr = TYPE_array ({ttype=subarr; size=curr_size}) in 
+     fold_right f sizes_list base_type
+
 %}
 
 %token T_char T_int
@@ -82,40 +87,50 @@ open List
 
    
 
-%start<unit> program
+%start<ast_root> program
 
 %%
 
-program : func_def T_eof {()}
+program : func_def T_eof { Root($1) }
 ;
 
 func_def : header list(local_def) block {
-    FuncDef({ func_def_header=$1; func_def_local=$2; func_def_block=$3;}) 
+     { func_def_header=$1; func_def_local=$2; func_def_block=$3;}
 };
 
 header : T_fun T_id T_lparen separated_list(T_semicol, fpar_def) T_rparen T_colon ret_type {
-     FuncDecl ({ header_id=$2; header_defs=$4; header_ret=$7; })
+     Header ({ header_id=$2; header_defs=$4; header_ret=$7; })
 };
 
 fpar_def : option(T_ref) separated_nonempty_list(T_comma, T_id) T_colon fpar_type {
-
+    ((if $1 == None then false else true), $2, $4)  
 };
 
 %inline data_type : T_int { TYPE_int }| T_char { TYPE_char } ; 
 ttype : data_type list(delimited(T_lbracket, T_intconst, T_rbracket)) {
-     let f sz subarr = TYPE_array ({ttype=subarr; size=sz}) in fold_right f $2 $1
-     (* A[2][3][4] becomes arr(arr(arr(int,sz=4),sz=3),sz=2) *)
+    create_nested_arrays $1 $2 
 }; 
 %inline ret_type : data_type { Some($1) } | T_nothing { None } ; 
-fpar_type : data_type option(pair(T_lbracket,T_rbracket)) list(delimited(T_lbracket, T_intconst, T_rbracket)) {} ;
+fpar_type : data_type option(pair(T_lbracket,T_rbracket)) list(delimited(T_lbracket, T_intconst, T_rbracket)) {
+     (* arrays in headers can have the first dimention empty
+        matches with:  
+        a [] [1]...[3]
+        a -  [1]...[3]
+        a [] -
+        a -  - 
+     *)
 
-local_def : func_def { $1 } | func_decl { $1 } | var_def { $1 } ;
+     create_nested_arrays $1 (if $2==None then $3 else 0::$3)
 
-func_decl : header T_semicol { $1 } ;
+} ;
 
-var_def : T_var separated_nonempty_list(T_comma, T_id) T_colon ttype T_semicol 
-          {VarDef {var_def_id=$2; var_def_ret=$4; }} 
-; 
+local_def : func_def { FuncDef($1) } | func_decl { FuncDecl($1) } | var_def { VarDef ($1) } ;
+
+func_decl : header T_semicol { {func_decl_header=$1} } ;
+
+var_def : T_var separated_nonempty_list(T_comma, T_id) T_colon ttype T_semicol {
+     {var_def_id=$2; var_def_ret=$4;}
+}; 
 
 stmt : T_semicol { EmptyStmt } (* todo none *)
      | lvalue T_assign expr T_semicol { Assign({lvalue=$1; rvalue=$3}) }
