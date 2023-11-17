@@ -2,3 +2,7 @@
  (public_name demo)
  (name main)
  (libraries demo))
+
+(env
+  (dev
+    (flags (:standard -warn-error -A))))
