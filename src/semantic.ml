@@ -1,4 +1,4 @@
-open Ast
+open Ast.ParserAST
 open Symbol
 open Symbtest
 open Identifier

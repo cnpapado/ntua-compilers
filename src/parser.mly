@@ -1,7 +1,7 @@
 /* yyparse: called once, includes semantics, basically feeds the whole frontend process */
 %{
 
-open Ast
+open Ast.ParserAST
 open Types
 open List
 open Symbol
@@ -96,11 +96,11 @@ program : func_def T_eof { Root($1) }
 ;
 
 func_def : header list(local_def) block {
-     { func_def_header=$1; func_def_local=$2; func_def_block=$3;}
+     { func_def_header=$1; func_def_local=$2; func_def_block=$3; meta=42}
 };
 
 header : T_fun T_id T_lparen separated_list(T_semicol, fpar_def) T_rparen T_colon ret_type {
-     { header_id=$2; header_fpar_defs=List.flatten $4; header_ret=$7; }
+     { header_id=$2; header_fpar_defs=List.flatten $4; header_ret=$7; meta=42}
 };
 
 fpar_def : option(T_ref) separated_nonempty_list(T_comma, T_id) T_colon fpar_type {
@@ -132,41 +132,41 @@ local_def : func_def { FuncDef($1) } | func_decl { FuncDecl($1) } | var_def { Va
 func_decl : header T_semicol { {func_decl_header=$1} } ;
 
 var_def : T_var separated_nonempty_list(T_comma, T_id) T_colon ttype T_semicol {
-     {var_def_id=$2; var_def_ret=$4;}
+     {var_def_id=$2; var_def_ret=$4; meta=42}
 }; 
 
 stmt : T_semicol { EmptyStmt } (* todo none *)
-     | lvalue T_assign expr T_semicol { Assign({lvalue=$1; rvalue=$3}) }
+     | lvalue T_assign expr T_semicol { Assign({lvalue=$1; rvalue=$3; meta=42}) }
      | block { Block($1) }
      | func_call T_semicol { StmtFuncCall($1) }
-     | T_if cond T_then stmt option(preceded(T_else, stmt)) { If {if_cond = $2; ifstmt = $4; elsestmt = $5} } 
-     | T_while cond T_do stmt { While {while_cond = $2 ; whilestmt = $4} } 
+     | T_if cond T_then stmt option(preceded(T_else, stmt)) { If {if_cond = $2; ifstmt = $4; elsestmt = $5; meta=42} } 
+     | T_while cond T_do stmt { While {while_cond = $2 ; whilestmt = $4; meta = 42} } 
      | T_return option(expr) T_semicol { Return $2 } 
 ;
 
 block : T_lcurl list(stmt) T_rcurl { $2 } ;
 
 func_call : fname=T_id; T_lparen; params=separated_list(T_comma, expr); T_rparen 
-          { FuncCall({name=fname; parameters=params}) } ;
+          { FuncCall({name=fname; parameters=params; meta=42}) } ;
 
 lvalue : T_id { LvalueId($1) }
        | T_stringliteral { LvalueString($1) }
        | lvalue delimited(T_lbracket, expr, T_rbracket) { LvalueArr ($1, $2) }
 ;
 
-expr : T_intconst { Int($1) }
-     | T_charconst { Char($1) }
-     | lvalue { Lvalue($1) }
+expr : T_intconst { Int{i=$1; meta=42} }
+     | T_charconst { Char{c=$1; meta=42} }
+     | lvalue { Lvalue{l=$1; meta=42} }
      | delimited(T_lparen, expr, T_rparen) { $1 } 
      | func_call { ExprFuncCall($1) } 
-     | sign expr { SignedExpr ($1, $2) } 
-     | expr; arithmetic_bop; expr { BinExpr ($2, $1, $3) }
+     | sign expr { SignedExpr {sign=$1; e=$2; meta=42} } 
+     | expr; arithmetic_bop; expr { BinExpr {l=$1; r=$3; op=$2; meta=42}  }
 ;
 
 cond : delimited(T_lparen, cond, T_rparen) { $1 } (* ??? *)
      | T_not cond { NegatedCond($2) } 
-     | cond logical_bop cond { CompoundCond ($2, $1, $3) }
-     | expr comparison_bop expr { ExprCond ($2, $1, $3) }
+     | cond logical_bop cond { CompoundCond {l=$1; r=$3; op=$2; meta=42} }
+     | expr comparison_bop expr { ExprCond {l=$1; r=$3; op=$2; meta=42} }
 ;
 
 %inline sign : T_plus { UPlus } | T_minus { UMinus } ;
