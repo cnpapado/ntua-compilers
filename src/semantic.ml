@@ -34,7 +34,7 @@ and check_header x is_declaration =
     match fpar_tuple with (mode, id, typ) -> 
       newParameter (id_make id) typ mode fun_entry true 
   in
-  ignore (List.map f x.header_fpar_defs); 
+  ignore (check_all f x.header_fpar_defs); 
 
   endFunctionHeader fun_entry x.header_ret);
 
@@ -57,4 +57,4 @@ and check_block x =
 and check_var_def x = 
   Printf.printf "var def\n";
   let f id = newVariable (id_make id) x.var_def_ret true in
-  ignore (List.map f x.var_def_id);
+  ignore (check_all f x.var_def_id);
