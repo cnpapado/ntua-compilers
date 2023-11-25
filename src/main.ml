@@ -7,11 +7,11 @@ let get_position lexbuf filename =
 
 
 let compile filename =
-  let inx = Core.In_channel.create filename in
+  let inx = Core.In_channel.create filename in (* catch unknown file error *)
   let lexbuf = Lexing.from_channel inx in
   try 
     let ast = Parser.program Lexer.lexer lexbuf in
-    Semantic.check_root ast ;
+    ignore (Semantic.check_root ast) ;
     exit 0
   with 
   | Parser.Error -> 
