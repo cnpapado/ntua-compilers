@@ -1,30 +1,30 @@
 (** Encapsulates the type of an ast node *)
-module type Node = sig type 'a t end
+module type Node = sig type t end
 
 
 (** The grammar of all ASTs, parameterized by the node type *)
 module MakeAST (Node : Node) = struct
-  type expr = Bool of bool Node.t | Int of int Node.t
+  type expr = Bool of {b:bool; meta: Node.t} | Int of {i:int; meta: Node.t}
   (* ... *)
 end
 
 
 (** A basic AST *)
 module BasicAST = struct 
-  type 'a basic_node = 'a 
-  include MakeAST (struct type 'a t = 'a basic_node end)
+  type basic_node = int 
+  include MakeAST (struct type t = basic_node end)
 end
 
 
-(** An AST with location info *)
+(* An AST with location info *)
 module ParserAST = struct 
-  type 'a node_with_loc_info = {node: 'a; meta: int} 
-  include MakeAST (struct type 'a t = 'a node_with_loc_info end)
+  type node_with_loc_info = {fname: string; line_no: int; char_no: int} 
+  include MakeAST (struct type t = node_with_loc_info end)
 end
 
 
-(** An AST with type info*)
+(* An AST with type info*)
 module TypedAST = struct 
-  type 'a node_with_type_info = {node: 'a; typ: int} 
-  include MakeAST (struct type 'a t = 'a node_with_type_info end)
+  type node_with_type_info = {typ: int} 
+  include MakeAST (struct type t = node_with_type_info end)
 end
