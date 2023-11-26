@@ -257,8 +257,7 @@ let forwardFunction e =
   | _ ->
       fatal "Cannot make a non-function forward"
 
-let endFunctionHeader e option_typ =
-  let typ = match option_typ with | None -> TYPE_nothing | Some(t) -> t in
+let endFunctionHeader e typ =
   match e.entry_info with
   | ENTRY_function inf ->
       begin

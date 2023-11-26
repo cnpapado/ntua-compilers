@@ -67,7 +67,7 @@ val newParameter     : Identifier.id -> Types.typ -> pass_mode ->
 val newTemporary     : Types.typ -> entry
 
 val forwardFunction   : entry -> unit
-val endFunctionHeader : entry -> Types.typ option -> unit
+val endFunctionHeader : entry -> Types.typ -> unit
 val lookupEntry       : Identifier.id -> lookup_type -> bool -> entry
 
 val start_positive_offset : int   (* ������ ������ offset ��� �.�.   *)

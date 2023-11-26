@@ -16,8 +16,8 @@ module MakeAST (Node : Node) = struct
   
   type expr = | Int of {i:int; meta: Node.t}
               | Char of {c:char; meta: Node.t}  
-              | Id of {id:identifier; meta: Node.t}  (*not used*)
-              | String of {s:string; meta: Node.t}   (*not used*)
+              (* | Id of {id:identifier; meta: Node.t}
+              | String of {s:string; meta: Node.t}  *)
               | Lvalue of lval
               | ExprFuncCall of func_call
               | SignedExpr of {sign:uop; e:expr; meta: Node.t}
@@ -25,7 +25,7 @@ module MakeAST (Node : Node) = struct
   and lval = LvalueId of {id:identifier; meta: Node.t} | LvalueString of {s:string; meta: Node.t} | LvalueArr of {arr:lval * expr; meta: Node.t}
   and arithmetic_binop = Times | Div | Mod | Plus | Minus
   and uop = UPlus | UMinus
-  and func_call = FuncCall of {name:string; parameters:expr list; meta: Node.t}
+  and func_call = FuncCall of {name:identifier; parameters:expr list; meta: Node.t}
   
   type cond = | ExprCond of {l:expr; r:expr; op: comparison_binop; meta: Node.t} 
               | CompoundCond of {l:cond; r:cond; op: logical_binop; meta: Node.t} 
@@ -72,7 +72,7 @@ module MakeAST (Node : Node) = struct
   and header = Header of {
     header_id: identifier;
     header_fpar_defs: (pass_mode * identifier * typ) list; 
-    header_ret: Types.typ option;
+    header_ret: Types.typ;
     meta: Node.t
   }
   
@@ -97,7 +97,7 @@ end
 
 (* An AST with type info *)
 module SemAST = struct 
-  type node_with_type_info = {typ: int} 
+  type node_with_type_info = {typ: int option} 
   include MakeAST (struct type t = node_with_type_info end)
 end
 

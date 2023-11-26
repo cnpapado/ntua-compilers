@@ -113,7 +113,7 @@ fpar_def : option(T_ref) separated_nonempty_list(T_comma, T_id) T_colon fpar_typ
 ttype : data_type list(delimited(T_lbracket, T_intconst, T_rbracket)) {
     create_nested_arrays $1 $2 
 }; 
-%inline ret_type : data_type { Some($1) } | T_nothing { None } ; 
+%inline ret_type : data_type { $1 } | T_nothing { TYPE_nothing } ; 
 fpar_type : data_type option(pair(T_lbracket,T_rbracket)) list(delimited(T_lbracket, T_intconst, T_rbracket)) {
      (* arrays in headers can have the first dimention empty
         matches with:  
