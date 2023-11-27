@@ -4,6 +4,7 @@ type typ = | TYPE_int
            | TYPE_uninitialized (* function return before properly initialized *)
            | TYPE_nothing       (* artificial function return type for procedures *)
            | TYPE_stringconst   (* constant string appearing only in lvals *)
+           | TYPE_bool          (* artificial type for conditions *)
 
 let rec sizeOfType t =  
   match t with

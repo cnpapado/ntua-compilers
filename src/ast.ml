@@ -97,7 +97,7 @@ end
 
 (* An AST with type info *)
 module SemAST = struct 
-  type node_with_type_info = {typ: int option} 
+  type node_with_type_info = {typ: Types.typ option} 
   include MakeAST (struct type t = node_with_type_info end)
 end
 
