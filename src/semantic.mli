@@ -1,6 +1,6 @@
 open Ast
 
-exception SemError of string
+exception SemError of string * Lexing.position
 exception InternalSemError of string
 
 val check_root : ParserAST.ast_root -> SemAST.ast_root 

@@ -5,6 +5,12 @@ open Ast.ParserAST
 open Types
 open List
 open Symbol
+open Lexing
+
+(* let get_loc = 
+  let pos = lexbuf.lex_curr_p in
+  {line_no=pos.pos_lnum; col_no = (pos.pos_cnum - pos.pos_bol + 1)}   
+*)
 
 let create_nested_arrays base_type sizes_list = 
      (* A[2][3][4] becomes arr(arr(arr(int,sz=4),sz=3),sz=2) *)
@@ -96,11 +102,11 @@ program : func_def T_eof { Root($1) }
 ;
 
 func_def : header list(local_def) block {
-     { func_def_header=$1; func_def_local=$2; func_def_block=$3; meta=42} 
+     { func_def_header=$1; func_def_local=$2; func_def_block=$3; meta=$symbolstartpos} 
 };
 
 header : T_fun T_id T_lparen separated_list(T_semicol, fpar_def) T_rparen T_colon ret_type {
-     Header { header_id=$2; header_fpar_defs=List.flatten $4; header_ret=$7; meta=42}
+     Header { header_id=$2; header_fpar_defs=List.flatten $4; header_ret=$7; meta=$symbolstartpos}
 };
 
 fpar_def : option(T_ref) separated_nonempty_list(T_comma, T_id) T_colon fpar_type {
@@ -132,41 +138,41 @@ local_def : func_def { FuncDef($1) } | func_decl { FuncDecl($1) } | var_def { Va
 func_decl : header T_semicol { $1 } ;
 
 var_def : T_var separated_nonempty_list(T_comma, T_id) T_colon ttype T_semicol {
-     {var_def_id=$2; var_def_typ=$4; meta=42}
+     {var_def_id=$2; var_def_typ=$4; meta=$symbolstartpos}
 }; 
 
 stmt : T_semicol { EmptyStmt } (* todo none *)
-     | lvalue T_assign expr T_semicol { Assign({lvalue=$1; rvalue=$3; meta=42}) }
+     | lvalue T_assign expr T_semicol { Assign({lvalue=$1; rvalue=$3; meta=$symbolstartpos}) }
      | block { $1 }
      | func_call T_semicol { StmtFuncCall($1) }
-     | T_if cond T_then stmt option(preceded(T_else, stmt)) { If {if_cond = $2; ifstmt = $4; elsestmt = $5; meta=42} } 
-     | T_while cond T_do stmt { While {while_cond = $2 ; whilestmt = $4; meta = 42} } 
-     | T_return option(expr) T_semicol { Return $2 } 
+     | T_if cond T_then stmt option(preceded(T_else, stmt)) { If {if_cond = $2; ifstmt = $4; elsestmt = $5; meta=$symbolstartpos} } 
+     | T_while cond T_do stmt { While {while_cond = $2 ; whilestmt = $4; meta=$symbolstartpos} } 
+     | T_return option(expr) T_semicol { Return {ret=$2; meta=$symbolstartpos} } 
 ;
 
 block : T_lcurl list(stmt) T_rcurl { Block($2) } ;
 
 func_call : fname=T_id; T_lparen; params=separated_list(T_comma, expr); T_rparen 
-          { FuncCall({name=fname; parameters=params; meta=42}) } ;
+          { FuncCall({name=fname; parameters=params; meta=$symbolstartpos}) } ;
 
-lvalue : T_id { LvalueId({id=$1; meta=42}) }
-       | T_stringliteral { LvalueString({s=$1; meta=42}) }
-       | lvalue delimited(T_lbracket, expr, T_rbracket) { LvalueArr {arr=($1, $2); meta=42} }
+lvalue : T_id { LvalueId({id=$1; meta=$symbolstartpos}) }
+       | T_stringliteral { LvalueString({s=$1; meta=$symbolstartpos}) }
+       | lvalue delimited(T_lbracket, expr, T_rbracket) { LvalueArr {arr=($1, $2); meta=$symbolstartpos} }
 ;
 
-expr : T_intconst { Int{i=$1; meta=42} }
-     | T_charconst { Char{c=$1; meta=42} }
+expr : T_intconst { Int{i=$1; meta=$symbolstartpos} }
+     | T_charconst { Char{c=$1; meta=$symbolstartpos} }
      | lvalue { Lvalue($1) }
      | delimited(T_lparen, expr, T_rparen) { $1 } 
      | func_call { ExprFuncCall($1) } 
-     | sign expr { SignedExpr {sign=$1; e=$2; meta=42} } 
-     | expr; arithmetic_bop; expr { BinExpr {l=$1; r=$3; op=$2; meta=42}  }
+     | sign expr { SignedExpr {sign=$1; e=$2; meta=$symbolstartpos} } 
+     | expr; arithmetic_bop; expr { BinExpr {l=$1; r=$3; op=$2; meta=$symbolstartpos}  }
 ;
 
 cond : delimited(T_lparen, cond, T_rparen) { $1 } (* ??? *)
      | T_not cond { NegatedCond($2) } 
-     | cond logical_bop cond { CompoundCond {l=$1; r=$3; op=$2; meta=42} }
-     | expr comparison_bop expr { ExprCond {l=$1; r=$3; op=$2; meta=42} }
+     | cond logical_bop cond { CompoundCond {l=$1; r=$3; op=$2; meta=$symbolstartpos} }
+     | expr comparison_bop expr { ExprCond {l=$1; r=$3; op=$2; meta=$symbolstartpos} }
 ;
 
 %inline sign : T_plus { UPlus } | T_minus { UMinus } ;

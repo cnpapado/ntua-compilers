@@ -1,11 +1,5 @@
 open Lexing
 
-let get_position lexbuf filename =
-  let pos = lexbuf.lex_curr_p in
-  Printf.sprintf "%s:%d:%d" filename
-    pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1) 
-
-
 let compile filename =
   let inx = Core.In_channel.create filename in (* catch unknown file error *)
   let lexbuf = Lexing.from_channel inx in
@@ -15,7 +9,18 @@ let compile filename =
     exit 0
   with 
   | Parser.Error -> 
-    let err_msg = Printf.sprintf "%s: %s\n" (get_position lexbuf filename) "Syntax error" in
+    let get_position lexbuf filename =
+    let pos = lexbuf.lex_curr_p in
+      Printf.sprintf "%s:%d:%d" filename
+      pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1) in
+    let err_msg = Printf.sprintf "%s: Syntax error\n" (get_position lexbuf filename) in
+    Printf.fprintf stderr "\n%s\n" err_msg ;
+    exit (-1)
+  | Semantic.SemError (sem_msg, loc) ->
+    let pos = loc in
+      let line_no = pos.pos_lnum in
+      let col_no = (pos.pos_cnum - pos.pos_bol + 1) in
+    let err_msg = Printf.sprintf "%s:%d:%d: Semantic error: %s\n" filename line_no col_no sem_msg in
     Printf.fprintf stderr "\n%s\n" err_msg ;
     exit (-1)
     

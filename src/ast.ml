@@ -40,7 +40,7 @@ module MakeAST (Node : Node) = struct
               | StmtFuncCall of func_call
               | If of if_expr
               | While of while_expr
-              | Return of expr option
+              | Return of {ret:expr option; meta: Node.t}
   
   and if_expr = {
     if_cond: cond;
@@ -90,7 +90,7 @@ end
 
 (* An AST with location info *)
 module ParserAST = struct 
-  type node_with_loc_info = int (* {fname: string; line_no: int; char_no: int} *)
+  type node_with_loc_info = Lexing.position  (* {line_no: int; col_no: int} *)
   include MakeAST (struct type t = node_with_loc_info end)
 end
 
