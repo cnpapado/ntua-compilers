@@ -16,3 +16,16 @@ let rec equalType t1 t2 =
    match t1, t2 with
    | TYPE_array {ttype = et1;size = _}, TYPE_array {ttype = et2; size = _} -> equalType et1 et2
    | _                                                                     -> t1 = t2
+
+let rec pp_typ t = 
+  match t with 
+  | Some tt -> (
+    match tt with
+    | TYPE_int -> "int"        
+    | TYPE_char -> "char"        
+    | TYPE_array {ttype;size=_} -> "array" ^ "[" ^ pp_typ (Some ttype) ^ "]"
+    | TYPE_uninitialized -> "uninit" 
+    | TYPE_nothing -> "nothing" 
+    | TYPE_stringconst -> "strconst"
+    | TYPE_bool -> "bool" )
+  | None -> "none"

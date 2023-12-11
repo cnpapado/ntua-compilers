@@ -95,10 +95,11 @@ let check_header h is_declaration =
 
   let f fpar_tuple = 
     match fpar_tuple with (mode, id, typ) -> 
-      newParameter (id_make id) typ mode fun_entry true 
+      newParameter (id_make id) typ mode fun_entry true (* always adds to symtable *)
   in
   ignore (List.map f x.header_fpar_defs);
-  endFunctionHeader fun_entry x.header_ret);
+  endFunctionHeader fun_entry x.header_ret;
+  );
   SemAST.Header {
     header_id=x.header_id;
     header_fpar_defs=x.header_fpar_defs; 
@@ -108,7 +109,11 @@ let check_header h is_declaration =
 
 let check_func_decl h =
   Printf.printf "func declaration\n";
-  SemAST.FuncDecl(check_header h true)
+  openScope ();
+  let sem_func_decl = SemAST.FuncDecl(check_header h true) in
+  printSymbolTable ();
+  closeScope ();
+  sem_func_decl
 
 
 let check_var_def v = 
@@ -150,30 +155,40 @@ let rec check_expr e =
     else SemAST.BinExpr {l=sem_l_expr; r=sem_r_expr; op=to_sem_arithm op; meta={typ=Some TYPE_int}}
   
 and check_lval l = 
+  let get_id_typ id = (
+  let e = lookupEntry (id_make id) LOOKUP_ALL_SCOPES true in (* all scopes ?? *)
+    (* what happens if not found? 
+        does id_make produce the same ids each time? *)
+    match e.entry_info with 
+    | ENTRY_variable {variable_type; variable_offset= _ } -> variable_type
+    | ENTRY_parameter {parameter_type; parameter_offset=_; parameter_mode=_} -> parameter_type
+    | _ -> raise (InternalSemError "found non var/param while looking up type of lval\n")) in
+
   match l with 
   | ParserAST.LvalueId {id=lval_id; meta=parser_loc} -> 
     (* lookup type and save it to new meta *)
-    let e = lookupEntry (id_make lval_id) LOOKUP_ALL_SCOPES true in (* all scopes ?? *)
-    (* what happens if not found? 
-        does id_make produce the same ids each time? *)
-    let lval_typ = 
-      match e.entry_info with 
-      | ENTRY_variable {variable_type; variable_offset= _ } -> variable_type
-      | ENTRY_parameter {parameter_type; parameter_offset=_; parameter_mode=_} -> parameter_type
-      | _ -> raise (InternalSemError "found non var/param while looking up type of lval\n")
-    in SemAST.LvalueId {id=lval_id; meta={typ = Some lval_typ}}
+    SemAST.LvalueId {id=lval_id; meta={typ = (Some (get_id_typ lval_id))}}
   
   | ParserAST.LvalueString {s=lval_str; meta=_} -> 
     SemAST.LvalueString {s=lval_str; meta={typ = Some TYPE_stringconst}} 
 
   | ParserAST.LvalueArr {arr=(lval_arr, idx_expr); meta=parser_loc} -> 
+    Printf.printf "+++++++++++++++++++++++++++++++++++++++++++++\n";
     (* represents an array element and thus has the value of it's element *)
-    let sem_lval_arr = check_lval lval_arr in (* check and find type of element (lval_arr) turning it into SemAST *)
-    let sem_idx_expr = check_expr idx_expr in (* same *)
+    let sem_lval_arr = check_lval lval_arr in 
+    let sem_idx_expr = check_expr idx_expr in
     (* check that idx evaluates to int *)
     if get_type sem_idx_expr <> Some TYPE_int then (raise (SemError ("id of lval array not an int", parser_loc))) else
     (* can you index with an char ? *)
-    SemAST.LvalueArr {arr=(sem_lval_arr, sem_idx_expr); meta={typ = get_type2 sem_lval_arr}} 
+    Printf.printf "%s" (pp_typ (get_type2 sem_lval_arr));
+    let get_base_arr_typ lvalarr = (* from the way lvalarr is constructed in parser, the lval field of (lval, expr) is going to be the id, which will still have type of arr.Eg in x[12], x (arr) will be of type arr[int] so we need to return the base type instead (int) *)
+      match lvalarr with 
+      | ParserAST.LvalueId {id; _} -> 
+        match get_id_typ id with 
+        | TYPE_array {ttype;size=_} -> ttype
+        | _ -> raise (InternalSemError ("type of type array expected when finding type of lval array"))
+      | _ -> raise (InternalSemError ("lval of type id expected when finding type of lval array")) in
+    SemAST.LvalueArr {arr=(sem_lval_arr, sem_idx_expr); meta={typ = Some (get_base_arr_typ lval_arr)}} 
 
 and check_func_call f = 
   match f with 
@@ -223,9 +238,9 @@ and check_cond c =
   | ParserAST.ExprCond {l; r; op=the_op; meta=parser_loc} -> 
     let (sem_l,sem_r) = (check_expr l, check_expr r) in
     let (tl,tr) = (get_type sem_l, get_type sem_r) in
-    if not ((tl == Some TYPE_int && tr == Some TYPE_int) || 
-      (tl == Some TYPE_char && tr == Some TYPE_char)) then (* kai ta 2 ints kai kai ta 2 chars h epitrepw sygkrish int me char? *)
-      raise (SemError ("type mismatch in comparison", parser_loc))
+    if not ((tl = Some TYPE_int && tr = Some TYPE_int) || 
+      (tl = Some TYPE_char && tr = Some TYPE_char)) then (* kai ta 2 ints kai kai ta 2 chars h epitrepw sygkrish int me char? *)
+      raise (SemError ((Printf.sprintf "type mismatch in comparison (%s != %s)" (pp_typ tl) (pp_typ tr)), parser_loc))
     else SemAST.ExprCond{l=sem_l; r=sem_r; op=to_sem_comp the_op; meta={typ=Some TYPE_bool}} 
   | ParserAST.CompoundCond {l; r; op=the_op; _} ->
     let sem_l = check_cond l in
@@ -247,8 +262,10 @@ and check_stmt parent_ret_type single_stmt =
       raise (SemError ("Lvalue in assignment should not be an array", parser_loc))
     | _ -> (
       (* check both sides are of same type *)
-      if get_type2 sem_l <> get_type sem_r then 
-        raise (SemError ("Type mismatch on assignment", parser_loc))
+      let tl = get_type2 sem_l in
+      let tr = get_type sem_r in
+      if tl <> tr then 
+        raise (SemError ((Printf.sprintf "type mismatch on assignment (%s != %s)" (pp_typ tl) (pp_typ tr)), parser_loc))
       else 
         SemAST.Assign({lvalue=sem_l; rvalue=sem_r; meta={typ=get_type2 sem_l}}) (* fill typ with the type *)
       )
@@ -272,6 +289,7 @@ and check_stmt parent_ret_type single_stmt =
       meta = {typ=None} (* if and else parts should not have the same type right? *)
     }
   | ParserAST.While(w) ->
+    printSymbolTable ();
     SemAST.While {
       while_cond = check_cond w.while_cond;
       whilestmt = check_stmt parent_ret_type w.whilestmt;
@@ -286,14 +304,18 @@ and check_stmt parent_ret_type single_stmt =
     | Some ex ->
       let sem_e = check_expr ex in
       let ret_type = get_type sem_e in
-      if ret_type <> parent_ret_type then (raise (SemError ("type mismatch between return type and return value", parser_loc)))
+      if ret_type <> parent_ret_type then (raise (SemError ((Printf.sprintf "type mismatch between return type (%s) and return value (%s)" (pp_typ ret_type) (pp_typ parent_ret_type)), parser_loc)))
       else SemAST.Return {ret=Some sem_e; meta={typ=ret_type}}
               
 and check_block b parent_ret_type = 
   match b with 
   | ParserAST.Block(stmt_list) ->
   Printf.printf "block\n";
-  SemAST.Block (check_all (check_stmt parent_ret_type) stmt_list)
+  openScope ();
+  let sem_b = SemAST.Block (check_all (check_stmt parent_ret_type) stmt_list) in
+  printSymbolTable (); 
+  closeScope ();
+  sem_b 
 
 let rec check_local_def x = 
   Printf.printf "local def ";
@@ -304,10 +326,13 @@ let rec check_local_def x =
 
 and check_func_def x =
   Printf.printf "func definition\n";  
+  openScope ();
   let sem_header = check_header x.func_def_header false in
   let sem_locals = check_all check_local_def x.func_def_local in
   let ret_type = match sem_header with SemAST.Header h -> Some h.header_ret in
   let sem_block = check_block x.func_def_block ret_type in
+  printSymbolTable ();
+  closeScope ();
   SemAST.FuncDef { func_def_header=sem_header; func_def_local=sem_locals; func_def_block=sem_block; meta={typ=None}}    
   
 

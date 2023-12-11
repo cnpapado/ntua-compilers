@@ -1,5 +1,5 @@
 fun main () : nothing
-
+   fun pp (n:int) : int;
    fun bsort (n : int; ref x : int[]) : nothing
    
       fun swap (ref x, y : int) : nothing

@@ -195,14 +195,14 @@ let newFunction id err =
 let newParameter id typ mode f err =
   match f.entry_info with
   | ENTRY_function inf -> begin
+    let inf_p = {
+      parameter_type = typ;
+      parameter_offset = 0;
+      parameter_mode = mode
+    } in
+    let e = newEntry id (ENTRY_parameter inf_p) err in
       match inf.function_pstatus with
       | PARDEF_DEFINE ->
-          let inf_p = {
-            parameter_type = typ;
-            parameter_offset = 0;
-            parameter_mode = mode
-          } in
-          let e = newEntry id (ENTRY_parameter inf_p) err in
           inf.function_paramlist <- e :: inf.function_paramlist;
           e
       | PARDEF_CHECK -> begin
