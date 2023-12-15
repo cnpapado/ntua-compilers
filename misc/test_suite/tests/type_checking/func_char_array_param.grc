@@ -1,0 +1,9 @@
+fun main(): nothing
+    fun f(ref x: char[6]): nothing
+    { $ f
+
+    } $ f 
+{ $ main
+    f("Hello");
+
+} $ main

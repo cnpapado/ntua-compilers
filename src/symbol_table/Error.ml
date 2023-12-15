@@ -2,6 +2,7 @@ open Format
 open Lexing
 
 exception Terminate
+exception SymTableException of string
 
 type verbose = Vquiet | Vnormal | Vverbose
 
@@ -74,7 +75,7 @@ and fatal fmt =
     raise Terminate in
   kfprintf cont err_formatter fmt
 
-and error fmt =
+(* and error fmt =
   let fmt = "@[<v 2>Error: " ^^ fmt ^^ "@]@;@?" in
   incr numErrors;
   if !numErrors >= !maxErrors then
@@ -83,7 +84,10 @@ and error fmt =
       raise Terminate in
     kfprintf cont err_formatter fmt
   else
-    eprintf fmt
+    eprintf fmt *)
+
+
+and error str = raise (SymTableException str)    
 
 and warning fmt =
   let fmt = "@[<v 2>Warning: " ^^ fmt ^^ "@]@;@?" in

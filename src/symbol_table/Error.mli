@@ -1,6 +1,7 @@
 (* Error handling *)
 
 exception Terminate
+exception SymTableException of string
 
 type verbose = Vquiet | Vnormal | Vverbose
 
@@ -15,7 +16,8 @@ val maxWarnings      : int ref
 val internal_raw     : (string * int) ->
                          ('a, Format.formatter, unit) format -> 'a
 val fatal            : ('a, Format.formatter, unit) format -> 'a
-val error            : ('a, Format.formatter, unit) format -> 'a
+(* val error            : ('a, Format.formatter, unit) format -> 'a *)
+val error            : string -> unit
 val warning          : ('a, Format.formatter, unit) format -> 'a
 val message          : ('a, Format.formatter, unit) format -> 'a
 

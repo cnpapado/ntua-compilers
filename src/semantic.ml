@@ -92,10 +92,12 @@ let check_header h is_declaration =
   let fun_entry = newFunction (id_make x.header_id) true in (
 
   if is_declaration then forwardFunction fun_entry;
-  openScope ();  
+  openScope (); Printf.printf "opening scope\n";  
   let f fpar_tuple = 
     match fpar_tuple with (mode, id, typ) -> 
-      newParameter (id_make id) typ mode fun_entry true
+      (match mode, typ with 
+      | PASS_BY_VALUE, TYPE_array {ttype=_;size=_} -> raise (SemError ("Arrays must be passed by reference", x.meta))
+      | _ -> newParameter (id_make id) typ mode fun_entry true)
   in
   ignore (List.map f x.header_fpar_defs);
   endFunctionHeader fun_entry x.header_ret;
@@ -144,7 +146,7 @@ let rec check_expr e =
   | ParserAST.ExprFuncCall(func_call) -> SemAST.ExprFuncCall(check_func_call func_call)
   | ParserAST.SignedExpr {sign=s; e; meta=parser_loc} -> 
     let sem_expr = check_expr e in 
-    if get_type sem_expr <> Some TYPE_int then (raise (SemError ("applying unary operation to non int", parser_loc)))
+    if not (equalType (get_type sem_expr) (Some TYPE_int)) then (raise (SemError ("applying unary operation to non int", parser_loc)))
     else SemAST.SignedExpr({sign=to_sem_uop s; e=sem_expr; meta={typ=get_type sem_expr}})
   | ParserAST.BinExpr {l; r; op; meta=parser_loc} ->
     let sem_l_expr = check_expr l in
@@ -177,15 +179,15 @@ and check_lval l =
     let sem_lval_arr = check_lval lval_arr in 
     let sem_idx_expr = check_expr idx_expr in
     (* check that idx evaluates to int *)
-    if get_type sem_idx_expr <> Some TYPE_int then (raise (SemError ("id of lval array not an int", parser_loc))) else
+    if not (equalType (get_type sem_idx_expr) (Some TYPE_int)) then (raise (SemError ("id of lval array not an int", parser_loc))) else
     (* can you index with an char ? *)
     Printf.printf "%s" (pp_typ (get_type2 sem_lval_arr));
     let get_base_arr_typ lvalarr = (* from the way lvalarr is constructed in parser, the lval field of (lval, expr) is going to be the id, which will still have type of arr.Eg in x[12], x (arr) will be of type arr[int] so we need to return the base type instead (int) *)
       match lvalarr with 
       | ParserAST.LvalueId {id; _} -> 
-        match get_id_typ id with 
+        (match get_id_typ id with 
         | TYPE_array {ttype;size=_} -> ttype
-        | _ -> raise (InternalSemError ("type of type array expected when finding type of lval array"))
+        | _ -> raise (InternalSemError ("type of type array expected when finding type of lval array")))
       | _ -> raise (InternalSemError ("lval of type id expected when finding type of lval array")) in
     SemAST.LvalueArr {arr=(sem_lval_arr, sem_idx_expr); meta={typ = Some (get_base_arr_typ lval_arr)}} 
 
@@ -197,8 +199,7 @@ and check_func_call f =
     let actual_params = fcall.parameters in
     
     (* find the corresponding symtable entry *)
-    let f_entry = try lookupEntry (id_make fcall.name) LOOKUP_ALL_SCOPES true (* all scopes ?? *)
-    with _ -> Printf.eprintf "lookup of %s failed" fcall.name; exit (-1) in
+    let f_entry = lookupEntry (id_make fcall.name) LOOKUP_ALL_SCOPES true in (* all scopes ?? *)
     (* what happens if not found? 
         does id_make produce the same ids each time? *)
     let (formal_params_entries, ret_typ) = match f_entry.entry_info with
@@ -269,7 +270,7 @@ and check_stmt parent_ret_type single_stmt =
       (* check both sides are of same type *)
       let tl = get_type2 sem_l in
       let tr = get_type sem_r in
-      if tl <> tr then 
+      if not (equalType tl tr) then 
         raise (SemError ((Printf.sprintf "type mismatch on assignment (%s != %s)" (pp_typ tl) (pp_typ tr)), parser_loc))
       else 
         SemAST.Assign({lvalue=sem_l; rvalue=sem_r; meta={typ=get_type2 sem_l}}) (* fill typ with the type *)
@@ -279,11 +280,11 @@ and check_stmt parent_ret_type single_stmt =
   | ParserAST.Block(_) -> check_block single_stmt parent_ret_type
   | ParserAST.StmtFuncCall(f) -> 
     let sem_func_call = check_func_call f in
-    if get_type3 sem_func_call <> Some TYPE_nothing then (raise (SemError ("stmt func call must be a procedure", get_loc_fun f)))
+    if not (equalType (get_type3 sem_func_call) (Some TYPE_nothing)) then (raise (SemError ("stmt func call must be a procedure", get_loc_fun f)))
     else SemAST.StmtFuncCall(sem_func_call)
   | ParserAST.If(i) -> 
     let sem_cond = check_cond i.if_cond in
-    if get_type4 sem_cond <> Some TYPE_bool then 
+    if not (equalType (get_type4 sem_cond) (Some TYPE_bool)) then 
       raise (SemError ("condition expr does not evaluate to condition", get_loc_cond i.if_cond)) 
     else SemAST.If {
       if_cond = sem_cond; 
@@ -303,20 +304,20 @@ and check_stmt parent_ret_type single_stmt =
   | ParserAST.Return({ret=e; meta=parser_loc}) ->
     match e with 
     | None -> 
-      if parent_ret_type <> Some TYPE_nothing then 
+      if not (equalType parent_ret_type (Some TYPE_nothing)) then 
         (raise (SemError ("this function returns nothing but is not a procedure", parser_loc))) 
       else SemAST.Return {ret=None; meta={typ=None}}
     | Some ex ->
       let sem_e = check_expr ex in
       let ret_type = get_type sem_e in
-      if ret_type <> parent_ret_type then (raise (SemError ((Printf.sprintf "type mismatch between return type (%s) and return value (%s)" (pp_typ ret_type) (pp_typ parent_ret_type)), parser_loc)))
+      if not (equalType ret_type parent_ret_type) then (raise (SemError ((Printf.sprintf "type mismatch between return type (%s) and return value (%s)" (pp_typ ret_type) (pp_typ parent_ret_type)), parser_loc)))
       else SemAST.Return {ret=Some sem_e; meta={typ=ret_type}}
               
 and check_block b parent_ret_type = 
   match b with 
   | ParserAST.Block(stmt_list) ->
   Printf.printf "block\n";
-  openScope ();
+  openScope (); Printf.printf "opening scope\n";
   let sem_b = SemAST.Block (check_all (check_stmt parent_ret_type) stmt_list) in
   printSymbolTable (); 
   closeScope ();
@@ -342,11 +343,13 @@ and check_func_def x =
 let add_buildin () = 
   let add_func id params_tuple ret_typ = 
     let fun_entry = newFunction (id_make id) true in (
+    openScope (); Printf.printf "opening scope\n";
     let f fpar_tuple = 
       match fpar_tuple with (mode, id, typ) -> 
         newParameter (id_make id) typ mode fun_entry true
     in
     ignore (List.map f params_tuple);
+    closeScope ();
     endFunctionHeader fun_entry ret_typ;
     );
   in
@@ -394,7 +397,7 @@ let check_root root =
   ParserAST.Root(x) -> 
     Printf.printf "root\n"; 
     initSymbolTable 256;
-    openScope ();
+    openScope (); Printf.printf "opening scope\n";
     add_buildin ();
     let sem_func_def = check_func_def x in
     printSymbolTable ();

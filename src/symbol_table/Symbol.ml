@@ -129,7 +129,7 @@ let newEntry id inf err =
     !currentScope.sco_entries <- e :: !currentScope.sco_entries;
     e
   with Failure_NewEntry e ->
-    error "duplicate identifier %a" pretty_id id;
+    error (Printf.sprintf "duplicate identifier %s" (id_name id));
     e
 
 let lookupEntry id how err =
@@ -148,8 +148,8 @@ let lookupEntry id how err =
     try
       lookup ()
     with Not_found ->
-      error "unknown identifier %a (first occurrence)"
-        pretty_id id;
+      error (Printf.sprintf "unknown identifier %s (first occurrence)"
+        (id_name id));
       (* put it in, so we don't see more errors *)
       H.add !tab id (no_entry id);
       raise Exit
@@ -179,7 +179,7 @@ let newFunction id err =
         e
     | _ ->
         if err then
-          error "duplicate identifier: %a" pretty_id id;
+          error (Printf.sprintf "duplicate identifier: %s" (id_name id));
           raise Exit
   with Not_found ->
     let inf = {
@@ -212,14 +212,14 @@ let newParameter id typ mode f err =
               match p.entry_info with
               | ENTRY_parameter inf ->
                   if not (equalType (Some inf.parameter_type) (Some typ)) then
-                    error "Parameter type mismatch in redeclaration \
-                           of function %a" pretty_id f.entry_id
+                    error (Printf.sprintf "Parameter type mismatch in redeclaration \
+                           of function %s" (id_name f.entry_id))
                   else if inf.parameter_mode != mode then
-                    error "Parameter passing mode mismatch in redeclaration \
-                           of function %a" pretty_id f.entry_id
+                    error (Printf.sprintf "Parameter passing mode mismatch in redeclaration \
+                           of function %s" (id_name f.entry_id))
                   else if p.entry_id != id then
-                    error "Parameter name mismatch in redeclaration \
-                           of function %a" pretty_id f.entry_id
+                    error (Printf.sprintf "Parameter name mismatch in redeclaration \
+                           of function %s" (id_name f.entry_id))
                   else
                     H.add !tab id p;
                   p
@@ -228,8 +228,8 @@ let newParameter id typ mode f err =
                   raise Exit
             end
           | [] ->
-              error "More parameters than expected in redeclaration \
-                     of function %a" pretty_id f.entry_id;
+              error (Printf.sprintf "More parameters than expected in redeclaration \
+                     of function %s" (id_name f.entry_id));
               raise Exit
         end
       | PARDEF_COMPLETE ->
@@ -282,11 +282,11 @@ let endFunctionHeader e typ =
             inf.function_paramlist <- List.rev inf.function_paramlist
         | PARDEF_CHECK ->
             if inf.function_redeflist <> [] then
-              error "Fewer parameters than expected in redeclaration \
-                     of function %a" pretty_id e.entry_id;
+              error (Printf.sprintf "Fewer parameters than expected in redeclaration \
+                     of function %s" (id_name e.entry_id));
             if not (equalType (Some inf.function_result) (Some typ)) then
-              error "Result type mismatch in redeclaration of function %a"
-                    pretty_id e.entry_id;
+              error (Printf.sprintf "Result type mismatch in redeclaration of function %s"
+                    (id_name e.entry_id));
       end;
       inf.function_pstatus <- PARDEF_COMPLETE
   | _ ->

@@ -120,18 +120,19 @@ ttype : data_type list(delimited(T_lbracket, T_intconst, T_rbracket)) {
     create_nested_arrays $1 $2 
 }; 
 %inline ret_type : data_type { $1 } | T_nothing { TYPE_nothing } ; 
-fpar_type : data_type option(pair(T_lbracket,T_rbracket)) list(delimited(T_lbracket, T_intconst, T_rbracket)) {
-     (* arrays in headers can have the first dimention empty
-        matches with:  
-        a [] [1]...[3]
-        a -  [1]...[3]
-        a [] -
-        a -  - 
-     *)
-
-     create_nested_arrays $1 (if $2==None then $3 else 0::$3)
-
-} ;
+fpar_type : 
+     | data_type list(delimited(T_lbracket, T_intconst, T_rbracket)) {
+          match $2 with 
+               | [] -> (* a *) $1          
+               | _ ->  (* a[1]...[n] *) create_nested_arrays $1 $2         
+     } 
+     | data_type T_lbracket T_rbracket list(delimited(T_lbracket, T_intconst, T_rbracket)) {
+          (* arrays in headers can have the first dimention empty *)
+          match $4 with 
+               | [] -> (* a[] *) create_nested_arrays $1 [0]
+               | _ -> (* a[][1]...[n] *) create_nested_arrays $1 (0::$4)
+     }
+;
 
 local_def : func_def { FuncDef($1) } | func_decl { FuncDecl($1) } | var_def { VarDef ($1) } ;
 

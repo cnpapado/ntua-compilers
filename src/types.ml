@@ -12,12 +12,14 @@ let rec sizeOfType t =
   match t with
   | TYPE_int                           -> 2
   | TYPE_char                          -> 1
-  | TYPE_array {ttype = et; size = sz} -> sz * sizeOfType et
+  | TYPE_array {ttype = et; size = sz} -> sz * sizeOfType et (* except if sz=0 for a[] *)
   
 let rec equalType t1 t2 =
    match t1, t2 with
-   | TYPE_array {ttype = et1;size = _}, TYPE_array {ttype = et2; size = _} -> equalType et1 et2
-   | TYPE_stringconst, TYPE_array {ttype = TYPE_char; size = _}            -> true 
+   | TYPE_array {ttype = et1;size = 0}, TYPE_array {ttype = et2; size = _} (* alla stis typikes vs pragmatikes den to thelei *)
+   | TYPE_array {ttype = et1;size = _}, TYPE_array {ttype = et2; size = 0} -> equalType et1 et2
+   | TYPE_array {ttype = et1;size = sz1}, TYPE_array {ttype = et2; size = sz2} -> sz1 == sz2 && equalType et1 et2
+   | TYPE_stringconst, TYPE_array {ttype = TYPE_char; size = _}            
    | TYPE_array {ttype = TYPE_char; size = _}, TYPE_stringconst            -> true 
    | _                                                                     -> t1 = t2
 

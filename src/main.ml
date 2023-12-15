@@ -8,6 +8,14 @@ let compile filename =
     ignore (Semantic.check_root ast) ;
     exit 0
   with 
+  | Lexer.LexicalError msg ->
+    let get_position lexbuf filename =
+      let pos = lexbuf.lex_curr_p in
+        Printf.sprintf "%s:%d:%d" filename
+        pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1) in
+      let err_msg = Printf.sprintf "%s: Lexical error: %s\n" (get_position lexbuf filename) msg in
+      Printf.fprintf stderr "\n%s\n" err_msg ;
+      exit (-1)
   | Parser.Error -> 
     let get_position lexbuf filename =
     let pos = lexbuf.lex_curr_p in
