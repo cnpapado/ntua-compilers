@@ -23,7 +23,7 @@ let get_type e =
   match e with 
   | SemAST.Int i -> i.meta.typ
   | SemAST.Char c -> c.meta.typ
-  | SemAST.Lvalue lval -> get_type2 lval
+  | SemAST.Lvalue lval -> Printf.printf "lval"; get_type2 lval
   | SemAST.ExprFuncCall f -> get_type3 f 
   | SemAST.SignedExpr i -> i.meta.typ
   | SemAST.BinExpr i -> i.meta.typ
@@ -92,10 +92,10 @@ let check_header h is_declaration =
   let fun_entry = newFunction (id_make x.header_id) true in (
 
   if is_declaration then forwardFunction fun_entry;
-
+  openScope ();  
   let f fpar_tuple = 
     match fpar_tuple with (mode, id, typ) -> 
-      newParameter (id_make id) typ mode fun_entry true (* always adds to symtable *)
+      newParameter (id_make id) typ mode fun_entry true
   in
   ignore (List.map f x.header_fpar_defs);
   endFunctionHeader fun_entry x.header_ret;
@@ -109,7 +109,6 @@ let check_header h is_declaration =
 
 let check_func_decl h =
   Printf.printf "func declaration\n";
-  openScope ();
   let sem_func_decl = SemAST.FuncDecl(check_header h true) in
   printSymbolTable ();
   closeScope ();
@@ -198,7 +197,8 @@ and check_func_call f =
     let actual_params = fcall.parameters in
     
     (* find the corresponding symtable entry *)
-    let f_entry = lookupEntry (id_make fcall.name) LOOKUP_ALL_SCOPES true in (* all scopes ?? *)
+    let f_entry = try lookupEntry (id_make fcall.name) LOOKUP_ALL_SCOPES true (* all scopes ?? *)
+    with _ -> Printf.eprintf "lookup of %s failed" fcall.name; exit (-1) in
     (* what happens if not found? 
         does id_make produce the same ids each time? *)
     let (formal_params_entries, ret_typ) = match f_entry.entry_info with
@@ -215,12 +215,17 @@ and check_func_call f =
     let check_params fp ap = 
       let sem_ap = check_expr ap in
       let (fp_typ, fp_mode) = fp in
+      Printf.printf "-----\n";
       let is_lvalue = match sem_ap with
-      | Lvalue _ -> true 
-      | _ -> false in
+        | Lvalue _ -> Printf.printf "is lval"; true 
+        | _ -> Printf.printf "not lval"; false in
       let pos = get_loc_expr ap in
-      if fp_typ <> get_type sem_ap then (raise (SemError ("formal and actual parameter have different type", pos))) 
-      else if (fp_mode == PASS_BY_REFERENCE && not is_lvalue) || (fp_mode == PASS_BY_VALUE && is_lvalue) then (raise (SemError ("formal and actual parameter have different pass mode", pos)))
+      let ap_typ = get_type sem_ap in
+      if not (equalType fp_typ ap_typ) then (raise (SemError ((Printf.sprintf "formal and actual parameter have different type (%s vs %s)" (pp_typ fp_typ) (pp_typ ap_typ)), pos))) 
+      else if (fp_mode == PASS_BY_REFERENCE && not is_lvalue) (*|| (fp_mode == PASS_BY_VALUE && not is_lvalue)*) then 
+        (
+          Printf.printf "%s" (pp_typ ap_typ);
+          raise (SemError ("formal and actual parameter have different pass mode", pos)))
       else sem_ap in
 
     let rec check_all_params f a = 
@@ -326,7 +331,6 @@ let rec check_local_def x =
 
 and check_func_def x =
   Printf.printf "func definition\n";  
-  openScope ();
   let sem_header = check_header x.func_def_header false in
   let sem_locals = check_all check_local_def x.func_def_local in
   let ret_type = match sem_header with SemAST.Header h -> Some h.header_ret in
@@ -335,6 +339,55 @@ and check_func_def x =
   closeScope ();
   SemAST.FuncDef { func_def_header=sem_header; func_def_local=sem_locals; func_def_block=sem_block; meta={typ=None}}    
   
+let add_buildin () = 
+  let add_func id params_tuple ret_typ = 
+    let fun_entry = newFunction (id_make id) true in (
+    let f fpar_tuple = 
+      match fpar_tuple with (mode, id, typ) -> 
+        newParameter (id_make id) typ mode fun_entry true
+    in
+    ignore (List.map f params_tuple);
+    endFunctionHeader fun_entry ret_typ;
+    );
+  in
+
+  (* fun writeInteger (n : int) : nothing; *)
+  add_func "writeInteger" [(PASS_BY_VALUE, "n", TYPE_int)] TYPE_nothing;
+
+  (* fun writeChar(c : char) : nothing; *)
+  add_func "writeChar" [(PASS_BY_VALUE, "c", TYPE_char)] TYPE_nothing;
+
+  (* fun writeString (ref s : char[]) : nothing; *)
+  add_func "writeString" [(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})] TYPE_nothing; (* pws xeirizomai to s[] ?? *)
+
+  (* fun readInteger () : int; *)
+  add_func "readInteger" [] TYPE_int;
+
+  (* fun readChar () : char; *)
+  add_func "readChar" [] TYPE_char;
+
+  (* fun readString (n : int; ref s : char[]) : nothing; *)
+  add_func "readString" [(PASS_BY_VALUE, "n", TYPE_int); (PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})] TYPE_nothing; (* pws xeirizomai to s[] ?? *)
+
+  (* fun ascii (c : char) : int; *)
+  add_func "ascii" [(PASS_BY_VALUE, "c", TYPE_char)] TYPE_int;
+
+  (* fun chr (n : int) : char; *)
+  add_func "aschrcii" [(PASS_BY_VALUE, "n", TYPE_int)] TYPE_char;
+
+  (* fun strlen (ref s : char[]): int; *)
+  add_func "strlen" [(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})] TYPE_int; (* pws xeirizomai to s[] ?? *)
+
+  (* fun strcmp (ref s1, s2 : char[]): int; *)
+  add_func "strcmp" [(PASS_BY_REFERENCE, "s2", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "s1", TYPE_array{ttype=TYPE_char; size=0})] TYPE_int; (* pws xeirizomai to s[] ?? *)
+
+  (* fun strcpy (ref trg, src : char[]) : nothing; *)
+  add_func "strcpy" [(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})] TYPE_nothing; (* pws xeirizomai to s[] ?? *)
+
+  (* fun strcat (ref trg, src : char[]) : nothing; *)
+  add_func "strcat" [(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})] TYPE_nothing (* pws xeirizomai to s[] ?? *)
+
+
 
 let check_root root =
   match root with
@@ -342,6 +395,7 @@ let check_root root =
     Printf.printf "root\n"; 
     initSymbolTable 256;
     openScope ();
+    add_buildin ();
     let sem_func_def = check_func_def x in
     printSymbolTable ();
     closeScope ();

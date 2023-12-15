@@ -25,12 +25,12 @@ fun main () : nothing
         else return fib_rec(n-1) + fib_rec(n-2);
     }
 
-    fun fib_mem (n : int, ref arr : int[]) : int
+    fun fib_mem (n : int; ref arr : int[]) : int
         fun aux (n : int) : int 
         {
-            # showcase nested scoping of arr
+            $ showcase nested scoping of arr
             if arr[n] = -1 then 
-                arr[n] = aux(n-1) + aux(n-2);
+                arr[n] <- aux(n-1) + aux(n-2);
             return arr[n];
         }
         

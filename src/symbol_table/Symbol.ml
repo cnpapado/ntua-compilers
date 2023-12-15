@@ -195,14 +195,14 @@ let newFunction id err =
 let newParameter id typ mode f err =
   match f.entry_info with
   | ENTRY_function inf -> begin
-    let inf_p = {
-      parameter_type = typ;
-      parameter_offset = 0;
-      parameter_mode = mode
-    } in
-    let e = newEntry id (ENTRY_parameter inf_p) err in
       match inf.function_pstatus with
       | PARDEF_DEFINE ->
+          let inf_p = {
+            parameter_type = typ;
+            parameter_offset = 0;
+            parameter_mode = mode
+          } in
+          let e = newEntry id (ENTRY_parameter inf_p) err in
           inf.function_paramlist <- e :: inf.function_paramlist;
           e
       | PARDEF_CHECK -> begin
@@ -211,7 +211,7 @@ let newParameter id typ mode f err =
               inf.function_redeflist <- ps;
               match p.entry_info with
               | ENTRY_parameter inf ->
-                  if not (equalType inf.parameter_type typ) then
+                  if not (equalType (Some inf.parameter_type) (Some typ)) then
                     error "Parameter type mismatch in redeclaration \
                            of function %a" pretty_id f.entry_id
                   else if inf.parameter_mode != mode then
@@ -284,7 +284,7 @@ let endFunctionHeader e typ =
             if inf.function_redeflist <> [] then
               error "Fewer parameters than expected in redeclaration \
                      of function %a" pretty_id e.entry_id;
-            if not (equalType inf.function_result typ) then
+            if not (equalType (Some inf.function_result) (Some typ)) then
               error "Result type mismatch in redeclaration of function %a"
                     pretty_id e.entry_id;
       end;

@@ -1,3 +1,5 @@
+exception InternalTypeError of string
+
 type typ = | TYPE_int        
            | TYPE_char        
            | TYPE_array of {ttype: typ; size: int}
@@ -15,7 +17,15 @@ let rec sizeOfType t =
 let rec equalType t1 t2 =
    match t1, t2 with
    | TYPE_array {ttype = et1;size = _}, TYPE_array {ttype = et2; size = _} -> equalType et1 et2
+   | TYPE_stringconst, TYPE_array {ttype = TYPE_char; size = _}            -> true 
+   | TYPE_array {ttype = TYPE_char; size = _}, TYPE_stringconst            -> true 
    | _                                                                     -> t1 = t2
+
+let equalType t1 t2 =
+  match t1, t2 with
+  | Some tt1, Some tt2 -> equalType tt1 tt2
+  | _ -> raise (InternalTypeError "Expected type but got None")
+
 
 let rec pp_typ t = 
   match t with 

@@ -76,7 +76,7 @@ module MakeAST (Node : Node) = struct
     meta: Node.t
   }
   
-  (* and func_decl = {
+  (* and func_decl = {(get_type sem_ap)
     func_decl_header: header;
   } *)
   
