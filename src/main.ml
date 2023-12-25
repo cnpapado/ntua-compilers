@@ -31,6 +31,10 @@ let compile filename =
     let err_msg = Printf.sprintf "%s:%d:%d: Semantic error: %s\n" filename line_no col_no sem_msg in
     Printf.fprintf stderr "\n%s\n" err_msg ;
     exit (-1)
+  | Error.SymTableException msg ->
+    let err_msg = Printf.sprintf "%s: Semantic Error: %s\n" filename msg in (* maybe add location here *)
+    Printf.fprintf stderr "\n%s\n" err_msg ;
+    exit (-1)
     
     Core.In_channel.close inx
     

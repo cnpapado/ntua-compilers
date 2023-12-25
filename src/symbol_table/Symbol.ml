@@ -211,7 +211,7 @@ let newParameter id typ mode f err =
               inf.function_redeflist <- ps;
               match p.entry_info with
               | ENTRY_parameter inf ->
-                  if not (equalType (Some inf.parameter_type) (Some typ)) then
+                  if not (equalType ~flexible_on_autocomplete:true (Some inf.parameter_type) (Some typ)) then
                     error (Printf.sprintf "Parameter type mismatch in redeclaration \
                            of function %s" (id_name f.entry_id))
                   else if inf.parameter_mode != mode then

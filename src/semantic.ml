@@ -151,7 +151,7 @@ let rec check_expr e =
   | ParserAST.BinExpr {l; r; op; meta=parser_loc} ->
     let sem_l_expr = check_expr l in
     let sem_r_expr = check_expr r in
-    if not (get_type sem_l_expr = Some TYPE_int && get_type sem_r_expr = Some TYPE_int) then
+    if not (equalType (get_type sem_l_expr) (Some TYPE_int) && equalType (get_type sem_r_expr) (Some TYPE_int)) then
       raise (SemError ("applying binary arithmetic operation to non ints", parser_loc))
     else SemAST.BinExpr {l=sem_l_expr; r=sem_r_expr; op=to_sem_arithm op; meta={typ=Some TYPE_int}}
   
@@ -222,7 +222,7 @@ and check_func_call f =
         | _ -> Printf.printf "not lval"; false in
       let pos = get_loc_expr ap in
       let ap_typ = get_type sem_ap in
-      if not (equalType fp_typ ap_typ) then (raise (SemError ((Printf.sprintf "formal and actual parameter have different type (%s vs %s)" (pp_typ fp_typ) (pp_typ ap_typ)), pos))) 
+      if not (equalType ~flexible_on_autocomplete:false fp_typ ap_typ) then (raise (SemError ((Printf.sprintf "formal and actual parameter have different type (%s vs %s)" (pp_typ fp_typ) (pp_typ ap_typ)), pos))) 
       else if (fp_mode == PASS_BY_REFERENCE && not is_lvalue) (*|| (fp_mode == PASS_BY_VALUE && not is_lvalue)*) then 
         (
           Printf.printf "%s" (pp_typ ap_typ);
@@ -270,7 +270,7 @@ and check_stmt parent_ret_type single_stmt =
       (* check both sides are of same type *)
       let tl = get_type2 sem_l in
       let tr = get_type sem_r in
-      if not (equalType tl tr) then 
+      if not (equalType ~flexible_on_autocomplete:false tl tr) then 
         raise (SemError ((Printf.sprintf "type mismatch on assignment (%s != %s)" (pp_typ tl) (pp_typ tr)), parser_loc))
       else 
         SemAST.Assign({lvalue=sem_l; rvalue=sem_r; meta={typ=get_type2 sem_l}}) (* fill typ with the type *)
