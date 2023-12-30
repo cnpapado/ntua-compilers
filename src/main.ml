@@ -5,7 +5,10 @@ let compile filename =
   let lexbuf = Lexing.from_channel inx in
   try 
     let ast = Parser.program Lexer.lexer lexbuf in
-    ignore (Semantic.check_root ast) ;
+    let sem_ast = Semantic.check_root ast in 
+    let the_module = Codegen.emit_root sem_ast in
+    let verification = Llvm_analysis.verify_module Codegen.the_module in 
+    print_endline @@ Llvm.string_of_llmodule Codegen.the_module;
     exit 0
   with 
   | Lexer.LexicalError msg ->

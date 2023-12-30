@@ -15,8 +15,9 @@ A[2][100] is:
 ```
 hense `[A[100], A[100]]`
 
+### AST & functors
 
 ## Installation
 ```
-opam install dune menhir core core_unix
+opam install dune menhir core core_unix llvm
 ```
