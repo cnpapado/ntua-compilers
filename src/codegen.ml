@@ -1,4 +1,4 @@
-open Llvm
+(* open Llvm
 
 exception CodeGenError of string
 exception InternalCodeGenError of string
@@ -6,20 +6,19 @@ exception InternalCodeGenError of string
 let context = global_context ()
 let the_module = create_module context "my grace prog"
 let builder = builder context
-(* let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 10 *)
-(* let double_type = double_type context *)
+
 let int_type = i64_type context
 let char_type = i8_type context
 let void_type = void_type context
 let cond_type = i1_type context
 
-(* let rec lltype_of grace_t = function
+let rec lltype_of grace_t = function
   | TYPE_int -> int_type
   | TYPE_char -> char_type
   | TYPE_array {ttype; size} -> 
     if size < 1 then (raise (InternalCodeGenError "lltype of array with sz<1")) 
     else array_type (lltype_of ttype) size
-  | _ -> raise (InternalCodeGenError "unknown lltype") *)
+  | _ -> raise (InternalCodeGenError "unknown lltype")
 
 
 
@@ -30,10 +29,12 @@ let cond_type = i1_type context
 let emit_func_decl 
 *)
 
-(* let emit_var_def v =
-  (* possibly add to symbol table? *)
+let emit_var_def v = 
   match v with 
-  | ParserAST.VarDef(x) ->  *)
+  | ParserAST.VarDef(x) -> 
+    let alloca_val id = build_alloca (lltype_of v.var_def_typ) id builder in
+    let add_to_symb id = newVariable id (alloca_val id) in
+    List.iter add_to_symb v.var_def_id
 
 let rec emit_expr e = function
   | SemAST.Int {i; meta=_} -> const_int int_type i
@@ -89,7 +90,7 @@ and emit_cond c = function
 
 and emit_stmt s = function
   | SemAST.EmptyStmt -> ()
-  | SemAST.Assign {lvalue; rvalue; meta=_} -> 
+  | SemAST.Assign {lvalue; rvalue; meta=_} -> (* don't i need to find lval in symb table first? *)
     let ll_lval = emit_lval lvalue in
     let ll_rval = emit_expr rvalue in
     ignore @@ build_store ll_rval ll_lval builder (* type cast ?? *)
@@ -145,7 +146,7 @@ and emit_func_call f =
   (* type cast in args ?? *)
   (* handle arr[] *)
   let args = List.map emit_expr (params ll_fun) in 
-  let fname = match ftype with None -> "" Some _ -> "call" in
+  let fname = match ftype with None -> "" | Some _ -> "call" in
   build_call ll_fun args fname builder
 
               
@@ -153,10 +154,14 @@ and emit_block b =
   match b with 
   | ParserAST.Block(stmt_list) -> List.iter emit_stmt stmt_list
 
-(*
-let rec emit_local_def 
 
-and emit_func_def  *)
+let rec emit_local_def x = 
+  match x with 
+  | ParserAST.FuncDef(y)  -> emit_func_def y
+  | ParserAST.FuncDecl(y) -> emit_func_decl y
+  | ParserAST.VarDef _   -> emit_var_def x
+
+(* and emit_func_def  *)
 
 
 let emit_root r = 
@@ -169,4 +174,4 @@ let emit_root r =
   let rhs_val = const_float double_type 17.0 in
   let _ = build_add lhs_val rhs_val "addtmp" builder in 
   let _ = build_ret double_type builder in
-  (* dump_module the_module *) ()
+  (* dump_module the_module *) () *)

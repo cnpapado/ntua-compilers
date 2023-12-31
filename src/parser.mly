@@ -94,11 +94,11 @@ let create_nested_arrays base_type sizes_list =
 
    
 
-%start<ast_root> program
+%start<local_def> program
 
 %%
 
-program : func_def T_eof { Root($1) }
+program : func_def T_eof { FuncDef $1 (*Root($1)*) }
 ;
 
 func_def : header list(local_def) block {

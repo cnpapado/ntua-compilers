@@ -222,7 +222,7 @@ and check_func_call f =
         | _ -> Printf.printf "not lval"; false in
       let pos = get_loc_expr ap in
       let ap_typ = get_type sem_ap in
-      if not (equalType ~flexible_on_autocomplete:false fp_typ ap_typ) then (raise (SemError ((Printf.sprintf "formal and actual parameter have different type (%s vs %s)" (pp_typ fp_typ) (pp_typ ap_typ)), pos))) 
+      if not (equalType ~flexible_on_autocomplete:true fp_typ ap_typ) then (raise (SemError ((Printf.sprintf "formal and actual parameter have different type (%s vs %s)" (pp_typ fp_typ) (pp_typ ap_typ)), pos))) 
       else if (fp_mode == PASS_BY_REFERENCE && not is_lvalue) (*|| (fp_mode == PASS_BY_VALUE && not is_lvalue)*) then 
         (
           Printf.printf "%s" (pp_typ ap_typ);
@@ -392,9 +392,10 @@ let add_buildin () =
 
 
 
-let check_root root =
-  match root with
-  ParserAST.Root(x) -> 
+let check_root = function 
+  (* match root with
+  ParserAST.Root(x) ->  *)
+  | ParserAST.FuncDef x -> 
     Printf.printf "root\n"; 
     initSymbolTable 256;
     openScope (); Printf.printf "opening scope\n";
@@ -402,5 +403,7 @@ let check_root root =
     let sem_func_def = check_func_def x in
     printSymbolTable ();
     closeScope ();
+    sem_func_def
+  | _ -> raise (InternalSemError "Exprected func def as root of ast")
     (* De-capsulate the record outside FuncDef for Root *)
-    match sem_func_def with SemAST.FuncDef(y) -> SemAST.Root(y)
+    (* match sem_func_def with SemAST.FuncDef(y) -> SemAST.Root(y) *)
