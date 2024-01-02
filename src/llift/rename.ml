@@ -100,7 +100,7 @@ let rec rename_uniq prefix (SemAST.FuncDef def) =
       func_def_block=new_block 
     }
 
-let add_buildins () = 
+let add_buildins_mappings () = 
   add_mapping ~newid:"writeInteger" ~oldid:"writeInteger" false;
   add_mapping ~newid:"writeChar" ~oldid:"writeChar" false;
   add_mapping ~newid:"writeString" ~oldid:"writeString" false;
@@ -118,7 +118,7 @@ let add_buildins () =
 let rename_ast root = 
   initSymbolTable 256; 
   openScope ();
-  add_buildins (); 
+  add_buildins_mappings (); 
   let ast = rename_uniq "" root in
   closeScope (); 
   ast
