@@ -35,7 +35,8 @@ and function_info = {
   mutable function_redeflist : entry list;
   mutable function_result    : Types.typ;
   mutable function_pstatus   : param_status;
-  mutable function_initquad  : int
+  mutable function_initquad  : int;
+  mutable function_newName   : string
 }
 
 and parameter_info = {
@@ -188,7 +189,8 @@ let newFunction id err =
       function_redeflist = [];
       function_result = TYPE_uninitialized;
       function_pstatus = PARDEF_DEFINE;
-      function_initquad = 0
+      function_initquad = 0;
+      function_newName = ""
     } in
     newEntry id (ENTRY_function inf) false
 

@@ -80,7 +80,7 @@ and emit_cond c = function
     | Eq  -> build_icmp Icmp.Eq ll_l ll_r "eqtmp" builder
     | Neq -> build_icmp Icmp.Ne ll_l ll_r "netmp" builder
   | SemAST.CompoundCond {l; r; op; _} ->
-    let ll_l = emit_expr l in
+    let ll_l = emit_exprWRONG l in (* THIS IS WRONG, emit cond instead? *)
     let ll_r = emit_expr r in
     match op with 
     | And -> build_and ll_l ll_r "andtmp" builder

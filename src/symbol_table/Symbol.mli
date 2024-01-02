@@ -25,7 +25,8 @@ and function_info = {                         (******* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï
   mutable function_redeflist : entry list;    (* ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (2ï¿½) *)
   mutable function_result    : Types.typ;     (* ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   *)
   mutable function_pstatus   : param_status;  (* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  *)
-  mutable function_initquad  : int            (* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½        *)
+  mutable function_initquad  : int;           (* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½        *)
+  mutable function_newName   : string         (* name after llift rename *)
 }
 
 and parameter_info = {                        (****** ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ *******)
