@@ -1,0 +1,14 @@
+fun main(): nothing
+
+   $ shadows stdlib and hence gets renamed
+   fun readInteger () : int; $ main_readInteger
+
+   fun f(): nothing $ main_f
+      fun g(): nothing $ main_f_g
+         fun b(): nothing; $ main_f_g_b
+         var x : int;
+      {
+         x <- readInteger(); $ main_readInteger
+      }
+   {}
+{}

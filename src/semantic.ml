@@ -340,7 +340,7 @@ and check_func_def x =
   closeScope ();
   SemAST.FuncDef { func_def_header=sem_header; func_def_local=sem_locals; func_def_block=sem_block; meta={typ=None}}    
   
-let add_buildin () = 
+let add_buildins () = 
   let add_func id params_tuple ret_typ = 
     let fun_entry = newFunction (id_make id) true in (
     openScope (); Printf.printf "opening scope\n";
@@ -399,7 +399,7 @@ let check_root = function
     Printf.printf "root\n"; 
     initSymbolTable 256;
     openScope (); Printf.printf "opening scope\n";
-    add_buildin ();
+    add_buildins ();
     let sem_func_def = check_func_def x in
     printSymbolTable ();
     closeScope ();
