@@ -1,12 +1,20 @@
 open Ast
 open Symbol
 
+module SS = Set.Make(String)
+let function_names = ref SS.empty
+
 let add_mapping ~newid ~oldid is_decl = 
   let fun_entry = newFunction (Identifier.id_make oldid) true in 
-  Printf.printf "\n\nMAPPING %s --> %s" oldid newid;
+  Printf.printf "\n\nMAPPING %s --> %s\nset:" oldid newid;
   let _ = 
     match fun_entry.entry_info with
       | ENTRY_function inf -> inf.function_newName <- newid in
+    
+    (* add to set with the function ids *)
+    function_names := SS.add newid !function_names;
+    (* SS.iter print_endline !function_names; *)
+    
     if is_decl then forwardFunction fun_entry;
     endFunctionHeader fun_entry TYPE_uninitialized (* we don't care about ret typ here *) 
 

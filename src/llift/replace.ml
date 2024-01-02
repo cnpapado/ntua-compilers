@@ -13,7 +13,7 @@ let free_vars (SemAST.FuncDef def) =
       | SemAST.VarDef v -> v.var_def_id)
     def.func_def_local
   in 
-  let uses = (* traverse and append all ids to list *) 
+  let referenced = (* traverse and append all ids to list *) 
     (* return l appended with all ids found in stmt *)
     let rec collect_stmt l stmt = 
       match stmt with 
@@ -44,11 +44,16 @@ let free_vars (SemAST.FuncDef def) =
     in 
     collect_stmt [] def.func_def_block
   in
-    Printf.printf "\n\n%s" "Bound:";
+    (* Printf.printf "\n\n%s" "Bound:";
     List.iter (Printf.printf "%s, ") @@ params @ locals;
-    Printf.printf "\n\n%s" "All uses:";
-    List.iter (Printf.printf "%s, ") uses;
-    Printf.printf "\n\n%s" "";
-    ()
-  
-let replace_free = free_vars 
+    Printf.printf "\n\n%s" "Referenced:";
+    List.iter (Printf.printf "%s, ") referenced;
+    Printf.printf "\n\n%s" ""; *)
+    let diff l1 l2 = List.filter (fun x -> not (List.mem x l2) && not (Rename.SS.mem x !Rename.function_names)) l1 in
+    (* Printf.printf "\n\n%s" "Free:"; *) 
+    let free = diff referenced (params @ locals) in
+    (* List.iter (Printf.printf "%s, ") free; *)
+    free
+
+let replace_free root =
+  free_vars root
