@@ -2,10 +2,11 @@ open Ast
 
 let free_vars_hashtbl = Hashtbl.create 256
 let search_in_hashtbl f_name erase = 
-  let free = Hashtbl.find free_vars_hashtbl f_name in
-  let _ = if erase then Hashtbl.replace free_vars_hashtbl f_name [] else () in
-  free
-
+  try
+    let free = Hashtbl.find free_vars_hashtbl f_name in
+    (* let _ = if erase then Hashtbl.replace free_vars_hashtbl f_name [] else () in *)
+    free
+  with _ -> Printf.printf "%s" f_name; [] (* if not found, the hashtbl has been cleared between passes and a already removed call site is being queried *)
 (* Return a list of the free variables of a function definition *)
 let free_vars (SemAST.FuncDef def) = 
   let params = 
@@ -86,7 +87,7 @@ let rec replace_free fun_def =
   
   (* 
   on my local defs: 
-    - handle defs first (do recursion) Hashtbl.find free_vars_hashtbl (match decl with SemAST.Header h -> h.header_id
+    - handle defs first (do recursion) 
     - for decls, lookup hashtbl and add params
   *)
   let my_new_locals = 
