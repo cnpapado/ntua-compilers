@@ -1,6 +1,10 @@
 open Ast
 
 let free_vars_hashtbl = Hashtbl.create 256
+let search_in_hashtbl f_name erase = 
+  let free = Hashtbl.find free_vars_hashtbl f_name in
+  let _ = if erase then Hashtbl.replace free_vars_hashtbl f_name [] else () in
+  free
 
 (* Return a list of the free variables of a function definition *)
 let free_vars (SemAST.FuncDef def) = 
@@ -94,7 +98,7 @@ let rec replace_free fun_def =
     let replace_decls = List.map (fun d ->
       match d with
       | SemAST.FuncDecl decl -> 
-        let free = Hashtbl.find free_vars_hashtbl (match decl with SemAST.Header h -> h.header_id) in
+        let free = search_in_hashtbl (match decl with SemAST.Header h -> h.header_id) false in
         add_actual_params d free
       | _ -> d 
     ) in replace_decls (replace_defs my_locals) in
@@ -115,7 +119,7 @@ let rec replace_free fun_def =
         } 
       | SemAST.Block stmt_list -> SemAST.Block (List.map append_call_sites stmt_list)
       | SemAST.StmtFuncCall f -> 
-        let free = Hashtbl.find free_vars_hashtbl (match f with SemAST.FuncCall ff -> ff.name) in
+        let free = search_in_hashtbl (match f with SemAST.FuncCall ff -> ff.name) true in
         SemAST.StmtFuncCall (add_typical_params f free)
       | SemAST.If {if_cond; ifstmt; elsestmt; meta} ->
         SemAST.If {
@@ -144,7 +148,7 @@ let rec replace_free fun_def =
       | SemAST.Char c -> e
       | SemAST.Lvalue lval -> SemAST.Lvalue (append_call_sites_lval lval)
       | SemAST.ExprFuncCall f -> 
-        let free = Hashtbl.find free_vars_hashtbl (match f with SemAST.FuncCall ff -> ff.name) in
+        let free = search_in_hashtbl (match f with SemAST.FuncCall ff -> ff.name) true in
         SemAST.ExprFuncCall (add_typical_params f free)
       | SemAST.SignedExpr se -> SemAST.SignedExpr {sign=se.sign; e=append_call_sites_expr se.e; meta=se.meta}
       | SemAST.BinExpr b -> SemAST.BinExpr {l=append_call_sites_expr b.l; r=append_call_sites_expr b.r; op=b.op; meta=b.meta}
@@ -158,5 +162,3 @@ let rec replace_free fun_def =
     func_def_local=my_new_locals; 
     func_def_block=my_new_body
   }
-    
-

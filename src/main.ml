@@ -7,9 +7,8 @@ let compile filename =
     let ast = Parser.program Lexer.lexer lexbuf in
     let sem_ast = Semantic.check_root ast in
     let _ = Printf.printf "\n\n\n\n %s" (Pretty_print.str_of_ast sem_ast) in 
-    let llift_ast = Llift.rename_ast sem_ast in 
-    let llift_ast_replaced = Llift.replace_free llift_ast in
-    let _ = Printf.printf "\n\n\n\n %s" (Pretty_print.str_of_ast llift_ast_replaced) in 
+    let llifted_ast = Llift.llift sem_ast in 
+    let _ = Printf.printf "\n\n\n\n %s" (Pretty_print.str_of_ast llifted_ast) in 
     (* let the_module = Codegen.emit_root sem_ast in *)
     (* let verification = Llvm_analysis.verify_module Codegen.the_module in  *)
     (* print_endline @@ Llvm.string_of_llmodule Codegen.the_module; *)

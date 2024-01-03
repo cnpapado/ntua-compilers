@@ -84,7 +84,8 @@ module MakeAST (Node : Node) = struct
                   | FuncDecl of header
                   | VarDef of var_def
   
-  (* and ast_root = Root of func_def *)
+  (* and def_or_decl = GlobalDef of func_def | GlobalDecl of header
+  and global_scope = Program of def_or_decl list *)
 
 end
 
