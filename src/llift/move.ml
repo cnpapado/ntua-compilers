@@ -71,6 +71,10 @@ let llift root =
       
   in
   match (keep_replacing_and_extracting unique_ast []) with (ast, moved_functions) -> 
+    let main_call = 
+      let main_name = (match ast with SemAST.FuncDef def -> (match def.func_def_header with SemAST.Header h -> h.header_id)) in
+      SemAST.FuncCall {name=main_name; parameters=[]; meta={typ=Some Types.TYPE_nothing}}
+    in
     SemAST.FuncDef {
       func_def_header=SemAST.Header { 
         header_id="global_sco";
@@ -79,7 +83,7 @@ let llift root =
         meta={typ=Some Types.TYPE_uninitialized}
       }; 
       func_def_local=moved_functions @ [ast]; 
-      func_def_block=SemAST.EmptyStmt; (* add call to main? *)
+      func_def_block=SemAST.Block [SemAST.StmtFuncCall main_call]; 
       meta={typ=Some Types.TYPE_uninitialized}
     } 
     

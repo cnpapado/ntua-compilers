@@ -1,4 +1,6 @@
-(* open Llvm
+open Llvm
+open Types
+open Symbol
 
 exception CodeGenError of string
 exception InternalCodeGenError of string
@@ -6,28 +8,67 @@ exception InternalCodeGenError of string
 let context = global_context ()
 let the_module = create_module context "my grace prog"
 let builder = builder context
+let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 50
 
 let int_type = i64_type context
 let char_type = i8_type context
 let void_type = void_type context
 let cond_type = i1_type context
 
-let rec lltype_of grace_t = function
+let rec lltype_of = function
   | TYPE_int -> int_type
   | TYPE_char -> char_type
   | TYPE_array {ttype; size} -> 
     if size < 1 then (raise (InternalCodeGenError "lltype of array with sz<1")) 
     else array_type (lltype_of ttype) size
+  | TYPE_nothing -> void_type
   | _ -> raise (InternalCodeGenError "unknown lltype")
 
 
-
+(*
 
 
 (* let emit_header 
   
 let emit_func_decl 
 *)
+
+
+codegen_routine routine =
+    let id, formals, ret_opt, body =
+      match routine with
+      | Sem_proc (id, formals, body) -> id, formals, None, body
+      | Sem_func (id, (formals, pcl_type), body) -> id, formals, Some pcl_type, body
+    in
+    (* Store current block so that the builder can be repositioned there *)
+    let cur_block = insertion_block builder in
+    (* Position builder at the entry point of the function being generated *)
+    let func_val = find id symtbl in
+    position_at_end (entry_block func_val) builder;
+    (* Allocate result variable if necessary *)
+    let symtbl' =
+      match ret_opt with
+      | None -> symtbl
+      | Some pcl_type ->
+        let res = build_alloca (lltype_of_pcl_type pcl_type) "result_alloca" builder in
+        add "result" res symtbl
+    in
+    let symtbl'' = codegen_formals formals func_val ~symtbl:symtbl' in
+    codegen_body body ~symtbl:symtbl'';
+    (* Build return instruction if necessary *)
+    ignore @@
+    begin
+      match ret_opt with
+      | None -> build_ret_void builder
+      | Some _ ->
+        let res = build_load (find "result" symtbl'') "load" builder in
+        build_ret res builder
+    end;
+    (* Position builder where it was *)
+    position_at_end cur_block builder
+
+
+
 
 let emit_var_def v = 
   match v with 
@@ -36,7 +77,7 @@ let emit_var_def v =
     let add_to_symb id = newVariable id (alloca_val id) in
     List.iter add_to_symb v.var_def_id
 
-let rec emit_expr e = function
+let rec emit_expr e = match e with
   | SemAST.Int {i; meta=_} -> const_int int_type i
   | SemAST.Char {c; meta=_} -> const_int char_type c
   | SemAST.Lvalue(lval) -> emit_lval lval
@@ -52,7 +93,7 @@ let rec emit_expr e = function
     | Plus  -> build_add lval rval "addtmp" builder
     | Minus -> build_sub lval rval "subtmp" builder
   
-and emit_lval l = function 
+and emit_lval l = match l with 
   | SemAST.LvalueId {id=lval_id; meta=_} -> (* find and return from symb table *)
   | SemAST.LvalueString of {s; meta=_} -> 
     let vl = const_stringz context s in 
@@ -68,7 +109,7 @@ and emit_lval l = function
     let zero = const_int int_type 0 in
     build_gep ll_lval_arr [| zero; ll_idx |] "arrtmp" builder
 
-and emit_cond c = function
+and emit_cond c = match c with
   | SemAST.ExprCond {l; r; op; meta=_} -> 
     let ll_l = emit_expr l in
     let ll_r = emit_expr r in
@@ -80,15 +121,15 @@ and emit_cond c = function
     | Eq  -> build_icmp Icmp.Eq ll_l ll_r "eqtmp" builder
     | Neq -> build_icmp Icmp.Ne ll_l ll_r "netmp" builder
   | SemAST.CompoundCond {l; r; op; _} ->
-    let ll_l = emit_exprWRONG l in (* THIS IS WRONG, emit cond instead? *)
-    let ll_r = emit_expr r in
+    let ll_l = emit_cond l in
+    let ll_r = emit_cond r in
     match op with 
     | And -> build_and ll_l ll_r "andtmp" builder
     | Or -> build_or ll_l ll_r "ortmp" builder
   | SemAST.NegatedCond c ->  
     let ll_c = emit_cond c in build_not ll_c "negtmp" builders 
 
-and emit_stmt s = function
+and emit_stmt s = match s with
   | SemAST.EmptyStmt -> ()
   | SemAST.Assign {lvalue; rvalue; meta=_} -> (* don't i need to find lval in symb table first? *)
     let ll_lval = emit_lval lvalue in
@@ -163,15 +204,63 @@ let rec emit_local_def x =
 
 (* and emit_func_def  *)
 
+*)
+
+let emit_builtins () =  
+  let declare_fun fname fparams ret_type = 
+    let params_types = Array.map (fun p -> match p with (_,_,t) -> (lltype_of t)) fparams in
+    let ll_types = function_type (lltype_of ret_type) params_types in
+    let f = declare_function fname ll_types the_module in
+    
+    (* Set names for all arguments. *)
+    Array.iteri (fun i a -> (* IGNORING PASS FOR NOW *)
+    let name = match fparams.(i) with (_,n,_) -> n in
+      set_value_name name (params f).(i);
+      Hashtbl.add named_values name (params f).(i);
+    ) (params f);
+    
+    ()
+  in 
+
+  declare_fun "writeInteger" [|(PASS_BY_VALUE, "n", TYPE_int)|] TYPE_nothing;
+  declare_fun "writeChar" [|(PASS_BY_VALUE, "c", TYPE_char)|] TYPE_nothing;
+  (* declare_fun "writeString" [|(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; *) (* pws xeirizomai to s[] ?? *)
+  declare_fun "readInteger" [||] TYPE_int;
+  declare_fun "readChar" [||] TYPE_char;
+  (* declare_fun "readString" [|(PASS_BY_VALUE, "n", TYPE_int); (PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; *) (* pws xeirizomai to s[] ?? *)
+  declare_fun "ascii" [|(PASS_BY_VALUE, "c", TYPE_char)|] TYPE_int;
+  declare_fun "aschrcii" [|(PASS_BY_VALUE, "n", TYPE_int)|] TYPE_char
+  (* declare_fun "strlen" [|(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_int; (* pws xeirizomai to s[] ?? *)
+  declare_fun "strcmp" [|(PASS_BY_REFERENCE, "s2", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "s1", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_int; (* pws xeirizomai to s[] ?? *)
+  declare_fun "strcpy" [|(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; (* pws xeirizomai to s[] ?? *)
+  declare_fun "strcat" [|(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing pws xeirizomai to s[] ?? *)
+
+
+
 
 let emit_root r = 
-  (* dump_module the_module; *)
-  let main_type = function_type void_type [||] in
+  emit_builtins ();
+  (* Hashtbl.clear named_values; *)
+  let main_type = function_type int_type [||] in
   let main = declare_function "main" main_type the_module in
   let bb = append_block context "entry" main in
   position_at_end bb builder; 
-  let lhs_val = const_float double_type 42.0 in
-  let rhs_val = const_float double_type 17.0 in
-  let _ = build_add lhs_val rhs_val "addtmp" builder in 
-  let _ = build_ret double_type builder in
-  (* dump_module the_module *) () *)
+  let zero = const_int int_type 0 in
+  let lhs_val = const_int int_type 42 in
+  let rhs_val = const_int int_type 17 in
+  let my_add = build_add lhs_val rhs_val "addtmp" builder in 
+  let build_funcall = 
+    (* Look up the name in the module table. *)
+    let callee =
+      match lookup_function "writeInteger" the_module with
+      | Some callee -> callee
+    in
+    let params = params callee in
+
+    let args = [| my_add |](*Array.map codegen_expr args*) in
+    build_call callee args "" builder in
+
+
+  let _ = build_ret zero builder in
+  Llvm_analysis.assert_valid_function main; ()
+  (* dump_module the_module *)

@@ -11,7 +11,7 @@
 (executable
   (public_name grace)
   (name main)
-  (libraries core core_unix.command_unix llvm llvm.analysis)
+  (libraries core core_unix.command_unix llvm llvm.analysis llvm.all_backends llvm.target)
 )
 
 ; (rule

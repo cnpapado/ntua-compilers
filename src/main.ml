@@ -6,12 +6,46 @@ let compile filename =
   try 
     let ast = Parser.program Lexer.lexer lexbuf in
     let sem_ast = Semantic.check_root ast in
-    let _ = Printf.printf "\n\n\n\n %s" (Pretty_print.str_of_ast sem_ast) in 
+    let _ = Printf.printf "\n------------\nSEM AST\n------------\n %s" (Pretty_print.str_of_ast sem_ast) in 
     let llifted_ast = Llift.llift sem_ast in 
-    let _ = Printf.printf "\n\n\n\n %s" (Pretty_print.str_of_ast llifted_ast) in 
-    (* let the_module = Codegen.emit_root sem_ast in *)
-    (* let verification = Llvm_analysis.verify_module Codegen.the_module in  *)
-    (* print_endline @@ Llvm.string_of_llmodule Codegen.the_module; *)
+    let _ = Printf.printf "\n------------\nLLIFTED AST\n------------\n %s" (Pretty_print.str_of_ast llifted_ast) in 
+    let _ = Printf.printf "\n------------\nLLVM IR\n------------\n %s" "" in 
+    let the_module = Codegen.emit_root llifted_ast in (* ?? *)
+    let verification = Llvm_analysis.verify_module Codegen.the_module in 
+    print_endline @@ Llvm.string_of_llmodule Codegen.the_module;
+
+    let target_machine =
+      Llvm_all_backends.initialize ();
+      let default_triple = Llvm_target.Target.default_triple () in
+      let target = Llvm_target.Target.by_triple default_triple in
+      Llvm_target.TargetMachine.create ~triple:default_triple target
+    in
+    
+    let asm_filetype = Llvm_target.CodeGenFileType.AssemblyFile in
+
+    (* let memory_buffer =
+      Llvm_target.TargetMachine.emit_to_memory_buffer Codegen.the_module asm_filetype target_machine
+    in
+    print_endline @@ Llvm.MemoryBuffer.as_string memory_buffer; *)
+    
+    let fname =
+      match String.split_on_char '.' filename with
+      | name::_ -> name
+      | [] ->
+        failwith "This should be unreachable. Splitting filename on '.' and getting empty list"
+    in
+    Llvm.print_module (fname ^ ".imm") Codegen.the_module;
+    Llvm_target.TargetMachine.emit_to_file Codegen.the_module asm_filetype (fname ^ ".asm") target_machine;
+    let cmd = Printf.sprintf "clang %s %s -o %s" (fname ^ ".asm") "lib.a" fname in
+    (* let cmd = Printf.sprintf "clang %s -o %s" (fname ^ ".asm") fname in *)
+    let status = Sys.command cmd in
+    if status != 0
+    then
+      print_endline "Failed to link object file with library. \
+                     Clang is required for this. Maybe it needs to be installed.";
+      exit 6
+
+
     exit 0
   with 
   | Lexer.LexicalError msg ->
