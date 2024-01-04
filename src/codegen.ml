@@ -45,7 +45,20 @@ let emit_header (SemAST.Header h) is_decl =
     (* save params to symbtable *)
     Printf.printf "adding param %s\n" name;
     Printf.printf "params total num=%d\n" @@ Array.length (params f);
-    ignore @@ newParameter (id_make name) (params f).(i) fun_entry
+    
+    if not is_decl then
+    begin
+    (* save current block to return later *)
+    let curr_block = insertion_block builder in
+
+    let _ = position_at_end (entry_block f) builder in
+    let alloca_val = build_alloca (lltype_of typ) name builder in
+    let store = build_store (params f).(i) alloca_val builder in
+    ignore @@ newParameter (id_make name) alloca_val fun_entry;
+    position_at_end curr_block builder;
+    
+    end
+    
   ) (params f);
   
   endFunctionHeader fun_entry h.header_ret;  
@@ -71,9 +84,7 @@ let rec emit_expr e = Printf.printf "codegen expr%s\n" ""; match e with
   | SemAST.Lvalue(lval) -> 
     begin
     match lval with 
-    | SemAST.LvalueId _ -> 
-      (* if it's a var id load, but if it's a param, return from symbt *)
-      emit_lval lval true
+    | SemAST.LvalueId _ -> emit_lval lval true (* if it's a var id load, but if it's a param, return from symbt *)
     | SemAST.LvalueString _ 
     | SemAST.LvalueArr _ -> emit_lval lval false
     end
@@ -96,7 +107,7 @@ and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with
     begin
     match e.entry_info with 
     | ENTRY_variable {llval} -> if make_load then build_load llval "load" builder else llval 
-    | ENTRY_parameter {llp} -> llp
+    | ENTRY_parameter {llp} -> if make_load then build_load llp "load" builder else llp 
     | _ -> raise (InternalCodeGenError "found non var while looking up lval\n")
     end
   | SemAST.LvalueString {s; meta=_} -> 
