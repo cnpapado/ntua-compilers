@@ -58,7 +58,7 @@ let free_vars (SemAST.FuncDef def) =
     free
 
 let add_actual_params f params =
-  let new_fdefs = List.map (fun (free_id,free_typ) -> (Symbol.PASS_BY_REFERENCE, free_id, free_typ)) params in
+  let new_fdefs = List.map (fun (free_id,free_typ) -> (Types.PASS_BY_REFERENCE, free_id, free_typ)) params in
   let new_head head = match head with SemAST.Header h -> 
     SemAST.Header {h with header_fpar_defs= h.header_fpar_defs @ new_fdefs} in
   match f with 

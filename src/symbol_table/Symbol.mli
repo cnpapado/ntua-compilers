@@ -1,7 +1,5 @@
 (* Symbol table *)
 
-type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
-
 type param_status =
   | PARDEF_COMPLETE                             (* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½     *)
   | PARDEF_DEFINE                               (* ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    *)
@@ -32,7 +30,7 @@ and function_info = {                         (******* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï
 and parameter_info = {                        (****** ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ *******)
   parameter_type           : Types.typ;       (* ï¿½ï¿½ï¿½ï¿½ï¿½                 *)
   mutable parameter_offset : int;             (* Offset ï¿½ï¿½ï¿½ ï¿½.ï¿½.       *)
-  parameter_mode           : pass_mode        (* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½     *)
+  parameter_mode           : Types.pass_mode        (* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½     *)
 }
 
 and temporary_info = {                        (** ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ **)
@@ -63,7 +61,7 @@ val openScope        : unit -> unit
 val closeScope       : unit -> unit
 val newVariable      : Identifier.id -> Types.typ -> bool -> entry
 val newFunction      : Identifier.id -> bool -> entry
-val newParameter     : Identifier.id -> Types.typ -> pass_mode ->
+val newParameter     : Identifier.id -> Types.typ -> Types.pass_mode ->
                                         entry -> bool -> entry
 val newTemporary     : Types.typ -> entry
 

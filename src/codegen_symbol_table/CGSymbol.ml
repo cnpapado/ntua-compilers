@@ -6,8 +6,6 @@ module H = Hashtbl.Make (
   end
 )
 
-type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
-
 type scope = {
   sco_parent          : scope option;
   sco_nesting         : int;
@@ -25,7 +23,9 @@ and function_info = {
   mutable function_result    : Types.typ;
  }
 and parameter_info = {
-  llp : Llvm.llvalue;
+  parameter_type           : Types.typ;
+  parameter_mode           : Types.pass_mode;
+  llp                      : Llvm.llvalue option;
 }
 
 and label_info = { 
@@ -110,8 +110,8 @@ let lookupEntry id how err =
   if err then
     try lookup ()
     with Not_found -> 
-      (* Printf.printf "Unknown Identifier %s (First Occurrence)"
-        (id_name id); *)
+      Printf.printf "Unknown Identifier %s (First Occurrence)"
+        (Identifier.id_name id);
       H.add !tab id (no_entry id);
       raise Exit
   else lookup ()
@@ -140,10 +140,12 @@ let newFunction id llv =
     } in
     (newEntry id (ENTRY_function inf), false)
 
-let newParameter id ll f = 
+let newParameter id typ mode ll f  = 
   match f.entry_info with
   | ENTRY_function inf -> begin
     let inf_p = {
+      parameter_type = typ;
+      parameter_mode = mode;
       llp = ll
     } in
     let e = newEntry id (ENTRY_parameter inf_p) in 

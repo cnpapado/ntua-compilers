@@ -1,0 +1,20 @@
+$ should print 0011
+
+fun main(): nothing
+   var x: int;
+
+   fun f(ref x:int): nothing 
+      {  
+         writeInteger(x);
+         x <- 1;
+         writeInteger(x);
+         return;
+      }
+
+   {  
+      x <- 0;
+      writeInteger(x); $ 0
+      f(x); $ 0, 1
+      writeInteger(x); $ 1
+      return;
+   }

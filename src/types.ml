@@ -1,5 +1,7 @@
 exception InternalTypeError of string
 
+type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
+
 type typ = | TYPE_int        
            | TYPE_char        
            | TYPE_array of {ttype: typ; size: int}

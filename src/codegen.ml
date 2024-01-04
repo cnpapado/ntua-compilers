@@ -8,6 +8,8 @@ open Ast
 exception CodeGenError of string
 exception InternalCodeGenError of string
 
+
+
 let context = global_context ()
 let the_module = create_module context "my grace prog"
 let builder = builder context
@@ -26,13 +28,13 @@ let rec lltype_of = function
   | TYPE_nothing -> void_type
   | _ -> raise (InternalCodeGenError "unknown lltype")
 
-
-
-
-
 let emit_header (SemAST.Header h) is_decl =
   Printf.printf "codegen header %s\n" h.header_id;
-  let params_types = Array.of_list @@ List.map (fun p -> match p with (_,_,t) -> (lltype_of t)) h.header_fpar_defs in
+  let params_types = Array.of_list @@ List.map (
+    fun p -> match p with 
+      | (PASS_BY_VALUE,_,t) -> (lltype_of t)
+      | (PASS_BY_REFERENCE,_,t) -> pointer_type (lltype_of t)
+    ) h.header_fpar_defs in
   let ll_types = function_type (lltype_of h.header_ret) params_types in
   let f = (if is_decl then declare_function else define_function) h.header_id ll_types the_module in
   (* save function to symbtable *)
@@ -52,9 +54,16 @@ let emit_header (SemAST.Header h) is_decl =
     let curr_block = insertion_block builder in
 
     let _ = position_at_end (entry_block f) builder in
-    let alloca_val = build_alloca (lltype_of typ) name builder in
-    let store = build_store (params f).(i) alloca_val builder in
-    ignore @@ newParameter (id_make name) alloca_val fun_entry;
+    let alloca_val = match mode with  
+      | PASS_BY_VALUE ->
+        let alloca_val = build_alloca (lltype_of typ) name builder in
+        let _ = build_store (params f).(i) alloca_val builder in
+        alloca_val
+      | PASS_BY_REFERENCE ->
+        (params f).(i)
+    in
+    
+    ignore @@ newParameter (id_make name) typ mode (Some alloca_val) fun_entry;
     position_at_end curr_block builder;
     
     end
@@ -81,7 +90,7 @@ let emit_var_def v =
 let rec emit_expr e = Printf.printf "codegen expr%s\n" ""; match e with
   | SemAST.Int {i; meta=_} -> const_int int_type i
   | SemAST.Char {c; meta=_} -> Printf.printf "%c" c; const_int char_type @@ Char.code c
-  | SemAST.Lvalue(lval) -> 
+  | SemAST.Lvalue(lval) -> (* read *)
     begin
     match lval with 
     | SemAST.LvalueId _ -> emit_lval lval true (* if it's a var id load, but if it's a param, return from symbt *)
@@ -106,8 +115,13 @@ and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with
     let e = lookupEntry (id_make id) LOOKUP_ALL_SCOPES true in
     begin
     match e.entry_info with 
-    | ENTRY_variable {llval} -> if make_load then build_load llval "load" builder else llval 
-    | ENTRY_parameter {llp} -> if make_load then build_load llp "load" builder else llp 
+    | ENTRY_variable {llval} -> if make_load then build_load llval "load" builder else llval  (* MAYBE CHANGE ME *)
+    | ENTRY_parameter {llp} -> 
+      begin
+        match llp with 
+        | Some llp -> if make_load then build_load llp "load" builder else llp 
+        | None -> raise (InternalCodeGenError "found null llvalue while looking up param")
+      end
     | _ -> raise (InternalCodeGenError "found non var while looking up lval\n")
     end
   | SemAST.LvalueString {s; meta=_} -> 
@@ -209,11 +223,24 @@ and emit_func_call (SemAST.FuncCall f) =
   Printf.printf "codegen func call%s\n" "";
   (* Look up the name in the module table. *)
   let callee =
-    match lookup_function f.name the_module with (* don't i need to retrieve llvm function entry from symbol table?? *)
+    match lookup_function f.name the_module with
     | Some callee -> callee
   in
   List.iter (fun p -> Printf.printf "%s, " @@ Pretty_print.str_of_expr p) f.parameters;
-  let ll_args = Array.of_list @@ List.map emit_expr f.parameters in (* for each param, if byref emit_lval, if byval, emit_expr ?? *)
+  let formal_parameters = 
+    let f_entry = lookupEntry (id_make f.name) LOOKUP_ALL_SCOPES true in 
+    let formal_params_entries = match f_entry.entry_info with
+    | ENTRY_function inf -> inf.function_paramlist
+    | _ -> (raise (InternalCodeGenError "found a non function entry when looking up a function")) in
+    List.map (fun e -> match e.entry_info with ENTRY_parameter p -> p.parameter_mode ) formal_params_entries
+  in
+  let ll_args = Array.of_list @@ List.map2 (
+    fun arg formal_param -> 
+      match formal_param with 
+      | PASS_BY_VALUE -> emit_expr arg
+      | PASS_BY_REFERENCE -> 
+        (match arg with SemAST.Lvalue lval -> emit_lval lval false) (* pass the addr of this lval-arg *)
+    ) f.parameters formal_parameters in
   (* type cast in args ?? *)
   (* handle arr[] *)
   let ll_fname = match f.meta.typ with None -> "" | Some _ -> "call" in
@@ -246,15 +273,6 @@ and emit_func_def (SemAST.FuncDef def) =
   
   List.iter emit_local_def def.func_def_local;
   ignore @@ emit_block def.func_def_block;
-  (* match def.meta.typ with 
-  | Some t ->
-    let ret = begin
-    match (lookupEntry (id_make "return") LOOKUP_ALL_SCOPES true).entry_info with 
-    | ENTRY_variable {llval} -> llval
-    | _ -> raise (InternalCodeGenError "found non var while looking up return\n")
-    end
-    ignore @@ build_ret ret builder;
-  | None -> ignore @@ build_ret (const_int int_type 0) builder; *)
   printSymbolTable ();
   closeScope ();
   position_at_end curr_block builder;
@@ -266,12 +284,18 @@ let emit_builtins () =
     let params_types = Array.map (fun p -> match p with (_,_,t) -> (lltype_of t)) fparams in
     let ll_types = function_type (lltype_of ret_type) params_types in
     let f = declare_function fname ll_types the_module in
-    
+    (* save function to symbtable *)
+    let (fun_entry,_) = newFunction (id_make fname) f in
+    openScope (); 
     (* Set names for all arguments. *)
     Array.iteri (fun i a -> (* IGNORING PASS FOR NOW *)
-    let name = match fparams.(i) with (_,n,_) -> n in
+    let mode,name,typ = fparams.(i) in
       set_value_name name (params f).(i);
+      ignore @@ newParameter (id_make fname) typ mode None fun_entry;
     ) (params f);
+
+    closeScope ();
+    endFunctionHeader fun_entry ret_type; 
     
     ()
   in 
@@ -324,15 +348,18 @@ let emit_root2 r =
   (* save current block to return later *)
   let curr_block = insertion_block builder in
 
-  let f_type = function_type int_type [| int_type |] in
+  let f_type = function_type void_type [| (pointer_type int_type) |] in
   let f = define_function "f" f_type the_module in
   position_at_end (entry_block f) builder; 
-  let ret = 
-    let lhs_val = (params f).(0) in
-    let rhs_val = const_int int_type 1 in
-    build_add lhs_val rhs_val "addtmp" builder 
-  in
-  ignore @@ build_ret ret builder;
+  (* dereference the ptr *)
+  let lhs_val = build_load (params f).(0) "load" builder in
+  let rhs_val = const_int int_type 1 in
+  (* add 1 to the derefed ptr val *)
+  let ret = build_add lhs_val rhs_val "addtmp" builder in
+  (* save it back to ptr *)
+  let _ = build_store ret (params f).(0) builder in
+  
+  ignore @@ build_ret_void builder;
 
   (* return to main block *)
   position_at_end curr_block builder;
@@ -340,16 +367,16 @@ let emit_root2 r =
   (*
    * continue with main's definition
    *)
-
-  let num = const_int int_type 42 in
+  let alloca_val = build_alloca int_type "ptr" builder in
+  let num = build_store (const_int int_type 42) alloca_val builder in
   let build_funcall = 
     (* Look up the name in the module table. *)
     let callee =
       match lookup_function "f" the_module with
       | Some callee -> callee
     in
-    let args = [| num |] (*Array.map codegen_expr args*) in
+    let args = [| alloca_val |] (*Array.map codegen_expr args*) in
     build_call callee args "" builder in
 
 
-  ignore @@ build_ret build_funcall builder
+  ignore @@ build_ret (build_load alloca_val "load" builder) builder

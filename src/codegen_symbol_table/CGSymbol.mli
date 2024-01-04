@@ -1,7 +1,5 @@
 (* Symbol table *)
 
-type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
-
 type scope = {
   sco_parent : scope option;
   sco_nesting : int;
@@ -20,7 +18,9 @@ and function_info = {                         (******* Συνάρτηση  *****
 }
 
 and parameter_info = {
-  llp   : Llvm.llvalue;
+  parameter_type           : Types.typ;
+  parameter_mode           : Types.pass_mode;
+  llp                      : Llvm.llvalue option;
 }
 
 and label_info = { 
@@ -49,7 +49,7 @@ val openScope        : unit -> unit
 val closeScope       : unit -> unit
 val newVariable      : Identifier.id -> Llvm.llvalue -> entry
 val newFunction      : Identifier.id -> Llvm.llvalue -> entry * bool
-val newParameter     : Identifier.id -> Llvm.llvalue -> entry -> entry
+val newParameter     : Identifier.id -> Types.typ -> Types.pass_mode -> Llvm.llvalue option -> entry -> entry
 val newLabel         : Identifier.id -> Llvm.llbasicblock -> Llvm.llbasicblock -> entry
 
 val forwardFunction      : entry -> unit

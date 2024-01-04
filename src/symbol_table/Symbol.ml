@@ -10,8 +10,6 @@ module H = Hashtbl.Make (
   end
 )
 
-type pass_mode = PASS_BY_VALUE | PASS_BY_REFERENCE
-
 type param_status =
   | PARDEF_COMPLETE
   | PARDEF_DEFINE
@@ -42,7 +40,7 @@ and function_info = {
 and parameter_info = {
   parameter_type           : Types.typ;
   mutable parameter_offset : int;
-  parameter_mode           : pass_mode
+  parameter_mode           : Types.pass_mode
 }
 
 and temporary_info = {

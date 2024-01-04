@@ -226,7 +226,7 @@ and check_func_call f =
       else if (fp_mode == PASS_BY_REFERENCE && not is_lvalue) (*|| (fp_mode == PASS_BY_VALUE && not is_lvalue)*) then 
         (
           Printf.printf "%s" (pp_typ ap_typ);
-          raise (SemError ("formal and actual parameter have different pass mode", pos)))
+          raise (SemError ("passing by refernce requires an lval as actual param", pos)))
       else sem_ap in
 
     let rec check_all_params f a = 
