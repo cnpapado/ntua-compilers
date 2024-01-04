@@ -11,7 +11,6 @@ exception InternalCodeGenError of string
 let context = global_context ()
 let the_module = create_module context "my grace prog"
 let builder = builder context
-let named_values:(string, llvalue) Hashtbl.t = Hashtbl.create 50
 
 let int_type = i64_type context
 let char_type = i8_type context
@@ -46,7 +45,6 @@ let emit_header (SemAST.Header h) is_decl =
     (* save params to symbtable *)
     Printf.printf "adding param %s\n" name;
     Printf.printf "params total num=%d\n" @@ Array.length (params f);
-    (* let alloca_val = build_alloca (lltype_of typ) "alloca" builder in *)
     ignore @@ newParameter (id_make name) (params f).(i) fun_entry
   ) (params f);
   
@@ -262,7 +260,6 @@ let emit_builtins () =
     Array.iteri (fun i a -> (* IGNORING PASS FOR NOW *)
     let name = match fparams.(i) with (_,n,_) -> n in
       set_value_name name (params f).(i);
-      (* Hashtbl.add named_values name (params f).(i); *)
     ) (params f);
     
     ()
@@ -281,7 +278,6 @@ let emit_builtins () =
   declare_fun "strcpy" [|(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; (* pws xeirizomai to s[] ?? *)
   declare_fun "strcat" [|(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing pws xeirizomai to s[] ?? *)
 
-(* SCOPEEEEEEEEEEEEEEEEEEEEEEEEEEEES *)
 
 
 let emit_root r = 
@@ -289,7 +285,6 @@ let emit_root r =
   emit_builtins ();
   openScope ();
   let head, locals, block = match r with SemAST.FuncDef def -> def.func_def_header, def.func_def_local, def.func_def_block in
-  (* Hashtbl.clear named_values; *)
   let main_type = function_type void_type [||] in
   let main = define_function "" main_type the_module in
   position_at_end (entry_block main) builder; 
