@@ -1,0 +1,25 @@
+fun main(): int
+   var x: char[20]; 
+   fun print_hello(y: char): nothing 
+      {
+         writeChar(y);
+         writeChar('h');
+         writeChar('e');
+         writeChar('l');
+         writeChar('l');
+         writeChar('o');
+         writeChar('\n');
+         return;
+      }
+
+   {
+      print_hello('a');
+      x[0] <- 'h';
+      x[1] <- 'y';
+
+      if (x[0]='h') then writeChar('s');
+      $else writeChar('n');
+      $writeChar('\n');
+
+      return 0;
+   }

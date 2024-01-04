@@ -25,8 +25,7 @@ and function_info = {
   mutable function_result    : Types.typ;
  }
 and parameter_info = {
-  parameter_type : Types.typ;
-  parameter_mode : pass_mode;
+  llp : Llvm.llvalue;
 }
 
 and label_info = { 
@@ -141,12 +140,11 @@ let newFunction id llv =
     } in
     (newEntry id (ENTRY_function inf), false)
 
-let newParameter id typ mode f = 
+let newParameter id ll f = 
   match f.entry_info with
   | ENTRY_function inf -> begin
     let inf_p = {
-      parameter_type = typ;
-      parameter_mode = mode;
+      llp = ll
     } in
     let e = newEntry id (ENTRY_parameter inf_p) in 
       inf.function_paramlist <- e :: inf.function_paramlist;

@@ -10,6 +10,7 @@ let compile filename =
     let llifted_ast = Llift.llift sem_ast in 
     let _ = Printf.printf "\n------------\nLLIFTED AST\n------------\n %s" (Pretty_print.str_of_ast llifted_ast) in 
     let _ = Printf.printf "\n------------\nLLVM IR\n------------\n %s" "" in 
+    (* let _ = exit 0 in *)
     let the_module = Codegen.emit_root llifted_ast in (* ?? *)
     let verification = Llvm_analysis.verify_module Codegen.the_module in 
     print_endline @@ Llvm.string_of_llmodule Codegen.the_module;

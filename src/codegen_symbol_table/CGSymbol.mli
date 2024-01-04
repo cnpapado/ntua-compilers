@@ -20,8 +20,7 @@ and function_info = {                         (******* Συνάρτηση  *****
 }
 
 and parameter_info = {
-  parameter_type : Types.typ;
-  parameter_mode : pass_mode;
+  llp   : Llvm.llvalue;
 }
 
 and label_info = { 
@@ -50,7 +49,7 @@ val openScope        : unit -> unit
 val closeScope       : unit -> unit
 val newVariable      : Identifier.id -> Llvm.llvalue -> entry
 val newFunction      : Identifier.id -> Llvm.llvalue -> entry * bool
-val newParameter     : Identifier.id -> Types.typ -> pass_mode -> entry -> entry
+val newParameter     : Identifier.id -> Llvm.llvalue -> entry -> entry
 val newLabel         : Identifier.id -> Llvm.llbasicblock -> Llvm.llbasicblock -> entry
 
 val forwardFunction      : entry -> unit

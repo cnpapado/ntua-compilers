@@ -1,6 +1,7 @@
 open Llvm
 open Types
 open CGSymbol
+open CGSymbtest
 open Identifier
 open Ast
 
@@ -43,26 +44,41 @@ let emit_header (SemAST.Header h) is_decl =
   let mode,name,typ = (Array.of_list h.header_fpar_defs).(i) in
     set_value_name name (params f).(i);
     (* save params to symbtable *)
-    ignore @@ newVariable (id_make name) (params f).(i)
+    Printf.printf "adding param %s\n" name;
+    Printf.printf "params total num=%d\n" @@ Array.length (params f);
+    (* let alloca_val = build_alloca (lltype_of typ) "alloca" builder in *)
+    ignore @@ newParameter (id_make name) (params f).(i) fun_entry
   ) (params f);
   
   endFunctionHeader fun_entry h.header_ret;  
   f
 
-let emit_func_decl (SemAST.FuncDecl decl) = Printf.printf "codegen decl %s\n" ""; ignore @@ emit_header decl false
+let emit_func_decl (SemAST.FuncDecl decl) = 
+  Printf.printf "codegen decl %s\n" ""; 
+  ignore @@ emit_header decl false;
+  printSymbolTable ();
+  closeScope ()
 
 let emit_var_def v = 
   Printf.printf "codegen vardef%s\n" "";
   match v with 
   | SemAST.VarDef(x) -> 
     let alloca_val id = build_alloca (lltype_of x.var_def_typ) id builder in
-    let add_to_symb id alloca = newVariable (id_make id) alloca in
-    List.iter (fun id -> let a=alloca_val id in ignore @@ add_to_symb id a) x.var_def_id  (* fix meeeeeeeeeeeeeeeeeeeee *)
+    let add_to_symb id alloca = Printf.printf "adding vardef %s\n" id; newVariable (id_make id) alloca in
+    List.iter (fun id -> let a=alloca_val id in ignore @@ add_to_symb id a) x.var_def_id 
 
-let rec emit_expr e = match e with
+let rec emit_expr e = Printf.printf "codegen expr%s\n" ""; match e with
   | SemAST.Int {i; meta=_} -> const_int int_type i
   | SemAST.Char {c; meta=_} -> Printf.printf "%c" c; const_int char_type @@ Char.code c
-  | SemAST.Lvalue(lval) -> build_load (emit_lval lval) "load" builder
+  | SemAST.Lvalue(lval) -> 
+    begin
+    match lval with 
+    | SemAST.LvalueId _ -> 
+      (* if it's a var id load, but if it's a param, return from symbt *)
+      emit_lval lval true
+    | SemAST.LvalueString _ 
+    | SemAST.LvalueArr _ -> emit_lval lval false
+    end
   | SemAST.ExprFuncCall(func_call) -> emit_func_call func_call
   | SemAST.SignedExpr {sign; e; meta=_} -> let ll_e = emit_expr e in build_neg ll_e "negtmp" builder
   | SemAST.BinExpr {l; r; op; meta=_} ->
@@ -75,13 +91,15 @@ let rec emit_expr e = match e with
     | Plus  -> build_add lval rval "addtmp" builder
     | Minus -> build_sub lval rval "subtmp" builder
   
-and emit_lval l = match l with 
-  | SemAST.LvalueId {id; meta=_} -> (* find and return from symb table *)
+and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with 
+  | SemAST.LvalueId {id; meta=_} -> 
+    (* find and return from symb table *)
     let e = lookupEntry (id_make id) LOOKUP_ALL_SCOPES true in
     begin
     match e.entry_info with 
-    | ENTRY_variable {llval} -> llval 
-    | _ -> raise (InternalCodeGenError "found non var while looking up lvalid\n")
+    | ENTRY_variable {llval} -> if make_load then build_load llval "load" builder else llval 
+    | ENTRY_parameter {llp} -> llp
+    | _ -> raise (InternalCodeGenError "found non var while looking up lval\n")
     end
   | SemAST.LvalueString {s; meta=_} -> 
     let vl = const_stringz context s in 
@@ -92,12 +110,12 @@ and emit_lval l = match l with
     let zero = const_int int_type 0 in
     build_gep str [|zero|] "strtmp" builder
   | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta=_} -> (* check idx>0 ?? *)
-    let ll_lval_arr = emit_lval lval_arr in
+    let ll_lval_arr = emit_lval lval_arr false in (* MAYBE I SHOULD BUILD LOAD HERE TOO? *)
     let ll_idx = emit_expr idx_expr in
     let zero = const_int int_type 0 in
     build_gep ll_lval_arr [| zero; ll_idx |] "arrtmp" builder
 
-and emit_cond c = match c with
+and emit_cond c = Printf.printf "codegen cond%s\n" ""; match c with  
   | SemAST.ExprCond {l; r; op; meta=_} -> 
     let ll_l = emit_expr l in
     let ll_r = emit_expr r in
@@ -121,10 +139,10 @@ and emit_cond c = match c with
   | SemAST.NegatedCond c ->  
     let ll_c = emit_cond c in build_not ll_c "negtmp" builder
 
-and emit_stmt s = match s with
+and emit_stmt s = Printf.printf "codegen stmt%s\n" ""; match s with
   | SemAST.EmptyStmt -> ()
   | SemAST.Assign {lvalue; rvalue; meta=_} ->
-    let ll_lval = emit_lval lvalue in
+    let ll_lval = emit_lval lvalue false in
     let ll_rval = emit_expr rvalue in
     ignore @@ build_store ll_rval ll_lval builder (* type cast ?? *)
   | SemAST.Block _ -> ignore @@ emit_block s
@@ -185,6 +203,7 @@ and emit_func_call (SemAST.FuncCall f) =
     match lookup_function f.name the_module with (* don't i need to retrieve llvm function entry from symbol table?? *)
     | Some callee -> callee
   in
+  List.iter (fun p -> Printf.printf "%s, " @@ Pretty_print.str_of_expr p) f.parameters;
   let ll_args = Array.of_list @@ List.map emit_expr f.parameters in (* for each param, if byref emit_lval, if byval, emit_expr ?? *)
   (* type cast in args ?? *)
   (* handle arr[] *)
@@ -194,9 +213,12 @@ and emit_func_call (SemAST.FuncCall f) =
               
 and emit_block b = 
   Printf.printf "codegen block%s\n" "";
-  match b with 
-  | SemAST.Block(stmt_list) -> List.map emit_stmt stmt_list 
-
+  openScope ();
+  let ll_stmt_list = match b with 
+    | SemAST.Block(stmt_list) -> List.map emit_stmt stmt_list in
+  printSymbolTable (); 
+  closeScope ();
+  ll_stmt_list
 
 let rec emit_local_def x = 
   Printf.printf "codegen localdef%s\n" "";
@@ -207,11 +229,10 @@ let rec emit_local_def x =
 
 and emit_func_def (SemAST.FuncDef def) =
   Printf.printf "codegen func def%s\n" "";
-  (* Store current block so that the builder can be repositioned there *)
+  (* save current block to return later *)
   let curr_block = insertion_block builder in
   
   let header_val = emit_header def.func_def_header false in
-  (* let bb = append_block context "entry" header_val in *)
   position_at_end (entry_block header_val) builder;
   
   List.iter emit_local_def def.func_def_local;
@@ -225,6 +246,8 @@ and emit_func_def (SemAST.FuncDef def) =
     end
     ignore @@ build_ret ret builder;
   | None -> ignore @@ build_ret (const_int int_type 0) builder; *)
+  printSymbolTable ();
+  closeScope ();
   position_at_end curr_block builder;
   ()
 
@@ -239,7 +262,7 @@ let emit_builtins () =
     Array.iteri (fun i a -> (* IGNORING PASS FOR NOW *)
     let name = match fparams.(i) with (_,n,_) -> n in
       set_value_name name (params f).(i);
-      Hashtbl.add named_values name (params f).(i);
+      (* Hashtbl.add named_values name (params f).(i); *)
     ) (params f);
     
     ()
@@ -262,14 +285,65 @@ let emit_builtins () =
 
 
 let emit_root r = 
+  initSymbolTable 256;
   emit_builtins ();
+  openScope ();
   let head, locals, block = match r with SemAST.FuncDef def -> def.func_def_header, def.func_def_local, def.func_def_block in
   (* Hashtbl.clear named_values; *)
   let main_type = function_type void_type [||] in
-  let main = declare_function "global_sco" main_type the_module in
-  let bb = append_block context "entry" main in
-  position_at_end bb builder; 
+  let main = define_function "" main_type the_module in
+  position_at_end (entry_block main) builder; 
   ignore @@ List.map emit_local_def locals;
   (* ignore @@ emit_block block; *)
   ignore @@ build_ret_void builder; 
+  printSymbolTable ();
+  closeScope ();
   ()
+
+
+
+let emit_root2 r = 
+  emit_builtins ();
+  (* 
+   * define main 
+   *)
+  let main_type = function_type int_type [||] in
+  let main = define_function "main" main_type the_module in
+  position_at_end (entry_block main) builder; 
+
+  (*  
+   * define another function, f
+   *)
+
+  (* save current block to return later *)
+  let curr_block = insertion_block builder in
+
+  let f_type = function_type int_type [| int_type |] in
+  let f = define_function "f" f_type the_module in
+  position_at_end (entry_block f) builder; 
+  let ret = 
+    let lhs_val = (params f).(0) in
+    let rhs_val = const_int int_type 1 in
+    build_add lhs_val rhs_val "addtmp" builder 
+  in
+  ignore @@ build_ret ret builder;
+
+  (* return to main block *)
+  position_at_end curr_block builder;
+
+  (*
+   * continue with main's definition
+   *)
+
+  let num = const_int int_type 42 in
+  let build_funcall = 
+    (* Look up the name in the module table. *)
+    let callee =
+      match lookup_function "f" the_module with
+      | Some callee -> callee
+    in
+    let args = [| num |] (*Array.map codegen_expr args*) in
+    build_call callee args "" builder in
+
+
+  ignore @@ build_ret build_funcall builder
