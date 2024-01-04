@@ -1,0 +1,10 @@
+fun main(): int
+   var x: int; $ allocate
+   {
+      x<-1; $ store
+      writeInteger(x);
+      writeChar('\n');
+      x<-17;
+      writeInteger(x); 
+      return 0;
+   }

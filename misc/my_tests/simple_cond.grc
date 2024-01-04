@@ -1,0 +1,10 @@
+$ should print 2
+
+fun main(): int
+   var x: int; $ allocate
+   {
+      x<-1; 
+      if (x=1) then writeInteger(x+1); else writeInteger(22);
+      writeChar('\n');
+      return 0;
+   }

@@ -1,0 +1,7 @@
+fun main(): int
+   {
+      writeChar('\n');
+      writeInteger('\\'); 
+      return 0;
+
+   }

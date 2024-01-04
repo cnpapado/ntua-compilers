@@ -137,7 +137,7 @@ let newFunction id llv =
       llfun = llv;
       function_isForward = false;
       function_paramlist = [];
-      function_result = Types.TYPE_none;
+      function_result = TYPE_uninitialized;
     } in
     (newEntry id (ENTRY_function inf), false)
 

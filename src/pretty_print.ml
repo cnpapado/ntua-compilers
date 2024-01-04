@@ -19,7 +19,7 @@ let str_of_vardef v = match v with
 
 let rec str_of_expr = function
   | SemAST.Int x -> "Int(" ^ (string_of_int x.i) ^ ")"
-  | SemAST.Char x -> "Int(" ^ (string_of_char x.c) ^ ")"
+  | SemAST.Char x -> "Char(" ^ (string_of_char x.c) ^ ")"
   | SemAST.Lvalue l -> "Lval(" ^ (str_of_lval l) ^ ")"
   | SemAST.ExprFuncCall f -> "ExprFuncCall(" ^ (str_of_funccall f) ^ ")"
   | SemAST.SignedExpr {sign; e; meta=_} -> Printf.sprintf "SignedExpr(%s, %s)" (str_of_uop sign) (str_of_expr e)

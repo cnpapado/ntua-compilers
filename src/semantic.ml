@@ -245,8 +245,8 @@ and check_cond c =
     let (sem_l,sem_r) = (check_expr l, check_expr r) in
     let (tl,tr) = (get_type sem_l, get_type sem_r) in
     if not ((tl = Some TYPE_int && tr = Some TYPE_int) || 
-      (tl = Some TYPE_char && tr = Some TYPE_char)) then (* kai ta 2 ints kai kai ta 2 chars h epitrepw sygkrish int me char? *)
-      raise (SemError ((Printf.sprintf "type mismatch in comparison (%s != %s)" (pp_typ tl) (pp_typ tr)), parser_loc))
+      (tl = Some TYPE_char && tr = Some TYPE_char)) then
+      raise (SemError ((Printf.sprintf "comparing non-ints or non-chars is not allowed (%s != %s)" (pp_typ tl) (pp_typ tr)), parser_loc))
     else SemAST.ExprCond{l=sem_l; r=sem_r; op=to_sem_comp the_op; meta={typ=Some TYPE_bool}} 
   | ParserAST.CompoundCond {l; r; op=the_op; _} ->
     let sem_l = check_cond l in

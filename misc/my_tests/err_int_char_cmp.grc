@@ -1,0 +1,12 @@
+fun main(): int
+   var x: char[20]; 
+   {
+      $x[0] <- 'h';
+      $x[1] <- 'i';
+
+      if (97='a') then writeChar('y');
+      $else writeChar('n');
+      $writeChar('\n');
+
+      return 0;
+   }

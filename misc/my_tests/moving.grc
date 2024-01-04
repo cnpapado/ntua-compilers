@@ -1,0 +1,29 @@
+fun main(rings : int; ref source, target, auxiliary : char[]): nothing
+   var x,y : int;
+   var u : int;
+   fun f(): int;
+   fun f(): int 
+      fun g(): int 
+      
+      {
+         return x;
+      }
+   {
+      return u+x+g();
+   }
+
+   fun f2(): int 
+      var x:int;
+      fun g2(): int
+
+      {
+         return x;
+      } 
+   {
+      return f()+x;
+
+   }
+
+{
+   x <- u+f();
+}

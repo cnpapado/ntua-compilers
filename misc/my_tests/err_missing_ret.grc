@@ -1,0 +1,5 @@
+fun main(): int
+   var x: char[20]; 
+   {
+      
+   }

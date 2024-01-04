@@ -12,6 +12,13 @@ let increase_lnum lexbuf =
       Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
       Lexing.pos_bol = lexbuf.lex_curr_pos; }
 
+let char_for_backslash = function
+  | 'n' -> '\010'
+  | 'r' -> '\013'
+  | 'b' -> '\008'
+  | 't' -> '\009'
+  | '0' -> '\000'
+  | c   -> c
 
 let [@warning "-21"] raise_lex_err_exception lexbuf msg = (* line numbering is not working *)
   let p = lexbuf.Lexing.lex_start_p in
@@ -19,51 +26,6 @@ let [@warning "-21"] raise_lex_err_exception lexbuf msg = (* line numbering is n
   let col = p.Lexing.pos_cnum - p.Lexing.pos_bol + 1 in
   raise (LexicalError msg)
 
-(*
-type token = 
-  | T_and
-  | T_char
-  | T_div
-  | T_do
-  | T_else
-  | T_fun
-  | T_if
-  | T_int
-  | T_mod
-  | T_not
-  | T_nothing
-  | T_or
-  | T_ref
-  | T_return
-  | T_then
-  | T_var
-  | T_while
-  | T_plus
-  | T_minus
-  | T_times
-  | T_eq
-  | T_hash
-  | T_assign
-  | T_gt
-  | T_lt
-  | T_ge
-  | T_le
-  | T_semicol
-  | T_lparen
-  | T_rparen
-  | T_lbracket
-  | T_rbracket
-  | T_lcurl
-  | T_rcurl
-  | T_colon
-  | T_comma
-  | T_id of string
-  | T_charconst of char
-  | T_stringliteral of string
-  | T_intconst of int
-  | T_eof
-
-*)
 }
 
 
@@ -119,8 +81,13 @@ rule lexer = parse
         
   |  digit+ { T_intconst (int_of_string (lexeme lexbuf))} 
   | (letter)(letter|digit|'_')* {T_id (lexeme lexbuf)}
-  
-  | '\'' const_char '\'' { T_charconst (lexeme lexbuf).[0]}
+  | '\'' [^ '\\' '\'' '\"'] '\'' { T_charconst (lexeme_char lexbuf 1) }
+  | '\'' esc_char '\'' { T_charconst (char_for_backslash @@ lexeme_char lexbuf 2)  }
+  | '\'' '\\' (_ as c)
+      { raise_lex_err_exception lexbuf
+          (Printf.sprintf "Illegal escape sequence \\%c" c)
+      }
+  | '\'' const_char '\'' { T_charconst (lexeme lexbuf).[1]}
   | '\"' const_char* '\"' { T_stringliteral (lexeme lexbuf)} (* ??????????? is stringconst the parser's strinliteral*)
   | whitespace+ {lexer lexbuf} (* consume whitespaces *)  
   | newline {increase_lnum lexbuf; lexer lexbuf} (*consume newlines *)
