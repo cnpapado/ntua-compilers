@@ -85,6 +85,24 @@ let to_sem_uop n =
   | ParserAST.UPlus -> SemAST.UPlus 
   | ParserAST.UMinus -> SemAST.UMinus
 
+let check_return (SemAST.Block b) typ floc = 
+  (* check that this block ends with a return *)
+  let ends_with_ret = 
+    match (List.rev b) with 
+    | [] -> false
+    | (SemAST.Return _)::_ -> true
+    | _ -> false
+  in
+  match (ends_with_ret, typ) with
+  | (_, None) -> raise (InternalSemError "got none type when checking func type for return") 
+  (* if it does not and is TYPE_nothing, add it *)
+  | (false, Some TYPE_nothing) -> SemAST.Block (b @ [SemAST.Return {ret=None; meta={typ=None}}])
+  (* if it does not and is of other type, error *)
+  | (false, _) -> raise (SemError ("Control reaches the end of non-void function", floc)) 
+  (* else (if it does) return the following: *)
+  | (true, _) -> SemAST.Block b
+
+
 let check_header h is_declaration =
   match h with 
   | ParserAST.Header(x) -> 
@@ -336,9 +354,10 @@ and check_func_def x =
   let sem_locals = check_all check_local_def x.func_def_local in
   let ret_type = match sem_header with SemAST.Header h -> Some h.header_ret in
   let sem_block = check_block x.func_def_block ret_type in
+  let sem_block_return = check_return sem_block ret_type x.meta in
   (* printSymbolTable (); *)
   closeScope ();
-  SemAST.FuncDef { func_def_header=sem_header; func_def_local=sem_locals; func_def_block=sem_block; meta={typ=None}}    
+  SemAST.FuncDef { func_def_header=sem_header; func_def_local=sem_locals; func_def_block=sem_block_return; meta={typ=None}}    
   
 let add_buildins () = 
   let add_func id params_tuple ret_typ = 
@@ -391,11 +410,19 @@ let add_buildins () =
   add_func "strcat" [(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})] TYPE_nothing (* pws xeirizomai to s[] ?? *)
 
 
+let check_main (ParserAST.Header {header_id; header_fpar_defs; header_ret; meta}) =
+  let good_main = 
+    match (header_id, header_fpar_defs, header_ret) with
+    | ("main", [], TYPE_int) 
+    | ("main", [], TYPE_nothing) -> true
+    | _ -> false
+  in 
+  if not good_main then (raise (SemError ("main() must return int or nothing and take no arguments", meta))) else ()
+
 
 let check_root = function 
-  (* match root with
-  ParserAST.Root(x) ->  *)
-  | ParserAST.FuncDef x -> 
+  | ParserAST.FuncDef x ->
+    check_main x.func_def_header;
     Printf.printf "root\n"; 
     initSymbolTable 256;
     openScope (); Printf.printf "opening scope\n";
@@ -405,5 +432,3 @@ let check_root = function
     closeScope ();
     sem_func_def
   | _ -> raise (InternalSemError "Exprected func def as root of ast")
-    (* De-capsulate the record outside FuncDef for Root *)
-    (* match sem_func_def with SemAST.FuncDef(y) -> SemAST.Root(y) *)
