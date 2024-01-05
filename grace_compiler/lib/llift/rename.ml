@@ -59,6 +59,7 @@ let rec rename_uniq prefix (SemAST.FuncDef def) =
       | SemAST.CompoundCond c -> SemAST.CompoundCond {c with l=rename_cond c.l; r=rename_cond c.r}
       | SemAST.NegatedCond c -> SemAST.NegatedCond (rename_cond c)
     and rename_stmt stmt = match stmt with 
+      | SemAST.EmptyStmt -> SemAST.EmptyStmt
       | SemAST.Assign assign -> SemAST.Assign {assign with rvalue=rename_expr assign.rvalue} 
       | SemAST.Block _ -> rename_calls stmt
       | SemAST.StmtFuncCall f -> SemAST.StmtFuncCall (rename_call f) 

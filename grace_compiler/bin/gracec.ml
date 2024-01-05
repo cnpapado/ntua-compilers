@@ -10,7 +10,6 @@ let compile filename =
     let llifted_ast = Grace.Llift.llift sem_ast in 
     let _ = Printf.printf "\n------------\nLLIFTED AST\n------------\n %s" (Grace.Pretty_print.str_of_ast llifted_ast) in 
     let _ = Printf.printf "\n------------\nLLVM IR\n------------\n %s" "" in 
-    (* let _ = exit 0 in *)
     let the_module = Grace.Codegen.emit_root llifted_ast in (* ?? *)
     let verification = Llvm_analysis.verify_module Grace.Codegen.the_module in 
     print_endline @@ Llvm.string_of_llmodule Grace.Codegen.the_module;
@@ -29,16 +28,17 @@ let compile filename =
     in
     print_endline @@ Llvm.MemoryBuffer.as_string memory_buffer; *)
     
-    let fname =
-      match String.split_on_char '.' filename with
-      | name::_ -> name
+    let fname = Filename.remove_extension filename
+      (* match List.rev (String.split_on_char '.' filename) with
+      | _::name::_ -> Printf.printf "%s\n" name; name
       | [] ->
-        failwith "This should be unreachable. Splitting filename on '.' and getting empty list"
+        failwith "This should be unreachable. Splitting filename on '.' and getting empty list" *)
     in
     Llvm.print_module (fname ^ ".imm") Grace.Codegen.the_module;
     Llvm_target.TargetMachine.emit_to_file Grace.Codegen.the_module asm_filetype (fname ^ ".asm") target_machine;
-    let cmd = Printf.sprintf "clang %s %s -o %s" (fname ^ ".asm") "lib.a" fname in
+    let cmd = Printf.sprintf "clang %s ../runtime_lib/lib.a -o %s" (fname ^ ".asm") fname in
     (* let cmd = Printf.sprintf "clang %s -o %s" (fname ^ ".asm") fname in *)
+    let _ = Sys.command "ls ../runtime_lib" in
     let status = Sys.command cmd in
     if status != 0
     then
