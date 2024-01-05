@@ -1,3 +1,5 @@
+(* module Identifier = Symbol.Identifier *)
+
 module H = Hashtbl.Make (
   struct
     type t = Identifier.id

@@ -1,5 +1,5 @@
-open Types
-open Symbol
+(* open Types *)
+(* open Symbol *)
 
 
 
@@ -71,7 +71,7 @@ module MakeAST (Node : Node) = struct
   
   and header = Header of {
     header_id: identifier;
-    header_fpar_defs: (pass_mode * identifier * typ) list; 
+    header_fpar_defs: (Types.pass_mode * identifier * Types.typ) list; 
     header_ret: Types.typ;
     meta: Node.t
   }

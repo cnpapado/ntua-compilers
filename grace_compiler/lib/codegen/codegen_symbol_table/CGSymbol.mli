@@ -1,4 +1,5 @@
 (* Symbol table *)
+(* module Identifier = Symbol.Identifier *)
 
 type scope = {
   sco_parent : scope option;

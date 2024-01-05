@@ -1,6 +1,6 @@
 open Ast
 open Symbol
-open Symbtest
+(* open Symbtest *)
 open Identifier
 open Types
 
@@ -112,7 +112,7 @@ let check_header h is_declaration =
 let check_func_decl h =
   Printf.printf "func declaration\n";
   let sem_func_decl = SemAST.FuncDecl(check_header h true) in
-  printSymbolTable ();
+  (* printSymbolTable (); *)
   closeScope ();
   sem_func_decl
 
@@ -295,7 +295,7 @@ and check_stmt parent_ret_type single_stmt =
       meta = {typ=None} (* if and else parts should not have the same type right? *)
     }
   | ParserAST.While(w) ->
-    printSymbolTable ();
+    (* printSymbolTable (); *)
     SemAST.While {
       while_cond = check_cond w.while_cond;
       whilestmt = check_stmt parent_ret_type w.whilestmt;
@@ -319,7 +319,7 @@ and check_block b parent_ret_type =
   Printf.printf "block\n";
   openScope (); Printf.printf "opening scope\n";
   let sem_b = SemAST.Block (check_all (check_stmt parent_ret_type) stmt_list) in
-  printSymbolTable (); 
+  (* printSymbolTable ();  *)
   closeScope ();
   sem_b 
 
@@ -336,7 +336,7 @@ and check_func_def x =
   let sem_locals = check_all check_local_def x.func_def_local in
   let ret_type = match sem_header with SemAST.Header h -> Some h.header_ret in
   let sem_block = check_block x.func_def_block ret_type in
-  printSymbolTable ();
+  (* printSymbolTable (); *)
   closeScope ();
   SemAST.FuncDef { func_def_header=sem_header; func_def_local=sem_locals; func_def_block=sem_block; meta={typ=None}}    
   
@@ -401,7 +401,7 @@ let check_root = function
     openScope (); Printf.printf "opening scope\n";
     add_buildins ();
     let sem_func_def = check_func_def x in
-    printSymbolTable ();
+    (* printSymbolTable (); *)
     closeScope ();
     sem_func_def
   | _ -> raise (InternalSemError "Exprected func def as root of ast")

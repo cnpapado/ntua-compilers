@@ -1,8 +1,5 @@
-_build/
-.DS_Store
-test.grc
-test
-*.imm
 *.asm
-gracec
-main.exe
+*.imm
+test.grc
+./test
+gracec.exe

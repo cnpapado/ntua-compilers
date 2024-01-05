@@ -1,6 +1,6 @@
-(lang dune 3.7)
+(lang dune 3.11)
 
-(name grace)
+(name grace_compiler)
 
 (using menhir 2.0)
 
@@ -18,7 +18,7 @@
 (documentation https://url/to/documentation)
 
 (package
- (name grace)
+ (name grace_compiler)
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends ocaml dune)

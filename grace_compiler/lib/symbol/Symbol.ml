@@ -1,6 +1,6 @@
 open Identifier
 open Error
-open Types
+(* open Types *)
 
 module H = Hashtbl.Make (
   struct
@@ -156,7 +156,7 @@ let lookupEntry id how err =
     lookup ()
 
 let newVariable id typ err =
-  !currentScope.sco_negofs <- !currentScope.sco_negofs - sizeOfType typ;
+  !currentScope.sco_negofs <- !currentScope.sco_negofs - Types.sizeOfType typ;
   let inf = {
     variable_type = typ;
     variable_offset = !currentScope.sco_negofs
@@ -211,7 +211,7 @@ let newParameter id typ mode f err =
               inf.function_redeflist <- ps;
               match p.entry_info with
               | ENTRY_parameter inf ->
-                  if not (equalType ~flexible_on_autocomplete:true (Some inf.parameter_type) (Some typ)) then
+                  if not (Types.equalType ~flexible_on_autocomplete:true (Some inf.parameter_type) (Some typ)) then
                     error (Printf.sprintf "Parameter type mismatch in redeclaration \
                            of function %s" (id_name f.entry_id))
                   else if inf.parameter_mode != mode then
@@ -242,7 +242,7 @@ let newParameter id typ mode f err =
 
 let newTemporary typ =
   let id = id_make ("$" ^ string_of_int !tempNumber) in
-  !currentScope.sco_negofs <- !currentScope.sco_negofs - sizeOfType typ;
+  !currentScope.sco_negofs <- !currentScope.sco_negofs - Types.sizeOfType typ;
   let inf = {
     temporary_type = typ;
     temporary_offset = !currentScope.sco_negofs
@@ -273,7 +273,7 @@ let endFunctionHeader e typ =
                   inf.parameter_offset <- !offset;
                   let size =
                     match inf.parameter_mode with
-                    | PASS_BY_VALUE     -> sizeOfType inf.parameter_type
+                    | PASS_BY_VALUE     -> Types.sizeOfType inf.parameter_type
                     | PASS_BY_REFERENCE -> 2 in
                   offset := !offset + size
               | _ ->
@@ -284,7 +284,7 @@ let endFunctionHeader e typ =
             if inf.function_redeflist <> [] then
               error (Printf.sprintf "Fewer parameters than expected in redeclaration \
                      of function %s" (id_name e.entry_id));
-            if not (equalType (Some inf.function_result) (Some typ)) then
+            if not (Types.equalType (Some inf.function_result) (Some typ)) then
               error (Printf.sprintf "Result type mismatch in redeclaration of function %s"
                     (id_name e.entry_id));
       end;

@@ -1,4 +1,4 @@
-open Format
+(* open Format
 
 open Identifier
 open Types
@@ -234,4 +234,4 @@ let main =
 
    closeScope ();
 
-   printSymbolTable () *)
+   printSymbolTable () *) *)
