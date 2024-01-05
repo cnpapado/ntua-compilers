@@ -23,7 +23,8 @@ let rec lltype_of = function
   | TYPE_int -> int_type
   | TYPE_char -> char_type
   | TYPE_array {ttype; size} -> 
-    if size < 1 then (raise (InternalCodeGenError "lltype of array with sz<1")) 
+    if size < 0 then (raise (InternalCodeGenError "lltype of array with sz<1")) 
+    (* else if size = 0 then pointer_type (lltype_of ttype) *)
     else array_type (lltype_of ttype) size
   | TYPE_nothing -> void_type
   | _ -> raise (InternalCodeGenError "unknown lltype")
@@ -41,7 +42,7 @@ let emit_header (SemAST.Header h) is_decl =
   let (fun_entry,_) = newFunction (id_make h.header_id) f in
   openScope (); 
   (* Set names for all arguments. *)
-  Array.iteri (fun i a -> (* IGNORING PASS FOR NOW *)
+  Array.iteri (fun i a -> 
   let mode,name,typ = (Array.of_list h.header_fpar_defs).(i) in
     set_value_name name (params f).(i);
     (* save params to symbtable *)
@@ -95,7 +96,7 @@ let rec emit_expr e = Printf.printf "codegen expr%s\n" ""; match e with
     match lval with 
     | SemAST.LvalueId _ -> emit_lval lval true (* if it's a var id load, but if it's a param, return from symbt *)
     | SemAST.LvalueString _ 
-    | SemAST.LvalueArr _ -> emit_lval lval false
+    | SemAST.LvalueArr _ -> emit_lval lval true
     end
   | SemAST.ExprFuncCall(func_call) -> emit_func_call func_call
   | SemAST.SignedExpr {sign; e; meta=_} -> let ll_e = emit_expr e in build_neg ll_e "negtmp" builder
@@ -136,7 +137,9 @@ and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with
     let ll_lval_arr = emit_lval lval_arr false in (* MAYBE I SHOULD BUILD LOAD HERE TOO? *)
     let ll_idx = emit_expr idx_expr in
     let zero = const_int int_type 0 in
-    build_gep ll_lval_arr [| zero; ll_idx |] "arrtmp" builder
+    let gep = build_gep ll_lval_arr [| zero; ll_idx |] "arrtmp" builder in
+    if make_load then build_load gep "load_arr_elem" builder
+    else gep
 
 and emit_cond c = Printf.printf "codegen cond%s\n" ""; match c with  
   | SemAST.ExprCond {l; r; op; meta=_} -> 
@@ -302,10 +305,10 @@ let emit_builtins () =
 
   declare_fun "writeInteger" [|(PASS_BY_VALUE, "n", TYPE_int)|] TYPE_nothing;
   declare_fun "writeChar" [|(PASS_BY_VALUE, "c", TYPE_char)|] TYPE_nothing;
-  (* declare_fun "writeString" [|(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; *) (* pws xeirizomai to s[] ?? *)
+  (* declare_fun "writeString" [|(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; pws xeirizomai to s[] ?? *)
   declare_fun "readInteger" [||] TYPE_int;
   declare_fun "readChar" [||] TYPE_char;
-  (* declare_fun "readString" [|(PASS_BY_VALUE, "n", TYPE_int); (PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; *) (* pws xeirizomai to s[] ?? *)
+  (* declare_fun "readString" [|(PASS_BY_VALUE, "n", TYPE_int); (PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; pws xeirizomai to s[] ?? *)
   declare_fun "ascii" [|(PASS_BY_VALUE, "c", TYPE_char)|] TYPE_int;
   declare_fun "aschrcii" [|(PASS_BY_VALUE, "n", TYPE_int)|] TYPE_char
   (* declare_fun "strlen" [|(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_int; (* pws xeirizomai to s[] ?? *)

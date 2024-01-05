@@ -9,10 +9,10 @@
 )
 
 (executable
-  (public_name grace)
-  (name gracec)
+  (public_name gracec)
+  (name main)
   (libraries core core_unix.command_unix llvm llvm.analysis llvm.all_backends llvm.target)
-  (promote (until-clean))
+  (promote (into ..))
 )
 
 ; (rule

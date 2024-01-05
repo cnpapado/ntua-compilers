@@ -1,0 +1,9 @@
+$ should print 0
+
+fun main(): nothing
+   var x: int[2];
+   {  
+      x[0] <- 0;
+      writeInteger(x[0]);
+      return;
+   }

@@ -1,0 +1,17 @@
+$ should print 3210
+
+fun main(): nothing
+   var x: int;
+   
+   fun f(x:int): int 
+      {  
+         writeInteger(x);
+         if (x <= 0) then return 0;
+         return f(x-1);
+      }
+   
+
+   {  
+      x <- f(3);
+      return;
+   }
