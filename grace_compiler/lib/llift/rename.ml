@@ -35,13 +35,6 @@ let rec rename_uniq prefix (SemAST.FuncDef def) =
   in
   let rec rename_calls (SemAST.Block stmt_list) =
     Printf.printf "\n\nrenaming calls";
-    let rename_call (SemAST.FuncCall f) = 
-      (* lookup and rename with new name from symb table *)
-      let f_entry = lookupEntry (Identifier.id_make f.name) LOOKUP_ALL_SCOPES true in
-      let newid = match f_entry.entry_info with ENTRY_function inf -> inf.function_newName in
-      Printf.printf "\n\nRENAMINFG %s --> %s\n" f.name newid;
-      SemAST.FuncCall {f with name=newid}
-    in
     let rec rename_expr e = match e with 
       | SemAST.Int i -> SemAST.Int i
       | SemAST.Char c -> SemAST.Char c
@@ -79,6 +72,12 @@ let rec rename_uniq prefix (SemAST.FuncDef def) =
         | Some sr -> Some (rename_expr sr) 
         | None -> None end; 
         meta=r.meta}
+    and rename_call (SemAST.FuncCall f) = 
+      (* lookup and rename with new name from symb table *)
+      let f_entry = lookupEntry (Identifier.id_make f.name) LOOKUP_ALL_SCOPES true in
+      let newid = match f_entry.entry_info with ENTRY_function inf -> inf.function_newName in
+      Printf.printf "\n\nRENAMINFG %s --> %s\n" f.name newid;
+      SemAST.FuncCall {f with name=newid; parameters=List.map rename_expr f.parameters}
     in
       openScope ();
       let b = SemAST.Block (List.map rename_stmt stmt_list) in
@@ -128,6 +127,6 @@ let rename_ast root =
   initSymbolTable 256; 
   openScope ();
   add_buildins_mappings (); 
-  let ast = rename_uniq "" root in
+  let ast = rename_uniq "_" root in
   closeScope (); 
   ast

@@ -7,7 +7,7 @@ open Ast
 
 exception CodeGenError of string
 exception InternalCodeGenError of string
-
+exception Autocomplete of Types.typ * llvalue
 
 
 let context = global_context ()
@@ -34,6 +34,9 @@ let emit_header (SemAST.Header h) is_decl =
   let params_types = Array.of_list @@ List.map (
     fun p -> match p with 
       | (PASS_BY_VALUE,_,t) -> (lltype_of t)
+      (* treat incomplete arrs as pointers to the first element (base type) *)
+      | (PASS_BY_REFERENCE,_,TYPE_array {ttype=base_type; size=0}) -> pointer_type ((* pointer_type *) (lltype_of base_type))
+      (* treat params which pass by reference as pointers *)
       | (PASS_BY_REFERENCE,_,t) -> pointer_type (lltype_of t)
     ) h.header_fpar_defs in
   let ll_types = function_type (lltype_of h.header_ret) params_types in
@@ -116,11 +119,19 @@ and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with
     let e = lookupEntry (id_make id) LOOKUP_ALL_SCOPES true in
     begin
     match e.entry_info with 
+    (* if make_load then this is a reference (as opposed to a write) on this var and you need to load it first *)
     | ENTRY_variable {llval} -> if make_load then build_load llval "load" builder else llval  (* MAYBE CHANGE ME *)
-    | ENTRY_parameter {llp} -> 
+    | ENTRY_parameter {parameter_type; parameter_mode=_; llp} -> 
       begin
         match llp with 
-        | Some llp -> if make_load then build_load llp "load" builder else llp 
+        | Some llp -> 
+          begin 
+            match parameter_type with
+            (*  *)
+            | TYPE_array {ttype=base_type; size=0} -> raise (Autocomplete (base_type,llp));
+              (* build_load llp "load" builder *)
+            | _ -> if make_load then build_load llp "load" builder else llp 
+          end
         | None -> raise (InternalCodeGenError "found null llvalue while looking up param")
       end
     | _ -> raise (InternalCodeGenError "found non var while looking up lval\n")
@@ -133,13 +144,26 @@ and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with
     set_linkage Linkage.Private str; 
     let zero = const_int int_type 0 in
     build_gep str [|zero|] "strtmp" builder
+  | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta={typ=Some (TYPE_array _)}} ->
+    raise (InternalCodeGenError "generating for a[]")
   | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta=_} -> (* check idx>0 ?? *)
-    let ll_lval_arr = emit_lval lval_arr false in (* MAYBE I SHOULD BUILD LOAD HERE TOO? *)
     let ll_idx = emit_expr idx_expr in
     let zero = const_int int_type 0 in
-    let gep = build_gep ll_lval_arr [| zero; ll_idx |] "arrtmp" builder in
-    if make_load then build_load gep "load_arr_elem" builder
-    else gep
+    try 
+      let ll_lval_arr = emit_lval lval_arr false in
+      let gep = build_gep ll_lval_arr [| zero; ll_idx |] "arrtmp" builder in
+      if make_load then build_load gep "load_arr_elem" builder
+      else gep
+    with Autocomplete (base_type, ll_lval_arr) -> 
+      (* this is an autocomplete arr *)
+      (* let ll_lval_arr = emit_lval lval_arr false in *)
+      (* let cast = build_bitcast ll_lval_arr (lltype_of base_type) "bitcast_byref_arg" builder in *)
+
+      (* let gep = build_gep ll_lval_arr [| zero |] "arrtmp" builder in *)
+      (* let load_arr = build_load gep "load_arr_auto" builder in *)
+      let gep = build_gep ll_lval_arr [| ll_idx |] "arrtmp" builder in
+      if make_load then build_load gep "load_arr_elem" builder 
+      else gep
 
 and emit_cond c = Printf.printf "codegen cond%s\n" ""; match c with  
   | SemAST.ExprCond {l; r; op; meta=_} -> 
@@ -228,6 +252,7 @@ and emit_func_call (SemAST.FuncCall f) =
   let callee =
     match lookup_function f.name the_module with
     | Some callee -> callee
+    | None -> (raise (InternalCodeGenError ("failed looking up function " ^ f.name ^ " in module")))
   in
   List.iter (fun p -> Printf.printf "%s, " @@ Pretty_print.str_of_expr p) f.parameters;
   let formal_parameters = 
@@ -235,14 +260,28 @@ and emit_func_call (SemAST.FuncCall f) =
     let formal_params_entries = match f_entry.entry_info with
     | ENTRY_function inf -> inf.function_paramlist
     | _ -> (raise (InternalCodeGenError "found a non function entry when looking up a function")) in
-    List.map (fun e -> match e.entry_info with ENTRY_parameter p -> p.parameter_mode ) formal_params_entries
+    List.map (fun e -> match e.entry_info with ENTRY_parameter p -> p.parameter_mode, p.parameter_type ) formal_params_entries
   in
   let ll_args = Array.of_list @@ List.map2 (
     fun arg formal_param -> 
       match formal_param with 
-      | PASS_BY_VALUE -> emit_expr arg
-      | PASS_BY_REFERENCE -> 
-        (match arg with SemAST.Lvalue lval -> emit_lval lval false) (* pass the addr of this lval-arg *)
+      | PASS_BY_VALUE,_ -> emit_expr arg
+      (* if its an autocomplete array pass the addr of that *)
+      | PASS_BY_REFERENCE, TYPE_array {ttype=base_type; size=0} ->
+        begin
+        match arg with 
+        | SemAST.Lvalue lval -> (* build_gep (emit_lval lval false) [| (const_int int_type 0); |] "gep" builder *)
+          let cast = build_bitcast (emit_lval lval false) (pointer_type ((*pointer_type*) int_type)) "bitcast_byref_arg" builder in
+          cast
+          (* begin match lval with 
+          | SemAST.LvalueArr {arr=(_, _); meta=_} -> emit_lval lval false
+          | _ -> raise (InternalCodeGenError "1")
+          end *)
+        | _ -> raise (InternalCodeGenError "expecting Lvalue for arg")
+        end
+      (* if its another byref arg, pass the addr of this lval *)
+      | PASS_BY_REFERENCE,_ -> 
+        (match arg with SemAST.Lvalue lval -> emit_lval lval false) 
     ) f.parameters formal_parameters in
   (* type cast in args ?? *)
   (* handle arr[] *)
@@ -323,12 +362,17 @@ let emit_root r =
   emit_builtins ();
   openScope ();
   let head, locals, block = match r with SemAST.FuncDef def -> def.func_def_header, def.func_def_local, def.func_def_block in
+  
+  (* define main *)
   let main_type = function_type void_type [||] in
-  let main = define_function "" main_type the_module in
+  let main = define_function "main" main_type the_module in
   position_at_end (entry_block main) builder; 
   ignore @@ List.map emit_local_def locals;
-  (* ignore @@ emit_block block; *)
-  ignore @@ build_ret_void builder; 
+  (* emit body which contains call to top-level function of the program *)
+  ignore @@ emit_block block;
+  (* return 0 *)
+  ignore @@ build_ret (const_int int_type 0) builder; 
+  
   printSymbolTable ();
   closeScope ();
   ()
@@ -337,6 +381,7 @@ let emit_root r =
 
 let emit_root2 r = 
   emit_builtins ();
+  let zero = const_int int_type 0 in
   (* 
    * define main 
    *)
@@ -351,18 +396,26 @@ let emit_root2 r =
   (* save current block to return later *)
   let curr_block = insertion_block builder in
 
-  let f_type = function_type void_type [| (pointer_type int_type) |] in
+  let f_type = function_type int_type [| pointer_type (pointer_type int_type) |] in
   let f = define_function "f" f_type the_module in
   position_at_end (entry_block f) builder; 
-  (* dereference the ptr *)
-  let lhs_val = build_load (params f).(0) "load" builder in
-  let rhs_val = const_int int_type 1 in
-  (* add 1 to the derefed ptr val *)
-  let ret = build_add lhs_val rhs_val "addtmp" builder in
-  (* save it back to ptr *)
-  let _ = build_store ret (params f).(0) builder in
   
-  ignore @@ build_ret_void builder;
+  (* load a[0] *)
+
+  let ptr1 = build_gep (params f).(0) [| zero; |] "gep" builder in
+  let arr = build_load ptr1 "load" builder in
+  let my_int = build_gep arr [| zero; |] "gep" builder in
+  (* let ret = build_load ptr "load" builder in *)
+  
+  (* let rhs_val = const_int int_type 1 in *)
+  (* add 1 to the derefed ptr val *)
+  (* let ret = build_add lhs_val rhs_val "addtmp" builder in *)
+  (* save it back to ptr *)
+  (* let _ = build_store ret (params f).(0) builder in *)
+  
+  
+  (* return it *)
+  ignore @@ build_ret my_int builder;
 
   (* return to main block *)
   position_at_end curr_block builder;
@@ -370,8 +423,16 @@ let emit_root2 r =
   (*
    * continue with main's definition
    *)
-  let alloca_val = build_alloca int_type "ptr" builder in
-  let num = build_store (const_int int_type 42) alloca_val builder in
+  let alloca_val = build_alloca (array_type int_type 2) "my_arr" builder in
+  (* let num = build_store (const_int int_type 42) alloca_val builder in *)
+
+  (*
+     
+    I AM RETURNIG a[0] through f() but I have not been allocating it!
+  
+  *)
+
+
   let build_funcall = 
     (* Look up the name in the module table. *)
     let callee =
@@ -382,4 +443,4 @@ let emit_root2 r =
     build_call callee args "" builder in
 
 
-  ignore @@ build_ret (build_load alloca_val "load" builder) builder
+  ignore @@ build_ret build_funcall builder

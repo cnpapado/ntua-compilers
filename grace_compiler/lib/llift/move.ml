@@ -77,13 +77,13 @@ let llift root =
     in
     SemAST.FuncDef {
       func_def_header=SemAST.Header { 
-        header_id="global_sco";
+        header_id="main";
         header_fpar_defs=[]; 
-        header_ret=Types.TYPE_uninitialized;
-        meta={typ=Some Types.TYPE_uninitialized}
+        header_ret=Types.TYPE_int;
+        meta={typ=Some Types.TYPE_int}
       }; 
       func_def_local=moved_functions @ [ast]; 
       func_def_block=SemAST.Block [SemAST.StmtFuncCall main_call]; 
-      meta={typ=Some Types.TYPE_uninitialized}
+      meta={typ=Some Types.TYPE_int}
     } 
     

@@ -1,0 +1,19 @@
+$ should print 42 \n 42 
+
+fun main(): nothing
+   var a: int[20][20];
+   fun f(ref a :int[20][20]): nothing
+      {
+         writeInteger(a[10][10]);
+      }
+   fun f2(ref a :int[][20]): nothing
+      {  
+         writeInteger(a[10][10]);
+      }
+   {  
+      a[10][10] <- 42;
+      f(a);
+      writeChar('\n');
+      f2(a);
+      writeChar('\n');
+   }

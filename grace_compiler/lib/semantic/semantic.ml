@@ -200,14 +200,14 @@ and check_lval l =
     if not (equalType (get_type sem_idx_expr) (Some TYPE_int)) then (raise (SemError ("id of lval array not an int", parser_loc))) else
     (* can you index with an char ? *)
     Printf.printf "%s" (pp_typ (get_type2 sem_lval_arr));
-    let get_base_arr_typ lvalarr = (* from the way lvalarr is constructed in parser, the lval field of (lval, expr) is going to be the id, which will still have type of arr.Eg in x[12], x (arr) will be of type arr[int] so we need to return the base type instead (int) *)
-      match lvalarr with 
+    let rec base_arr_typ lval_arr = (* from the way lvalarr is constructed in parser, the lval field of (lval, expr) is going to be the id, which will still have type of arr.Eg in x[12], x (arr) will be of type arr[int] so we need to return the base type instead (int) *)
+      match lval_arr with 
       | ParserAST.LvalueId {id; _} -> 
         (match get_id_typ id with 
-        | TYPE_array {ttype;size=_} -> ttype
+        | TYPE_array {ttype;size=_} -> get_base_arr_typ ttype
         | _ -> raise (InternalSemError ("type of type array expected when finding type of lval array")))
-      | _ -> raise (InternalSemError ("lval of type id expected when finding type of lval array")) in
-    SemAST.LvalueArr {arr=(sem_lval_arr, sem_idx_expr); meta={typ = Some (get_base_arr_typ lval_arr)}} 
+      | ParserAST.LvalueArr {arr=(inner_arr, _); meta=_} -> base_arr_typ inner_arr in
+    SemAST.LvalueArr {arr=(sem_lval_arr, sem_idx_expr); meta={typ = Some (base_arr_typ lval_arr)}} 
 
 and check_func_call f = 
   match f with 
@@ -328,7 +328,7 @@ and check_stmt parent_ret_type single_stmt =
     | Some ex ->
       let sem_e = check_expr ex in
       let ret_type = get_type sem_e in
-      if not (equalType ret_type parent_ret_type) then (raise (SemError ((Printf.sprintf "type mismatch between return type (%s) and return value (%s)" (pp_typ ret_type) (pp_typ parent_ret_type)), parser_loc)))
+      if not (equalType ret_type parent_ret_type) then (raise (SemError ((Printf.sprintf "type mismatch between return type (%s) and return value (%s)" (pp_typ parent_ret_type) (pp_typ ret_type)), parser_loc)))
       else SemAST.Return {ret=Some sem_e; meta={typ=ret_type}}
               
 and check_block b parent_ret_type = 
@@ -413,11 +413,10 @@ let add_buildins () =
 let check_main (ParserAST.Header {header_id; header_fpar_defs; header_ret; meta}) =
   let good_main = 
     match (header_id, header_fpar_defs, header_ret) with
-    | ("main", [], TYPE_int) 
-    | ("main", [], TYPE_nothing) -> true
+    | (_, [], TYPE_nothing) -> true
     | _ -> false
   in 
-  if not good_main then (raise (SemError ("main() must return int or nothing and take no arguments", meta))) else ()
+  if not good_main then (raise (SemError ("top level function must return nothing and take no arguments", meta))) else ()
 
 
 let check_root = function 

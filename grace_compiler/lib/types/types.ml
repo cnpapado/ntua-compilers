@@ -45,3 +45,10 @@ let rec pp_typ t =
     | TYPE_stringconst -> "strconst"
     | TYPE_bool -> "bool" )
   | None -> "none"
+
+
+let rec get_base_arr_typ t = 
+  match t with 
+  | TYPE_array {ttype;size=_} -> get_base_arr_typ ttype
+  | _ -> t
+  
