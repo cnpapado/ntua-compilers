@@ -56,3 +56,4 @@ val newLabel         : Identifier.id -> Llvm.llbasicblock -> Llvm.llbasicblock -
 val forwardFunction      : entry -> unit
 val endFunctionHeader    : entry -> Types.typ -> unit
 val lookupEntry          : Identifier.id -> lookup_type -> bool -> entry
+val startOverwritingParams : entry -> unit

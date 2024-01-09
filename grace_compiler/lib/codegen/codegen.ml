@@ -40,46 +40,88 @@ let emit_header (SemAST.Header h) is_decl =
       | (PASS_BY_REFERENCE,_,t) -> pointer_type (lltype_of t)
     ) h.header_fpar_defs in
   let ll_types = function_type (lltype_of h.header_ret) params_types in
-  let f = (if is_decl then declare_function else define_function) h.header_id ll_types the_module in
-  (* save function to symbtable *)
-  let (fun_entry,_) = newFunction (id_make h.header_id) f in
-  openScope (); 
-  (* Set names for all arguments. *)
-  Array.iteri (fun i a -> 
-  let mode,name,typ = (Array.of_list h.header_fpar_defs).(i) in
-    set_value_name name (params f).(i);
-    (* save params to symbtable *)
-    (* Printf.printf "adding param %s\n" name; *)
-    (* Printf.printf "params total num=%d\n" @@ Array.length (params f); *)
-    
-    if not is_decl then
-    begin
-    (* save current block to return later *)
-    let curr_block = insertion_block builder in
-
-    let _ = position_at_end (entry_block f) builder in
-    let alloca_val = match mode with  
-      | PASS_BY_VALUE ->
-        let alloca_val = build_alloca (lltype_of typ) name builder in
-        let _ = build_store (params f).(i) alloca_val builder in
-        alloca_val
-      | PASS_BY_REFERENCE ->
-        (params f).(i)
-    in
-    
-    ignore @@ newParameter (id_make name) typ mode (Some alloca_val) fun_entry;
-    position_at_end curr_block builder;
-    
-    end
-    
-  ) (params f);
+  (* let f = (if is_decl then declare_function else define_function) h.header_id ll_types the_module in *)
   
-  endFunctionHeader fun_entry h.header_ret;  
-  f
+  (* save only the type and mode of params in the symbol table
+     called on declarations to populate the modes and types (since no llval is 
+     yet avalable) to succesfully enable the construction of calls *)
+  let save_params_sig_only params fun_entry = 
+    Array.iteri (fun i a -> 
+      let mode,name,typ = (Array.of_list h.header_fpar_defs).(i) in
+        set_value_name name params.(i);
+        ignore @@ newParameter (id_make name) typ mode None fun_entry;
+        
+    ) params
+  in
+
+  let emit_params f = 
+    Array.iteri (fun i a -> 
+    let mode,name,typ = (Array.of_list h.header_fpar_defs).(i) in
+      (* Set names for all arguments. *)
+      set_value_name name (params f).(i);
+      
+      let alloca_val = match mode with  
+        | PASS_BY_VALUE ->
+          let alloca_val = build_alloca (lltype_of typ) name builder in
+          let _ = build_store (params f).(i) alloca_val builder in
+          alloca_val
+        | PASS_BY_REFERENCE ->
+          (params f).(i)
+      in
+      let fun_entry = lookupEntry (id_make h.header_id) LOOKUP_ALL_SCOPES true in 
+      startOverwritingParams fun_entry;
+      ignore @@ newParameter (id_make name) typ mode (Some alloca_val) fun_entry;
+    ) (params f)
+  
+  in 
+
+  (* lookup function in the_module *)
+  match lookup_function h.header_id the_module with
+  (* if not found, this is either a decl or a def wout a decl *)
+  | None -> 
+    Printf.printf "declaring/defining (wout decl) function %s\n" h.header_id;
+    let f = (if is_decl then declare_function else define_function) h.header_id ll_types the_module in
+    
+    (* add to symboltable *)
+    let fun_entry = fst @@ newFunction (id_make h.header_id) f in
+    openScope (); (* after newFunction before newParams *)
+    (* add params to symboltable *)
+    (* save_params (params f) ;    *)
+    let _ = 
+      if not is_decl then begin
+        (* save current block to return later *)
+        let curr_block = insertion_block builder in
+        position_at_end (entry_block f) builder;
+        emit_params f;
+        position_at_end curr_block builder;
+      end 
+      else begin
+        save_params_sig_only (params f) fun_entry;
+      end 
+    in
+    endFunctionHeader fun_entry h.header_ret;  
+    f
+
+  (* if found, this is a def of a prev decl *)
+  | Some f ->
+      (* If 'f' already has a body, reject this. *)
+      if block_begin f <> At_end f then
+        raise (InternalCodeGenError "redefinition of function");
+      (* save current block to return later *)
+      let curr_block = insertion_block builder in
+      delete_function f;
+      let f = define_function h.header_id ll_types the_module in
+      position_at_end (entry_block f) builder;
+      emit_params f;
+      position_at_end curr_block builder;
+      
+      openScope ();  
+      f
+
 
 let emit_func_decl (SemAST.FuncDecl decl) = 
   (* Printf.printf "codegen decl %s\n" "";  *)
-  ignore @@ emit_header decl false;
+  ignore @@ emit_header decl true;
   printSymbolTable ();
   closeScope ()
 
@@ -260,6 +302,10 @@ and emit_func_call (SemAST.FuncCall f) =
     | _ -> (raise (InternalCodeGenError "found a non function entry when looking up a function")) in
     List.map (fun e -> match e.entry_info with ENTRY_parameter p -> p.parameter_mode, p.parameter_type ) formal_params_entries
   in
+
+  Printf.printf "formal params: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->(pp_typ (Some y))) formal_parameters); Printf.printf "%s" "\n";
+  Printf.printf "args: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (y)->(Pretty_print.str_of_expr y)) f.parameters); Printf.printf "%s" "\n";
+
   let ll_args = Array.of_list @@ List.map2 (
     fun arg formal_param -> 
       match formal_param with 
@@ -384,51 +430,54 @@ let emit_root2 r =
    *)
   let main_type = function_type int_type [||] in
   let main = define_function "main" main_type the_module in
-  position_at_end (entry_block main) builder; 
-
-  (*  
-   * define another function, f
-   *)
+  position_at_end (entry_block main) builder;
 
   (* save current block to return later *)
-  let curr_block = insertion_block builder in
+  let main_block = insertion_block builder in
 
-  let f_type = function_type int_type [| pointer_type (pointer_type int_type) |] in
-  let f = define_function "f" f_type the_module in
-  position_at_end (entry_block f) builder; 
-  
-  (* load a[0] *)
+  (*  
+   * declare f, g
+   *)
 
-  let ptr1 = build_gep (params f).(0) [| zero; |] "gep" builder in
-  let arr = build_load ptr1 "load" builder in
-  let my_int = build_gep arr [| zero; |] "gep" builder in
-  (* let ret = build_load ptr "load" builder in *)
+  let g_type = function_type int_type [| int_type |] in
+  let g = declare_function "g" g_type the_module in
   
-  (* let rhs_val = const_int int_type 1 in *)
-  (* add 1 to the derefed ptr val *)
-  (* let ret = build_add lhs_val rhs_val "addtmp" builder in *)
-  (* save it back to ptr *)
-  (* let _ = build_store ret (params f).(0) builder in *)
-  
-  
-  (* return it *)
-  ignore @@ build_ret my_int builder;
+  let f_type = function_type int_type [| int_type |] in
+  let f = declare_function "f" f_type the_module in
+
+  (* (*  
+   * define f
+   *)
+
+  (* let f_type = function_type int_type [| int_type |] in *)
+  (* let f = define_function "f" f_type the_module in *)
+  let f =
+    match lookup_function "f" the_module with
+    | Some f -> f
+  in
+  position_at_end (entry_block f) builder;
+  let bb = append_block context "entry" f in
+
+  let build_funcall = 
+    (* Look up the name in the module table. *)
+    let callee =
+      match lookup_function "g" the_module with
+      | Some callee -> callee
+    in
+    let args = [|zero|] (*Array.map codegen_expr args*) in
+    build_call callee args "" builder in 
+
+  (* return *)
+  ignore @@ build_ret zero builder;
 
   (* return to main block *)
-  position_at_end curr_block builder;
+  *)
+  position_at_end main_block builder; 
+
 
   (*
    * continue with main's definition
    *)
-  let alloca_val = build_alloca (array_type int_type 2) "my_arr" builder in
-  (* let num = build_store (const_int int_type 42) alloca_val builder in *)
-
-  (*
-     
-    I AM RETURNIG a[0] through f() but I have not been allocating it!
-  
-  *)
-
 
   let build_funcall = 
     (* Look up the name in the module table. *)
@@ -436,8 +485,59 @@ let emit_root2 r =
       match lookup_function "f" the_module with
       | Some callee -> callee
     in
-    let args = [| alloca_val |] (*Array.map codegen_expr args*) in
+    let args = [||] (*Array.map codegen_expr args*) in
     build_call callee args "" builder in
 
+  
+  ignore @@ build_ret zero builder
 
-  ignore @@ build_ret build_funcall builder
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  (*
+
+
+  (*  
+   * define another function, g
+   *)
+
+  (* save current block to return later *)
+  let curr_block = insertion_block builder in
+
+  let g_type = function_type int_type [| int_type |] in
+  let g = define_function "g" g_type the_module in
+  position_at_end (entry_block g) builder; 
+  
+  let build_funcall = 
+    (* Look up the name in the module table. *)
+    let callee =
+      match lookup_function "f" the_module with
+      | Some callee -> callee
+    in
+    let args = [||] (*Array.map codegen_expr args*) in
+    build_call callee args "" builder in
+
+  (* return *)
+  ignore @@ build_ret zero builder;
+
+  (* return to main block *)
+  position_at_end curr_block builder;
+
+
+*)

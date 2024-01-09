@@ -1,0 +1,30 @@
+fun main(): nothing
+    fun even(n:int): int;
+
+    fun odd(n:int): int
+    {  
+        writeString("odd");
+        writeInteger(n);
+
+        if (n = 0) then
+            return 0;
+        else
+            return even(n - 1);
+        return 0;
+    } 
+    
+    fun even(n:int): int
+    { 
+        writeString("even");
+        writeInteger(n);
+        
+        if (n = 0) then
+            return 1;
+        else
+            return odd(n-1);
+        return 0;
+    } 
+
+{ 
+    if (odd(4)=0) then writeString("4 is even");
+} 

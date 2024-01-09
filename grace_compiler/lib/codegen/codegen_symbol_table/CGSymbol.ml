@@ -142,6 +142,13 @@ let newFunction id llv =
     } in
     (newEntry id (ENTRY_function inf), false)
 
+let startOverwritingParams f = 
+  match f.entry_info with
+  | ENTRY_function inf -> begin
+      inf.function_paramlist <- []
+    end
+  | _ -> failwith "Cannot overwrite a parameter to a non-function"
+
 let newParameter id typ mode ll f  = 
   match f.entry_info with
   | ENTRY_function inf -> begin
