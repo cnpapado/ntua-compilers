@@ -6,7 +6,7 @@ let function_names = ref SS.empty
 
 let add_mapping ~newid ~oldid is_decl = 
   let fun_entry = newFunction (Identifier.id_make oldid) true in 
-  Printf.printf "\n\nMAPPING %s --> %s\nset:" oldid newid;
+  (* Printf.printf "\n\nMAPPING %s --> %s\nset:" oldid newid; *)
   let _ = 
     match fun_entry.entry_info with
       | ENTRY_function inf -> inf.function_newName <- newid in
@@ -24,9 +24,9 @@ let add_mapping ~newid ~oldid is_decl =
 let rec rename_uniq prefix (SemAST.FuncDef def) =
   let fname = function SemAST.Header h -> h.header_id in
   let current_fname = fname def.func_def_header in
-  Printf.printf "\n\nrenaming %s" current_fname;
+  (* Printf.printf "\n\nrenaming %s" current_fname; *)
   let rename_header prefix fun_name fun_header is_decl = 
-    Printf.printf "\n\nrenaming header %s prefix: %s" fun_name prefix;
+    (* Printf.printf "\n\nrenaming header %s prefix: %s" fun_name prefix; *)
     let newid = prefix^fun_name in
     add_mapping ~newid:newid ~oldid:fun_name is_decl;
     openScope ();
@@ -34,7 +34,7 @@ let rec rename_uniq prefix (SemAST.FuncDef def) =
     | SemAST.Header h -> SemAST.Header{h with header_id=newid} 
   in
   let rec rename_calls (SemAST.Block stmt_list) =
-    Printf.printf "\n\nrenaming calls";
+    (* Printf.printf "\n\nrenaming calls"; *)
     let rec rename_expr e = match e with 
       | SemAST.Int i -> SemAST.Int i
       | SemAST.Char c -> SemAST.Char c
@@ -76,7 +76,7 @@ let rec rename_uniq prefix (SemAST.FuncDef def) =
       (* lookup and rename with new name from symb table *)
       let f_entry = lookupEntry (Identifier.id_make f.name) LOOKUP_ALL_SCOPES true in
       let newid = match f_entry.entry_info with ENTRY_function inf -> inf.function_newName in
-      Printf.printf "\n\nRENAMINFG %s --> %s\n" f.name newid;
+      (* Printf.printf "\n\nRENAMINFG %s --> %s\n" f.name newid; *)
       SemAST.FuncCall {f with name=newid; parameters=List.map rename_expr f.parameters}
     in
       openScope ();
@@ -84,7 +84,7 @@ let rec rename_uniq prefix (SemAST.FuncDef def) =
       closeScope (); b
   in
   let rename_def d = 
-    Printf.printf "\n\nrenaming def %s" "";
+    (* Printf.printf "\n\nrenaming def %s" ""; *)
     let new_prefix = (prefix ^ current_fname ^ "_") in
     match d with 
     | SemAST.FuncDef this -> 

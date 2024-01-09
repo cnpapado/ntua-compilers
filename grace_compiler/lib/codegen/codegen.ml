@@ -30,7 +30,7 @@ let rec lltype_of = function
   | _ -> raise (InternalCodeGenError "unknown lltype")
 
 let emit_header (SemAST.Header h) is_decl =
-  Printf.printf "codegen header %s\n" h.header_id;
+  (* Printf.printf "codegen header %s\n" h.header_id; *)
   let params_types = Array.of_list @@ List.map (
     fun p -> match p with 
       | (PASS_BY_VALUE,_,t) -> (lltype_of t)
@@ -49,8 +49,8 @@ let emit_header (SemAST.Header h) is_decl =
   let mode,name,typ = (Array.of_list h.header_fpar_defs).(i) in
     set_value_name name (params f).(i);
     (* save params to symbtable *)
-    Printf.printf "adding param %s\n" name;
-    Printf.printf "params total num=%d\n" @@ Array.length (params f);
+    (* Printf.printf "adding param %s\n" name; *)
+    (* Printf.printf "params total num=%d\n" @@ Array.length (params f); *)
     
     if not is_decl then
     begin
@@ -78,22 +78,22 @@ let emit_header (SemAST.Header h) is_decl =
   f
 
 let emit_func_decl (SemAST.FuncDecl decl) = 
-  Printf.printf "codegen decl %s\n" ""; 
+  (* Printf.printf "codegen decl %s\n" "";  *)
   ignore @@ emit_header decl false;
   printSymbolTable ();
   closeScope ()
 
 let emit_var_def v = 
-  Printf.printf "codegen vardef%s\n" "";
+  (* Printf.printf "codegen vardef%s\n" ""; *)
   match v with 
   | SemAST.VarDef(x) -> 
     let alloca_val id = build_alloca (lltype_of x.var_def_typ) id builder in
-    let add_to_symb id alloca = Printf.printf "adding vardef %s\n" id; newVariable (id_make id) alloca in
+    let add_to_symb id alloca = newVariable (id_make id) alloca in
     List.iter (fun id -> let a=alloca_val id in ignore @@ add_to_symb id a) x.var_def_id 
 
-let rec emit_expr e = Printf.printf "codegen expr%s\n" ""; match e with
+let rec emit_expr e = match e with
   | SemAST.Int {i; meta=_} -> const_int int_type i
-  | SemAST.Char {c; meta=_} -> Printf.printf "%c" c; const_int char_type @@ Char.code c
+  | SemAST.Char {c; meta=_} -> const_int char_type @@ Char.code c
   | SemAST.Lvalue(lval) -> (* read *)
     begin
     match lval with 
@@ -113,7 +113,7 @@ let rec emit_expr e = Printf.printf "codegen expr%s\n" ""; match e with
     | Plus  -> build_add lval rval "addtmp" builder
     | Minus -> build_sub lval rval "subtmp" builder
   
-and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with 
+and emit_lval l make_load = match l with 
   | SemAST.LvalueId {id; meta=_} -> 
     (* find and return from symb table *)
     let e = lookupEntry (id_make id) LOOKUP_ALL_SCOPES true in
@@ -127,9 +127,7 @@ and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with
         | Some llp -> 
           begin 
             match parameter_type with
-            (*  *)
             | TYPE_array {ttype=base_type; size=0} -> raise (Autocomplete (base_type,llp));
-              (* build_load llp "load" builder *)
             | _ -> if make_load then build_load llp "load" builder else llp 
           end
         | None -> raise (InternalCodeGenError "found null llvalue while looking up param")
@@ -144,8 +142,8 @@ and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with
     set_linkage Linkage.Private str; 
     let zero = const_int int_type 0 in
     build_gep str [|zero|] "strtmp" builder
-  | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta={typ=Some (TYPE_array _)}} ->
-    raise (InternalCodeGenError "generating for a[]")
+  (* | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta={typ=Some (TYPE_array _)}} ->
+    raise (InternalCodeGenError "generating for a[]") *)
   | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta=_} -> (* check idx>0 ?? *)
     let ll_idx = emit_expr idx_expr in
     let zero = const_int int_type 0 in
@@ -165,7 +163,7 @@ and emit_lval l make_load = Printf.printf "codegen lval%s\n" ""; match l with
       if make_load then build_load gep "load_arr_elem" builder 
       else gep
 
-and emit_cond c = Printf.printf "codegen cond%s\n" ""; match c with  
+and emit_cond c = match c with  
   | SemAST.ExprCond {l; r; op; meta=_} -> 
     let ll_l = emit_expr l in
     let ll_r = emit_expr r in
@@ -189,7 +187,7 @@ and emit_cond c = Printf.printf "codegen cond%s\n" ""; match c with
   | SemAST.NegatedCond c ->  
     let ll_c = emit_cond c in build_not ll_c "negtmp" builder
 
-and emit_stmt s = Printf.printf "codegen stmt%s\n" ""; match s with
+and emit_stmt s = match s with
   | SemAST.EmptyStmt -> ()
   | SemAST.Assign {lvalue; rvalue; meta=_} ->
     let ll_lval = emit_lval lvalue false in
@@ -247,14 +245,14 @@ and emit_stmt s = Printf.printf "codegen stmt%s\n" ""; match s with
   
 
 and emit_func_call (SemAST.FuncCall f) = 
-  Printf.printf "codegen func call%s\n" "";
+  (* Printf.printf "codegen func call%s\n" ""; *)
   (* Look up the name in the module table. *)
   let callee =
     match lookup_function f.name the_module with
     | Some callee -> callee
     | None -> (raise (InternalCodeGenError ("failed looking up function " ^ f.name ^ " in module")))
   in
-  List.iter (fun p -> Printf.printf "%s, " @@ Pretty_print.str_of_expr p) f.parameters;
+  (* List.iter (fun p -> Printf.printf "%s, " @@ Pretty_print.str_of_expr p) f.parameters; *)
   let formal_parameters = 
     let f_entry = lookupEntry (id_make f.name) LOOKUP_ALL_SCOPES true in 
     let formal_params_entries = match f_entry.entry_info with
@@ -270,13 +268,12 @@ and emit_func_call (SemAST.FuncCall f) =
       | PASS_BY_REFERENCE, TYPE_array {ttype=base_type; size=0} ->
         begin
         match arg with 
-        | SemAST.Lvalue lval -> (* build_gep (emit_lval lval false) [| (const_int int_type 0); |] "gep" builder *)
-          let cast = build_bitcast (emit_lval lval false) (pointer_type ((*pointer_type*) int_type)) "bitcast_byref_arg" builder in
-          cast
-          (* begin match lval with 
-          | SemAST.LvalueArr {arr=(_, _); meta=_} -> emit_lval lval false
-          | _ -> raise (InternalCodeGenError "1")
-          end *)
+        | SemAST.Lvalue lval -> 
+          let ll = 
+          try 
+            emit_lval lval false
+          with Autocomplete (base_type, ll_lval_arr) -> ll_lval_arr in
+          build_bitcast ll (pointer_type (lltype_of base_type (*int_type*))) "bitcast_byref_arg" builder
         | _ -> raise (InternalCodeGenError "expecting Lvalue for arg")
         end
       (* if its another byref arg, pass the addr of this lval *)
@@ -290,7 +287,7 @@ and emit_func_call (SemAST.FuncCall f) =
 
               
 and emit_block b = 
-  Printf.printf "codegen block%s\n" "";
+  (* Printf.printf "codegen block%s\n" ""; *)
   openScope ();
   let ll_stmt_list = match b with 
     | SemAST.Block(stmt_list) -> List.map emit_stmt stmt_list in
@@ -299,14 +296,14 @@ and emit_block b =
   ll_stmt_list
 
 let rec emit_local_def x = 
-  Printf.printf "codegen localdef%s\n" "";
+  (* Printf.printf "codegen localdef%s\n" ""; *)
   match x with 
   | SemAST.FuncDef _ -> emit_func_def x
   | SemAST.FuncDecl _ -> emit_func_decl x
   | SemAST.VarDef _  -> emit_var_def x
 
 and emit_func_def (SemAST.FuncDef def) =
-  Printf.printf "codegen func def%s\n" "";
+  (* Printf.printf "codegen func def%s\n" ""; *)
   (* save current block to return later *)
   let curr_block = insertion_block builder in
   
@@ -344,16 +341,16 @@ let emit_builtins () =
 
   declare_fun "writeInteger" [|(PASS_BY_VALUE, "n", TYPE_int)|] TYPE_nothing;
   declare_fun "writeChar" [|(PASS_BY_VALUE, "c", TYPE_char)|] TYPE_nothing;
-  (* declare_fun "writeString" [|(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; pws xeirizomai to s[] ?? *)
+  declare_fun "writeString" [|(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing;
   declare_fun "readInteger" [||] TYPE_int;
   declare_fun "readChar" [||] TYPE_char;
-  (* declare_fun "readString" [|(PASS_BY_VALUE, "n", TYPE_int); (PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; pws xeirizomai to s[] ?? *)
+  declare_fun "readString" [|(PASS_BY_VALUE, "n", TYPE_int); (PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; 
   declare_fun "ascii" [|(PASS_BY_VALUE, "c", TYPE_char)|] TYPE_int;
-  declare_fun "aschrcii" [|(PASS_BY_VALUE, "n", TYPE_int)|] TYPE_char
-  (* declare_fun "strlen" [|(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_int; (* pws xeirizomai to s[] ?? *)
-  declare_fun "strcmp" [|(PASS_BY_REFERENCE, "s2", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "s1", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_int; (* pws xeirizomai to s[] ?? *)
-  declare_fun "strcpy" [|(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; (* pws xeirizomai to s[] ?? *)
-  declare_fun "strcat" [|(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing pws xeirizomai to s[] ?? *)
+  declare_fun "aschrcii" [|(PASS_BY_VALUE, "n", TYPE_int)|] TYPE_char;
+  declare_fun "strlen" [|(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_int;
+  declare_fun "strcmp" [|(PASS_BY_REFERENCE, "s2", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "s1", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_int; 
+  declare_fun "strcpy" [|(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing; 
+  declare_fun "strcat" [|(PASS_BY_REFERENCE, "trg", TYPE_array{ttype=TYPE_char; size=0}); (PASS_BY_REFERENCE, "src", TYPE_array{ttype=TYPE_char; size=0})|] TYPE_nothing 
 
 
 

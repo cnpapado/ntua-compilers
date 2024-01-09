@@ -1,7 +1,6 @@
-(* open Types *)
+open Types
 (* open Symbol *)
-
-
+exception InternalAstUtilsError of string
 
 (** Encapsulates the type of an ast node *)
 module type Node = sig type t end
@@ -86,6 +85,45 @@ module MakeAST (Node : Node) = struct
   
   (* and def_or_decl = GlobalDef of func_def | GlobalDecl of header
   and global_scope = Program of def_or_decl list *)
+
+
+  let rec str_of_lval2 = function
+    | LvalueId {id; meta=_} -> id 
+    | LvalueString {s; meta=_} -> "str(" ^ s ^ ")" 
+    | LvalueArr {arr=(l,e); meta=_} -> (str_of_lval2 l) ^ "[...]"
+
+  let rec get_arr_id = function
+    | LvalueId {id; meta=_} -> id
+    | LvalueString _ -> raise (InternalAstUtilsError "found str lvalue while getting id of array")
+    | LvalueArr {arr=(lval, expr); meta=_} -> get_arr_id lval
+
+  (* get the type of a (possibly imcomplete array)*)
+  let arr_typ lval_arr get_id_typ =  
+    
+    (* find the type this id has (type of the array as declared)
+       because in this reference, some dims might be missing (if incomplete) *)
+    let whole_arr_type = get_id_typ (get_arr_id lval_arr) in
+    let whole_dim = arr_dim whole_arr_type in
+    let curr_dim = 
+      let rec dim a n = 
+        match a with 
+        | LvalueArr {arr=(inner_arr, _); meta=_} -> dim inner_arr n+1 
+        | LvalueId _ -> n 
+        | _ -> raise (InternalAstUtilsError ("found str lval inside an arr"))
+      in dim lval_arr 0
+    in
+    
+    let rec strip_first (n, t) = 
+      if n = 0 then t 
+      else
+        match t with 
+        | TYPE_array {ttype; size=_} -> strip_first (n-1, ttype)
+        | _ -> raise (InternalAstUtilsError ("reached non arr sooner than 0 nest level"))
+    in 
+    
+    (* Printf.printf "whole arr dim= %d, curr dim= %d\n" whole_dim curr_dim; *)
+    if whole_dim = curr_dim then get_base_arr_typ whole_arr_type
+    else strip_first (whole_dim-curr_dim, whole_arr_type)  
 
 end
 

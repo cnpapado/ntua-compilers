@@ -51,4 +51,10 @@ let rec get_base_arr_typ t =
   match t with 
   | TYPE_array {ttype;size=_} -> get_base_arr_typ ttype
   | _ -> t
-  
+
+let arr_dim t = 
+  let rec arr_dim t n = 
+    match t with 
+    | TYPE_array {ttype;size=_} -> arr_dim ttype n+1 
+    | _ -> n
+  in arr_dim t 0

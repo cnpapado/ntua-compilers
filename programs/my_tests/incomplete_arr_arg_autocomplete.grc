@@ -1,0 +1,12 @@
+$ should print 42
+
+fun main(): nothing 
+   fun f(ref a : int[]): nothing
+      {  
+         writeInteger(a[1]);
+      }
+   var a: int[2][10];
+   {
+      a[1][1] <- 42;
+      f(a[1]);
+   }

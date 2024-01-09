@@ -2,7 +2,7 @@
  (name gracec)
  (public_name grace_compiler)
  (promote (into ..))
- (libraries grace llvm.analysis llvm.all_backends llvm.target core core_unix.command_unix)
+ (libraries grace llvm.analysis llvm.all_backends llvm.target llvm.scalar_opts llvm.passmgr_builder llvm.ipo core core_unix.command_unix)
 )
 
 (env

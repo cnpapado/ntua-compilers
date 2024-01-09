@@ -55,17 +55,27 @@ let rec remove_independent ast =
 let llift root =
   let unique_ast = rename_ast root in
 
+  (* let free = free_vars unique_ast in
+  Printf.printf "%s:%s " "ROOT:" (match unique_ast with SemAST.FuncDef def -> (match def.func_def_header with Header h -> h.header_id)); 
+  Printf.printf "free vars: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->x) free); Printf.printf "%s" "\n";
+
+  raise Exit;
+  unique_ast *)
+
+
+
   (* takes an ast and keeps replacing and extracting indep until no more funcs can be extracted 
      returns a tuple with the modified ast and the list of extracted funcs *)
   let rec keep_replacing_and_extracting ast prev_extra = 
-    let _ = Hashtbl.clear Replace.free_vars_hashtbl; Printf.printf "pass-input ast:%s" "\n"; ((Printf.printf "%s, ") (Pretty_print.str_of_localdef ast)) in
+    let _ = Hashtbl.clear Replace.free_vars_hashtbl; in
+    (* Printf.printf "pass-input ast:%s" "\n"; ((Printf.printf "%s, ") (Pretty_print.str_of_localdef ast)) *)
     let after_step2 = replace_free ast in
     let (after_step3, extra) = remove_independent after_step2 in
     match extra = prev_extra with 
     | true -> (after_step3, extra) (* converged *)
     | false -> 
       (let (new_ast, new_extra) = 
-      Printf.printf "pass-extra fs:%s" "\n"; (List.iter (Printf.printf "%s, ") (List.map Pretty_print.str_of_localdef extra));
+      (* Printf.printf "pass-extra fs:%s" "\n"; (List.iter (Printf.printf "%s, ") (List.map Pretty_print.str_of_localdef extra)); *)
       keep_replacing_and_extracting after_step3 extra in
       (new_ast, new_extra @ extra))
       

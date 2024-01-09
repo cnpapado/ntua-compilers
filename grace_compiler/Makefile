@@ -5,4 +5,4 @@ clean:
 	dune clean
 
 distclean: clean
-	$(RM) gracec.exe
+	$(RM) gracec.exe *.exe *.imm *.asm

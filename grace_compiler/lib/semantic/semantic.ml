@@ -23,7 +23,7 @@ let get_type e =
   match e with 
   | SemAST.Int i -> i.meta.typ
   | SemAST.Char c -> c.meta.typ
-  | SemAST.Lvalue lval -> Printf.printf "lval"; get_type2 lval
+  | SemAST.Lvalue lval -> get_type2 lval
   | SemAST.ExprFuncCall f -> get_type3 f 
   | SemAST.SignedExpr i -> i.meta.typ
   | SemAST.BinExpr i -> i.meta.typ
@@ -106,11 +106,12 @@ let check_return (SemAST.Block b) typ floc =
 let check_header h is_declaration =
   match h with 
   | ParserAST.Header(x) -> 
-  Printf.printf "header\n";
+  (* Printf.printf "header\n"; *)
   let fun_entry = newFunction (id_make x.header_id) true in (
 
   if is_declaration then forwardFunction fun_entry;
-  openScope (); Printf.printf "opening scope\n";  
+  openScope (); 
+  (* Printf.printf "opening scope\n";   *)
   let f fpar_tuple = 
     match fpar_tuple with (mode, id, typ) -> 
       (match mode, typ with 
@@ -128,7 +129,7 @@ let check_header h is_declaration =
   }
 
 let check_func_decl h =
-  Printf.printf "func declaration\n";
+  (* Printf.printf "func declaration\n"; *)
   let sem_func_decl = SemAST.FuncDecl(check_header h true) in
   (* printSymbolTable (); *)
   closeScope ();
@@ -138,7 +139,7 @@ let check_func_decl h =
 let check_var_def v = 
   match v with 
   | ParserAST.VarDef(x) ->
-  Printf.printf "var def\n";
+  (* Printf.printf "var def\n"; *)
   let f id = newVariable (id_make id) x.var_def_typ true in
   ignore (check_all f x.var_def_id);
   SemAST.VarDef {
@@ -192,22 +193,13 @@ and check_lval l =
     SemAST.LvalueString {s=lval_str; meta={typ = Some TYPE_stringconst}} 
 
   | ParserAST.LvalueArr {arr=(lval_arr, idx_expr); meta=parser_loc} -> 
-    Printf.printf "+++++++++++++++++++++++++++++++++++++++++++++\n";
-    (* represents an array element and thus has the value of it's element *)
     let sem_lval_arr = check_lval lval_arr in 
     let sem_idx_expr = check_expr idx_expr in
     (* check that idx evaluates to int *)
     if not (equalType (get_type sem_idx_expr) (Some TYPE_int)) then (raise (SemError ("id of lval array not an int", parser_loc))) else
     (* can you index with an char ? *)
-    Printf.printf "%s" (pp_typ (get_type2 sem_lval_arr));
-    let rec base_arr_typ lval_arr = (* from the way lvalarr is constructed in parser, the lval field of (lval, expr) is going to be the id, which will still have type of arr.Eg in x[12], x (arr) will be of type arr[int] so we need to return the base type instead (int) *)
-      match lval_arr with 
-      | ParserAST.LvalueId {id; _} -> 
-        (match get_id_typ id with 
-        | TYPE_array {ttype;size=_} -> get_base_arr_typ ttype
-        | _ -> raise (InternalSemError ("type of type array expected when finding type of lval array")))
-      | ParserAST.LvalueArr {arr=(inner_arr, _); meta=_} -> base_arr_typ inner_arr in
-    SemAST.LvalueArr {arr=(sem_lval_arr, sem_idx_expr); meta={typ = Some (base_arr_typ lval_arr)}} 
+    let my_arr_type = ParserAST.arr_typ l get_id_typ in
+    SemAST.LvalueArr {arr=(sem_lval_arr, sem_idx_expr); meta={typ = Some (my_arr_type)}}   
 
 and check_func_call f = 
   match f with 
@@ -234,16 +226,16 @@ and check_func_call f =
     let check_params fp ap = 
       let sem_ap = check_expr ap in
       let (fp_typ, fp_mode) = fp in
-      Printf.printf "-----\n";
+      (* Printf.printf "-----\n"; *)
       let is_lvalue = match sem_ap with
-        | Lvalue _ -> Printf.printf "is lval"; true 
-        | _ -> Printf.printf "not lval"; false in
+        | Lvalue _ -> true 
+        | _ -> false in
       let pos = get_loc_expr ap in
       let ap_typ = get_type sem_ap in
-      if not (equalType ~flexible_on_autocomplete:true fp_typ ap_typ) then (raise (SemError ((Printf.sprintf "formal and actual parameter have different type (%s vs %s)" (pp_typ fp_typ) (pp_typ ap_typ)), pos))) 
+      if not (equalType ~flexible_on_autocomplete:true fp_typ ap_typ) then (raise (SemError ((Printf.sprintf "formal and actual parameter have different type (or array size) (%s vs %s)" (pp_typ fp_typ) (pp_typ ap_typ)), pos))) 
       else if (fp_mode == PASS_BY_REFERENCE && not is_lvalue) (*|| (fp_mode == PASS_BY_VALUE && not is_lvalue)*) then 
         (
-          Printf.printf "%s" (pp_typ ap_typ);
+          (* Printf.printf "%s" (pp_typ ap_typ); *)
           raise (SemError ("passing by refernce requires an lval as actual param", pos)))
       else sem_ap in
 
@@ -273,7 +265,7 @@ and check_cond c =
   | ParserAST.NegatedCond c -> SemAST.NegatedCond (check_cond c)
 
 and check_stmt parent_ret_type single_stmt = 
-  Printf.printf "stmt\n";
+  (* Printf.printf "stmt\n"; *)
   match single_stmt with 
   | ParserAST.EmptyStmt -> SemAST.EmptyStmt
   | ParserAST.Assign({lvalue=l; rvalue=r_expr; meta=parser_loc}) -> (
@@ -334,22 +326,23 @@ and check_stmt parent_ret_type single_stmt =
 and check_block b parent_ret_type = 
   match b with 
   | ParserAST.Block(stmt_list) ->
-  Printf.printf "block\n";
-  openScope (); Printf.printf "opening scope\n";
+  (* Printf.printf "block\n"; *)
+  openScope (); 
+  (* Printf.printf "opening scope\n"; *)
   let sem_b = SemAST.Block (check_all (check_stmt parent_ret_type) stmt_list) in
   (* printSymbolTable ();  *)
   closeScope ();
   sem_b 
 
 let rec check_local_def x = 
-  Printf.printf "local def ";
+  (* Printf.printf "local def "; *)
   match x with 
   | ParserAST.FuncDef(y)  -> check_func_def y
   | ParserAST.FuncDecl(y) -> check_func_decl y
   | ParserAST.VarDef _   -> check_var_def x 
 
 and check_func_def x =
-  Printf.printf "func definition\n";  
+  (* Printf.printf "func definition\n";   *)
   let sem_header = check_header x.func_def_header false in
   let sem_locals = check_all check_local_def x.func_def_local in
   let ret_type = match sem_header with SemAST.Header h -> Some h.header_ret in
@@ -362,7 +355,8 @@ and check_func_def x =
 let add_buildins () = 
   let add_func id params_tuple ret_typ = 
     let fun_entry = newFunction (id_make id) true in (
-    openScope (); Printf.printf "opening scope\n";
+    openScope (); 
+    (* Printf.printf "opening scope\n"; *)
     let f fpar_tuple = 
       match fpar_tuple with (mode, id, typ) -> 
         newParameter (id_make id) typ mode fun_entry true
@@ -422,9 +416,10 @@ let check_main (ParserAST.Header {header_id; header_fpar_defs; header_ret; meta}
 let check_root = function 
   | ParserAST.FuncDef x ->
     check_main x.func_def_header;
-    Printf.printf "root\n"; 
+    (* Printf.printf "root\n";  *)
     initSymbolTable 256;
-    openScope (); Printf.printf "opening scope\n";
+    openScope (); 
+    (* Printf.printf "opening scope\n"; *)
     add_buildins ();
     let sem_func_def = check_func_def x in
     (* printSymbolTable (); *)
