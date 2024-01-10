@@ -4,6 +4,8 @@ open Lexing
 
 exception LexicalError of string
 
+let string_buff = Buffer.create 256
+
 let increase_lnum lexbuf = 
   let 
     pos = lexbuf.Lexing.lex_curr_p 
@@ -38,8 +40,7 @@ let ascii = ['0'-'9' 'A'-'F' 'a'-'f']
 let ascii_escape = ('\\' 'x' ascii ascii)
 let esc_char = "\\t" | "\\r" | "\\n" | "\\'" | "\\\\" | "\\\"" | "\\0" | (ascii_escape) (* all escape chars including whitespaces *)
 let const_char = (_ # ['\'' '\"' '\\'] | esc_char)?  
-(*when '\'' the input ''' gets rejected-rightfully so- while the escape chars ensure that '\'' gets accepted *) 
-(* ^            ['\t' '\r' '\n' '\'' '\"' '\\']|  *)
+let backslash_escapes = ['\\' '\'' '"' 'n' 't' 'b' 'r' ' ']
 
 rule lexer = parse 
   | "and"      { T_and        }
@@ -88,7 +89,10 @@ rule lexer = parse
           (Printf.sprintf "Illegal escape sequence \\%c" c)
       }
   | '\'' const_char '\'' { T_charconst (lexeme lexbuf).[1]}
-  | '\"' const_char* '\"' { T_stringliteral (lexeme lexbuf)} (* ??????????? is stringconst the parser's strinliteral*)
+  (* | '\"' const_char* '\"' { T_stringliteral (lexeme lexbuf)}  *)
+  | '"' { Buffer.clear string_buff;
+          string lexbuf;
+          T_stringliteral (Buffer.contents string_buff) }
   | whitespace+ {lexer lexbuf} (* consume whitespaces *)  
   | newline {increase_lnum lexbuf; lexer lexbuf} (*consume newlines *)
   | eof {T_eof}
@@ -100,7 +104,7 @@ rule lexer = parse
                     chr (Char.code chr));
                     lexer lexbuf }
   
-  and multiline_comment = parse     
+and multiline_comment = parse     
   | "$$" { lexer lexbuf } (* somehow nested comments are not allowed because the closest "*/" is matched but idk why *)
   | eof  { raise_lex_err_exception lexbuf "Multi-line comments cannot span in multiple files"; (* "Multi-line comments cannot span in multiple files" *)
             lexer lexbuf }
@@ -112,7 +116,15 @@ rule lexer = parse
   | newline { increase_lnum lexbuf; lexer lexbuf}
   | _    { (* nothing *) line_comment lexbuf } 
 
-
+and string = parse
+  | '"'
+      { () }
+  | '\\' (backslash_escapes as c)
+      { Buffer.add_char string_buff (char_for_backslash c);
+        string lexbuf }
+  | _ as c
+      { Buffer.add_char string_buff c;
+        string lexbuf }
 
 {
 

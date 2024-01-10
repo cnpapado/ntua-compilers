@@ -184,8 +184,7 @@ and emit_lval l make_load = match l with
     set_linkage Linkage.Private str; 
     let zero = const_int int_type 0 in
     build_gep str [|zero|] "strtmp" builder
-  (* | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta={typ=Some (TYPE_array _)}} ->
-    raise (InternalCodeGenError "generating for a[]") *)
+
   | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta=_} -> (* check idx>0 ?? *)
     let ll_idx = emit_expr idx_expr in
     let zero = const_int int_type 0 in
