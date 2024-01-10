@@ -6,12 +6,12 @@ let search_in_hashtbl f_name erase =
     let free = Hashtbl.find free_vars_hashtbl f_name in
     (* let _ = if erase then Hashtbl.replace free_vars_hashtbl f_name [] else () in *)
     free
-  with _ -> Printf.printf "%s" f_name; [] (* if not found, the hashtbl has been cleared between passes and a already removed call site is being queried *)
+  with _ -> (* Printf.printf "%s" f_name; *) [] (* if not found, the hashtbl has been cleared between passes and a already removed call site is being queried *)
 
 (* Return a list of the free variables of a function definition *)
 let rec free_vars (SemAST.FuncDef def) = 
   let str_name = Printf.sprintf "%s" (match def.func_def_header with Header h -> h.header_id) in
-  Printf.printf "calling free_vars(%s)\n" str_name;
+  (* Printf.printf "calling free_vars(%s)\n" str_name; *)
   let params = 
     List.map (fun (_,id,typ) -> (id,typ)) (match def.func_def_header with Header h -> h.header_fpar_defs) in
   let locals =
@@ -26,7 +26,7 @@ let rec free_vars (SemAST.FuncDef def) =
   let inner_free =
     List.concat @@ List.map
       (fun ldef -> match ldef with
-        | SemAST.FuncDef _ -> let f = free_vars ldef in Printf.printf "nested free vars: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->x) f); Printf.printf "%s" "\n"; f 
+        | SemAST.FuncDef _ -> free_vars ldef 
         | SemAST.FuncDecl _ -> []
         | SemAST.VarDef v -> []
       )
@@ -69,7 +69,7 @@ let rec free_vars (SemAST.FuncDef def) =
     let referenced = (* decapsulate options *)
       List.map (fun (id,t) -> match t with Some tt -> (id,tt)) referenced in
     let free = diff (referenced @ inner_free) (params @ locals) in
-    Printf.printf "returning (%s) free vars: " str_name; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->x) free); Printf.printf "%s" "\n";
+    (* Printf.printf "returning (%s) free vars: " str_name; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->x) free); Printf.printf "%s" "\n"; *)
   
     free
 
@@ -91,8 +91,8 @@ let add_typical_params (SemAST.FuncCall call) params =
 let rec replace_free fun_def =  
   (* find my own free vars *)  
   let free = free_vars fun_def in
-  Printf.printf "%s:%s " "replace_free" (match fun_def with SemAST.FuncDef def -> (match def.func_def_header with Header h -> h.header_id)); 
-  Printf.printf "free vars: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->x) free); Printf.printf "%s" "\n";
+  (* Printf.printf "%s:%s " "replace_free" (match fun_def with SemAST.FuncDef def -> (match def.func_def_header with Header h -> h.header_id));  *)
+  (* Printf.printf "free vars: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->x) free); Printf.printf "%s" "\n"; *)
 
   (* append them to my own params *) 
   let fun_def_with_own_appended = add_actual_params fun_def free in 

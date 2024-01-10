@@ -17,7 +17,7 @@ let compile filename f_flag i_flag o_flag =
     let sem_ast = Grace.Semantic.check_root ast in
     (* let _ = Printf.printf "\n------------\nSEM AST\n------------\n %s" (Grace.Pretty_print.str_of_ast sem_ast) in  *)
     let llifted_ast = Grace.Llift.llift sem_ast in 
-    let _ = Printf.printf "\n------------\nLLIFTED AST\n------------\n %s" (Grace.Pretty_print.str_of_ast llifted_ast) in 
+    (* let _ = Printf.printf "\n------------\nLLIFTED AST\n------------\n %s" (Grace.Pretty_print.str_of_ast llifted_ast) in  *)
     (* let _ = Printf.printf "\n------------\nLLVM IR\n------------\n %s" "" in  *)
     let _ = Grace.Codegen.emit_root llifted_ast in 
     let _ = Llvm_analysis.verify_module Grace.Codegen.the_module in 
@@ -99,13 +99,13 @@ let compile filename f_flag i_flag o_flag =
   | Grace.Error.SymTableException msg ->
     let err_msg = Printf.sprintf "%s: Semantic Error: %s\n" filename msg in
     exit_with_error err_msg
-  (* | _ -> exit_with_error "Error while compiling program\n" *)
+  | _ -> exit_with_error "Error while compiling program\n"
     
     Core.In_channel.close inx
     
     
 
-let usage_msg = "./gracec [--verbose] {<file>|-i|-f} [-O] "
+let usage_msg = "./gracec {<file>|-i|-f} [-O] "
 let verbose = ref false
 let o_flag = ref false
 let f_flag = ref false
@@ -116,7 +116,8 @@ let anon_fun filename =
   input_file := filename
 
 let speclist =
-  [("--verbose", Arg.Set verbose, "Output debug information");
+  [
+  (* ("--verbose", Arg.Set verbose, "Output debug information"); *)
   ("-O", Arg.Set o_flag, "Enable optimizations");
   ("-f", Arg.Set f_flag, "Read src code from stdin and write assembly into stdout");
   ("-i", Arg.Set i_flag, "Read src code from stdin and write IR into stdout")

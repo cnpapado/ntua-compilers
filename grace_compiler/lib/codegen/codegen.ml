@@ -79,7 +79,7 @@ let emit_header (SemAST.Header h) is_decl =
   match lookup_function h.header_id the_module with
   (* if not found, this is either a decl or a def wout a decl *)
   | None -> 
-    Printf.printf "declaring/defining (wout decl) function %s\n" h.header_id;
+    (* Printf.printf "declaring/defining (wout decl) function %s\n" h.header_id; *)
     let f = (if is_decl then declare_function else define_function) h.header_id ll_types the_module in
     
     (* add to symboltable *)
@@ -122,7 +122,7 @@ let emit_header (SemAST.Header h) is_decl =
 let emit_func_decl (SemAST.FuncDecl decl) = 
   (* Printf.printf "codegen decl %s\n" "";  *)
   ignore @@ emit_header decl true;
-  printSymbolTable ();
+  (* printSymbolTable (); *)
   closeScope ()
 
 let emit_var_def v = 
@@ -302,8 +302,8 @@ and emit_func_call (SemAST.FuncCall f) =
     List.map (fun e -> match e.entry_info with ENTRY_parameter p -> p.parameter_mode, p.parameter_type ) formal_params_entries
   in
 
-  Printf.printf "formal params: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->(pp_typ (Some y))) formal_parameters); Printf.printf "%s" "\n";
-  Printf.printf "args: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (y)->(Pretty_print.str_of_expr y)) f.parameters); Printf.printf "%s" "\n";
+  (* Printf.printf "formal params: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->(pp_typ (Some y))) formal_parameters); Printf.printf "%s" "\n"; *)
+  (* Printf.printf "args: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (y)->(Pretty_print.str_of_expr y)) f.parameters); Printf.printf "%s" "\n"; *)
 
   let ll_args = Array.of_list @@ List.map2 (
     fun arg formal_param -> 
@@ -336,7 +336,7 @@ and emit_block b =
   openScope ();
   let ll_stmt_list = match b with 
     | SemAST.Block(stmt_list) -> List.map emit_stmt stmt_list in
-  printSymbolTable (); 
+  (* printSymbolTable ();  *)
   closeScope ();
   ll_stmt_list
 
@@ -357,7 +357,7 @@ and emit_func_def (SemAST.FuncDef def) =
   
   List.iter emit_local_def def.func_def_local;
   ignore @@ emit_block def.func_def_block;
-  printSymbolTable ();
+  (* printSymbolTable (); *)
   closeScope ();
   position_at_end curr_block builder;
   ()
@@ -415,7 +415,7 @@ let emit_root r =
   (* return 0 *)
   ignore @@ build_ret (const_int int_type 0) builder; 
   
-  printSymbolTable ();
+  (* printSymbolTable (); *)
   closeScope ();
   ()
 

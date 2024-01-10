@@ -111,7 +111,7 @@ and multiline_comment = parse
   | newline {increase_lnum lexbuf; multiline_comment lexbuf}
   | _ { (* nothing *) multiline_comment lexbuf }
 
-  and line_comment = parse 
+and line_comment = parse 
     eof  { (* exit comment *) lexer lexbuf }
   | newline { increase_lnum lexbuf; lexer lexbuf}
   | _    { (* nothing *) line_comment lexbuf } 
