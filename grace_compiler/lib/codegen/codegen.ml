@@ -55,6 +55,8 @@ let emit_header (SemAST.Header h) is_decl =
   in
 
   let emit_params f = 
+    let fun_entry = lookupEntry (id_make h.header_id) LOOKUP_ALL_SCOPES true in 
+    startOverwritingParams fun_entry;
     Array.iteri (fun i a -> 
     let mode,name,typ = (Array.of_list h.header_fpar_defs).(i) in
       (* Set names for all arguments. *)
@@ -68,8 +70,6 @@ let emit_header (SemAST.Header h) is_decl =
         | PASS_BY_REFERENCE ->
           (params f).(i)
       in
-      let fun_entry = lookupEntry (id_make h.header_id) LOOKUP_ALL_SCOPES true in 
-      startOverwritingParams fun_entry;
       ignore @@ newParameter (id_make name) typ mode (Some alloca_val) fun_entry;
     ) (params f)
   

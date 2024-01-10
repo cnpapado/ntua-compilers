@@ -5,7 +5,14 @@ open Identifier
 open Types
 
 exception SemError of string * Lexing.position
+exception SemWarning of string * Lexing.position
 exception InternalSemError of string
+
+let print_warning (msg, (loc:Lexing.position)) =
+  let line_no = loc.pos_lnum in
+  let col_no = (loc.pos_cnum - loc.pos_bol + 1) in
+  let _ = Printf.printf "Warning (line:%d col:%d): %s\n" line_no col_no msg 
+  in ()
 
 let check_all = List.map 
 
@@ -93,15 +100,24 @@ let check_return (SemAST.Block b) typ floc =
     | (SemAST.Return _)::_ -> true
     | _ -> false
   in
-  match (ends_with_ret, typ) with
-  | (_, None) -> raise (InternalSemError "got none type when checking func type for return") 
-  (* if it does not and is TYPE_nothing, add it *)
-  | (false, Some TYPE_nothing) -> SemAST.Block (b @ [SemAST.Return {ret=None; meta={typ=None}}])
-  (* if it does not and is of other type, error *)
-  | (false, _) -> raise (SemError ("Control reaches the end of non-void function", floc)) 
-  (* else (if it does) return the following: *)
-  | (true, _) -> SemAST.Block b
-
+  
+  let add = 
+    match (ends_with_ret, typ) with
+    | (_, None) -> raise (InternalSemError "got none type when checking func type for return") 
+    (* if it does not, add it *)
+    | (false, Some TYPE_nothing) -> 
+      [SemAST.Return {ret=None; meta={typ=None}}]
+    | (false, Some TYPE_int) -> 
+      print_warning ("Control reaches the end of non-void function", floc);
+      [SemAST.Return {ret=(Some (SemAST.Int {i=0; meta={typ= Some TYPE_int}})); meta={typ=Some TYPE_int}}]
+    | (false, Some TYPE_int) -> 
+      print_warning ("Control reaches the end of non-void function", floc);
+      [SemAST.Return {ret=(Some (SemAST.Char {c=Char.chr 0; meta={typ= Some TYPE_char}})); meta={typ=Some TYPE_char}}]
+    | (false, _) -> raise (SemError ("Control reaches the end of non-void function", floc)) 
+    
+    | (true, _) -> []
+  
+  in SemAST.Block (b @ add)
 
 let check_header h is_declaration =
   match h with 

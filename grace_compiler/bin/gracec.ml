@@ -92,8 +92,8 @@ let compile filename f_flag i_flag o_flag =
     exit_with_error err_msg
   | Grace.Semantic.SemError (sem_msg, loc) ->
     let pos = loc in
-      let line_no = pos.pos_lnum in
-      let col_no = (pos.pos_cnum - pos.pos_bol + 1) in
+    let line_no = pos.pos_lnum in
+    let col_no = (pos.pos_cnum - pos.pos_bol + 1) in
     let err_msg = Printf.sprintf "%s:%d:%d: Semantic error: %s\n" filename line_no col_no sem_msg in
     exit_with_error err_msg
   | Grace.Error.SymTableException msg ->

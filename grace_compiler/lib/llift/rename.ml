@@ -38,22 +38,20 @@ let rec rename_uniq prefix (SemAST.FuncDef def) =
     let rec rename_expr e = match e with 
       | SemAST.Int i -> SemAST.Int i
       | SemAST.Char c -> SemAST.Char c
-      | SemAST.Lvalue lval -> SemAST.Lvalue 
-        begin 
-          match lval with 
-          | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta} -> SemAST.LvalueArr {arr=(lval_arr, rename_expr idx_expr); meta=meta}
-          | _ -> lval 
-        end
+      | SemAST.Lvalue lval -> SemAST.Lvalue (rename_lval lval)
       | SemAST.ExprFuncCall f -> SemAST.ExprFuncCall (rename_call f) 
       | SemAST.SignedExpr se -> SemAST.SignedExpr {se with e=rename_expr se.e}
       | SemAST.BinExpr b -> SemAST.BinExpr {b with l=rename_expr b.l; r=rename_expr b.r}
+    and rename_lval lval = match lval with 
+      | SemAST.LvalueArr {arr=(lval_arr, idx_expr); meta} -> SemAST.LvalueArr {arr=(lval_arr, rename_expr idx_expr); meta=meta}
+      | _ -> lval 
     and rename_cond c = match c with
       | SemAST.ExprCond c -> SemAST.ExprCond {c with l=rename_expr c.l; r=rename_expr c.r}
       | SemAST.CompoundCond c -> SemAST.CompoundCond {c with l=rename_cond c.l; r=rename_cond c.r}
       | SemAST.NegatedCond c -> SemAST.NegatedCond (rename_cond c)
     and rename_stmt stmt = match stmt with 
       | SemAST.EmptyStmt -> SemAST.EmptyStmt
-      | SemAST.Assign assign -> SemAST.Assign {assign with rvalue=rename_expr assign.rvalue} 
+      | SemAST.Assign assign -> SemAST.Assign {assign with lvalue=rename_lval assign.lvalue; rvalue=rename_expr assign.rvalue} 
       | SemAST.Block _ -> rename_calls stmt
       | SemAST.StmtFuncCall f -> SemAST.StmtFuncCall (rename_call f) 
       | SemAST.If i -> SemAST.If {
