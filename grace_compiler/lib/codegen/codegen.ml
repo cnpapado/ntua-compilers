@@ -144,7 +144,12 @@ let rec emit_expr e = match e with
     | SemAST.LvalueArr _ -> emit_lval lval true
     end
   | SemAST.ExprFuncCall(func_call) -> emit_func_call func_call
-  | SemAST.SignedExpr {sign; e; meta=_} -> let ll_e = emit_expr e in build_neg ll_e "negtmp" builder
+  | SemAST.SignedExpr {sign; e; meta=_} -> 
+    let ll_e = emit_expr e in 
+    begin match sign with
+      | UPlus -> ll_e
+      | UMinus -> build_neg ll_e "negtmp" builder 
+    end
   | SemAST.BinExpr {l; r; op; meta=_} ->
     let lval = emit_expr l in
     let rval = emit_expr r in
