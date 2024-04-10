@@ -405,7 +405,7 @@ let add_buildins () =
   add_func "ascii" [(PASS_BY_VALUE, "c", TYPE_char)] TYPE_int;
 
   (* fun chr (n : int) : char; *)
-  add_func "aschrcii" [(PASS_BY_VALUE, "n", TYPE_int)] TYPE_char;
+  add_func "chr" [(PASS_BY_VALUE, "n", TYPE_int)] TYPE_char;
 
   (* fun strlen (ref s : char[]): int; *)
   add_func "strlen" [(PASS_BY_REFERENCE, "s", TYPE_array{ttype=TYPE_char; size=0})] TYPE_int; (* pws xeirizomai to s[] ?? *)

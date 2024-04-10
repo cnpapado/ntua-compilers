@@ -114,7 +114,7 @@ let add_buildins_mappings () =
   add_mapping ~newid:"readChar" ~oldid:"readChar" false;
   add_mapping ~newid:"readString" ~oldid:"readString" false;
   add_mapping ~newid:"ascii" ~oldid:"ascii" false;
-  add_mapping ~newid:"aschrcii" ~oldid:"aschrcii" false;
+  add_mapping ~newid:"chr" ~oldid:"chr" false;
   add_mapping ~newid:"strlen" ~oldid:"strlen" false;
   add_mapping ~newid:"strcmp" ~oldid:"strcmp" false;
   add_mapping ~newid:"strcpy" ~oldid:"strcpy" false;
