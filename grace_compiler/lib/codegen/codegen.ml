@@ -223,13 +223,33 @@ and emit_cond c = match c with
     | Neq -> build_icmp Icmp.Ne ll_l ll_r "netmp" builder
     end
   | SemAST.CompoundCond {l; r; op; _} ->
-    let ll_l = emit_cond l in
+    (* let ll_l = emit_cond l in
     let ll_r = emit_cond r in
     begin
     match op with 
     | And -> build_and ll_l ll_r "andtmp" builder
     | Or -> build_or ll_l ll_r "ortmp" builder
-    end
+    end *)
+
+    let vl1 = emit_cond l in
+    let scconst = const_int cond_type @@ match op with 
+    | And -> 0 | Or -> 1 
+    in let cond = build_icmp Icmp.Eq vl1 scconst
+      "sccond" builder in
+    let currbb = insertion_block builder in
+    let f = block_parent @@ currbb in
+    let fullbb = append_block context "fullbool" f in
+    let afterbb = append_block context "endbool" f in
+    ignore @@ build_cond_br cond afterbb fullbb builder;
+    position_at_end fullbb builder;
+    let vl2 = emit_cond r in
+    ignore @@ build_br afterbb builder;
+    let fullbb = insertion_block builder in 
+    position_at_end afterbb builder;
+    build_phi [(scconst, currbb); (vl2, fullbb)] "scbtmp" builder
+
+
+
   | SemAST.NegatedCond c ->  
     let ll_c = emit_cond c in build_not ll_c "negtmp" builder
 
