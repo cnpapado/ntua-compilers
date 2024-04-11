@@ -39,10 +39,15 @@ let rec free_vars (SemAST.FuncDef def) =
       | SemAST.EmptyStmt -> l
       | SemAST.Assign {lvalue; rvalue; meta=_} -> List.concat [l; (collect_lval l lvalue); (collect_expr [] rvalue)]
       | SemAST.Block stmt_list -> List.fold_left collect_stmt l stmt_list (* collect_stmt (collect_stmt (collect_stmt l b0) b1) b2 *)
-      | SemAST.StmtFuncCall f -> (match f with SemAST.FuncCall ff -> (ff.name, ff.meta.typ)) :: l
+      | SemAST.StmtFuncCall f -> List.concat [(collect_funcall f); l]
       | SemAST.If i -> List.concat [(collect_cond l i.if_cond); (collect_stmt [] i.ifstmt); (match i.elsestmt with Some e -> collect_stmt [] e | None -> [])]
       | SemAST.While w -> List.concat [(collect_cond l w.while_cond); (collect_stmt l w.whilestmt)]
       | SemAST.Return {ret; meta=_} -> match ret with Some sr -> collect_expr l sr | None -> l
+    and collect_funcall f =
+      match f with SemAST.FuncCall ff -> 
+        let collect_args a = collect_expr [] a in
+        (ff.name, ff.meta.typ) :: (List.concat (List.map collect_args ff.parameters)) 
+      
     and collect_lval l lval =
       match lval with 
       | LvalueId {id; meta} -> (id, meta.typ) :: l 
@@ -53,7 +58,7 @@ let rec free_vars (SemAST.FuncDef def) =
       | SemAST.Int i -> l
       | SemAST.Char c -> l
       | SemAST.Lvalue lval -> collect_lval l lval
-      | SemAST.ExprFuncCall f -> (match f with SemAST.FuncCall ff -> (ff.name, ff.meta.typ)) :: l
+      | SemAST.ExprFuncCall f -> List.concat [(collect_funcall f); l]
       | SemAST.SignedExpr se -> collect_expr l se.e
       | SemAST.BinExpr b -> (collect_expr l b.l) @ (collect_expr [] b.r)
     and collect_cond l c = match c with 
