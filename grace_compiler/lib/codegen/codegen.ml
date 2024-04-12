@@ -29,6 +29,15 @@ let rec lltype_of = function
   | TYPE_nothing -> void_type
   | _ -> raise (InternalCodeGenError "unknown lltype")
 
+let rec has_return = function
+  | SemAST.Return _ -> true 
+  | SemAST.Block b -> 
+    let rec iterate = function 
+    | [] -> false
+    | hd::tl -> has_return hd || iterate tl 
+    in iterate b
+  | _ -> false
+
 let emit_header (SemAST.Header h) is_decl =
   (* Printf.printf "codegen header %s\n" h.header_id; *)
   let params_types = Array.of_list @@ List.map (
@@ -271,7 +280,7 @@ and emit_stmt s = match s with
       let bb = append_block context name parent in
       position_at_end bb builder;
       ignore @@ emit_stmt stmt;
-      ignore @@ build_br cont_bb builder;
+      if not (has_return stmt) then ignore @@ build_br cont_bb builder;
       bb
     in
     let then_bb = build_block "then" i.ifstmt in
@@ -327,8 +336,8 @@ and emit_func_call (SemAST.FuncCall f) =
     List.map (fun e -> match e.entry_info with ENTRY_parameter p -> p.parameter_mode, p.parameter_type ) formal_params_entries
   in
 
-  (* Printf.printf "formal params: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->(pp_typ (Some y))) formal_parameters); Printf.printf "%s" "\n"; *)
-  (* Printf.printf "args: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (y)->(Pretty_print.str_of_expr y)) f.parameters); Printf.printf "%s" "\n"; *)
+  (* Printf.printf "formal params: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (x,y)->(pp_typ (Some y))) formal_parameters); Printf.printf "%s" "\n";
+  Printf.printf "args: %s" ""; List.iter (Printf.printf "%s ") (List.map (fun (y)->(Pretty_print.str_of_expr y)) f.parameters); Printf.printf "%s" "\n"; *)
 
   let ll_args = Array.of_list @@ List.map2 (
     fun arg formal_param -> 
@@ -349,7 +358,7 @@ and emit_func_call (SemAST.FuncCall f) =
       (* if its another byref arg, pass the addr of this lval *)
       | PASS_BY_REFERENCE,_ -> 
         (match arg with SemAST.Lvalue lval -> emit_lval lval false) 
-    ) f.parameters formal_parameters in
+    ) f.parameters (List.rev formal_parameters) in
   (* type cast in args ?? *)
   (* handle arr[] *)
   let ll_fname = match f.meta.typ with None -> "" | Some _ -> "call" in
@@ -360,7 +369,13 @@ and emit_block b =
   (* Printf.printf "codegen block%s\n" ""; *)
   openScope ();
   let ll_stmt_list = match b with 
-    | SemAST.Block(stmt_list) -> List.map emit_stmt stmt_list in
+    | SemAST.Block(stmt_list) -> (* List.map emit_stmt stmt_list in *)
+      let rec emit_until_ret cg_stmt_list stmt_list = 
+        match stmt_list with
+        | [] -> cg_stmt_list
+        | hd::tl when has_return hd -> cg_stmt_list @ [emit_stmt hd]
+        | hd::tl -> emit_until_ret (cg_stmt_list @ [emit_stmt hd]) tl in
+      emit_until_ret [] stmt_list in
   (* printSymbolTable ();  *)
   closeScope ();
   ll_stmt_list

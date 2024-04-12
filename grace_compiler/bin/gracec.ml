@@ -15,9 +15,9 @@ let compile filename f_flag i_flag o_flag =
   try 
     let ast = Grace.Parser.program Grace.Lexer.lexer lexbuf in
     let sem_ast = Grace.Semantic.check_root ast in
-    (* let _ = Printf.printf "\n------------\nSEM AST\n------------\n %s" (Grace.Pretty_print.str_of_ast sem_ast) in  *)
+    let _ = Printf.printf "\n------------\nSEM AST\n------------\n %s" (Grace.Pretty_print.str_of_ast sem_ast) in  
     let llifted_ast = Grace.Llift.llift sem_ast in 
-    (* let _ = Printf.printf "\n------------\nLLIFTED AST\n------------\n %s" (Grace.Pretty_print.str_of_ast llifted_ast) in  *)
+    let _ = Printf.printf "\n------------\nLLIFTED AST\n------------\n %s" (Grace.Pretty_print.str_of_ast llifted_ast) in  
     (* let _ = Printf.printf "\n------------\nLLVM IR\n------------\n %s" "" in  *)
     let _ = Grace.Codegen.emit_root llifted_ast in 
     let _ = Llvm_analysis.verify_module Grace.Codegen.the_module in 
@@ -99,7 +99,7 @@ let compile filename f_flag i_flag o_flag =
   | Grace.Error.SymTableException msg ->
     let err_msg = Printf.sprintf "%s: Semantic Error: %s\n" filename msg in
     exit_with_error err_msg
-  | _ -> exit_with_error "Error while compiling program\n"
+  (* | _ -> exit_with_error "Error while compiling program\n" *)
     
     Core.In_channel.close inx
     
