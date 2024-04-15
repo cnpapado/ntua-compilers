@@ -212,7 +212,7 @@ and check_lval l =
     let sem_lval_arr = check_lval lval_arr in 
     let sem_idx_expr = check_expr idx_expr in
     (* check that idx evaluates to int *)
-    if not (equalType (get_type sem_idx_expr) (Some TYPE_int)) then (raise (SemError ("id of lval array not an int", parser_loc))) else
+    if not (equalType (get_type sem_idx_expr) (Some TYPE_int)) then (raise (SemError ("idx of lval array not an int", parser_loc))) else
     (* can you index with an char ? *)
     let my_arr_type = ParserAST.arr_typ l get_id_typ in
     SemAST.LvalueArr {arr=(sem_lval_arr, sem_idx_expr); meta={typ = Some (my_arr_type)}}   
