@@ -4,7 +4,7 @@ This repo provides an implementation of a Grace language compiler in OCaml, for 
 Additionally, the project includes AST, IR and final code optimizations, and a runtime library written in C.
 
 
-## Installation and usage
+## Installation instructions
 
 To install and build the compiler, the following tools must be pre-installed:
 
@@ -36,6 +36,8 @@ or to remove all generated files use:
 make disclean
 ```
 
+
+### Usage:
 After building, the executable `gracec.exe` will be created in the `grace_compiler/` directory. Run  
 ```
 ./gracec {<file>|-i|-f} [-O]
@@ -44,7 +46,7 @@ Use `gracec.exe -h` for a more detailed description of various command line argu
 
 
 
-## Notes on design and implementation
+## Design and implementation 
 
 ### AST(s) as functors
 Each compiling stage (from semantic analysis and onwards, that is semantic analysis, ast
@@ -93,7 +95,7 @@ LLVM's reg2mem and constant folding passes can create further opportunities for
 optimization, but also serves a more practical purpose as in LLVM it is not possible to
 access the activation records of the parent functions and therefore a nested function cannot access a variable in the scope of an external function (nested scoping).
 
-At the final code stage, we use the following LLVM optimization passes:
+At the final code stage, I use the following LLVM optimization passes:
 - memory_to_register_promotion (very useful given how we implement variables)
 - constant_propagation (similarly)
 - reassociation (facilitates better constant propagation)
